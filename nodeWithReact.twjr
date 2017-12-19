@@ -1,0 +1,825 @@
+\input texinfo @c -*- texinfo -*-
+
+@c ==================================================
+@c NAME:    nodeWithReact.twjr
+@c VERSION: 2017-12-19 VERSION 0.0.1
+@c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
+@c BY:      LOLH
+@c NOTES:   
+@c ==================================================
+
+@c %**start of header
+@c edit
+@setfilename nodeWithReact.info
+@c edit
+@settitle Node With React
+@c %**end of header
+
+@c ====================
+@c texiwebjr specials
+@c ====================
+@c Changes how xref titles are quoted.
+@dquotexrefs
+
+@c Lets braces in index entries work.
+@allowindexbraces
+
+@ifclear FORPRINT
+@pdflinkcolor
+@urllinkcolor
+@hideurls
+@end ifclear
+
+@c some special symbols
+@ifnottex
+@macro ii{text}
+@i{\text\}
+@end macro
+@end ifnottex
+
+@c merge the function and variable indexes into the concept index
+@c do so without the code font, and in the index entries do the
+@c font management ourselves.  Also merge in the chunk definition
+@c and reference entries, which jrweave creates for us.
+@ifnothtml
+@synindex fn cp
+@synindex vr cp
+@synindex cd cp
+@synindex cr cp
+@end ifnothtml
+
+@c ====================
+@c DOCUMENT CONSTANTS
+@c ====================
+@set UPDATE-MONTH DECEMBER, 2017
+@set EDITION 0.0.1
+@set AUTHOR LOLH
+@set TITLE Notes for Node with React---Fullstack Web Development V4
+@set SHORTTITLE Node with React
+@set SUBTITLE by Stephen Grider
+@set COPYRIGHT_YEAR 2017
+@set COPYRIGHT_HOLDER LOLH
+
+@iftex
+@set DOCUMENT book
+@set CHAPTER chapter
+@set APPENDIX appendix
+@set SECTION section
+@set SUBSECTION subsection
+@end iftex
+@ifhtml
+@set DOCUMENT Web page
+@set CHAPTER chapter
+@set APPENDIX appendix
+@set SECTION section
+@set SUBSECTION subsection
+@end ifhtml
+@ifinfo
+@set DOCUMENT Info file
+@set CHAPTER major node
+@set APPENDIX major node
+@set SECTION minor node
+@set SUBSECTION node
+@end ifinfo
+@ifdocbook
+@set DOCUMENT book
+@set CHAPTER chapter
+@set APPENDIX appendix
+@set SECTION section
+@set SUBSECTION subsection
+@end ifdocbook
+
+@c ====================
+@c FINALOUT
+@c ====================
+@c If "finalout" is commented out, the printed output will show
+@c black boxes that mark lines that are too long.  Thus, it is
+@c unwise to comment it out when running a master in case there are
+@c overfulls which are deemed okay.
+
+@iftex
+@c |@finalout|
+@end iftex
+
+@c ====================
+@c SUMMARY & COPYRIGHT INFORMATION
+@c ====================
+@copying
+@c insert a short summary describing and identifying this document in a
+@c sentence or two, and add the copyright notice and copying permisions
+
+This document is @value{TITLE} @sp 2
+This document does @dots{}
+
+Copyright @copyright{} @value{COPYRIGHT_YEAR} LOLH @*
+by @value{COPYRIGHT_HOLDER} @*
+All Rights Reserved
+
+@quotation
+Permission is granted to @dots{}
+@end quotation
+
+@sp 2
+This is Edition @value{EDITION} of @cite{@value{TITLE}}.
+
+@c use @insertcopying later to 'emit' this copying information in a TeX
+@c or plain text document; add to the Top node for use in Info or HTML file
+@end copying
+
+@c ====================
+@c TITLEPAGE, COPYRIGHT PAGE, TOC PAGE, HEADINGS
+@c ====================
+@titlepage
+
+@title @value{TITLE}
+@subtitle @value{SUBTITLE}
+@c @subtitle Additional Subtitle
+@author @value{AUTHOR}
+
+@c place the copyright information on the backside of the titlepage
+@c (printed manual only)
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+
+Published by @dots{}
+
+@end titlepage
+@c page numbering and headings start after end of titlepage
+
+@iftex
+@headings off
+@evenheading @thispage @| @value{DRAFT} @| @strong{@value{SHORTTITLE}}
+@oddheading  @strong{@thischapter} @| @value{DRAFT} @| @thispage
+@end iftex
+
+@c TOC in the printed manual
+@c consider placing TOC after the main menu
+@c consider including summarycontents here or after main menu
+@c @summarycontents
+@contents
+
+@c ====================
+@c TOP NODE, MASTER MENU
+@c ====================
+@ifnottex
+@ifnotdocbook
+@ifnotxml
+@node Top
+@top Node With React
+
+@insertcopying
+@end ifnotxml
+@end ifnotdocbook
+@end ifnottex
+
+@c ====================
+@c START OF BODY
+@c ====================
+
+@c Preface and Foreward come right after Top node in 'unnumbered' sections
+@c consider commenting out Foreward and Preface
+@menu
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+@end detailmenu
+@end menu
+
+@node Foreword
+@unnumbered Foreword
+
+Foreward text...
+
+@node Preface
+@unnumbered Preface
+
+Preface text...
+
+@menu
+* Overview::
+* Conventions::
+* Acknowledgements::
+@end menu
+
+@node Overview
+@unnumberedsec Overview
+
+Text and chapter by chapter description here.
+
+@node Conventions
+@unnumberedsec Conventions
+
+@c Copied mostly verbatim from the gawk manual.
+
+@cindex Texinfo document formatting language
+This @value{DOCUMENT} is written in an enhanced version of
+@uref{http://www.gnu.org/software/texinfo/, Texinfo},
+the GNU documentation formatting language.
+A single Texinfo source file is used to produce both the printed and online
+versions of a program's documentation.
+@ifnotinfo
+Because of this, the typographical conventions
+are slightly different than in other books you may have read.
+@end ifnotinfo
+
+Examples you would type at the command-line are preceded by the common
+shell primary and secondary prompts, @samp{$} and @samp{>}.  Input that
+you type is shown @kbd{like this}.  Output from the command is preceded
+by the glyph ``@print{}''.  This typically represents the command's
+standard output.  Error messages, and other output on the command's
+standard error, are preceded by the glyph ``@error{}''.  For example:
+
+@example
+$ @kbd{echo hi on stdout}
+@print{} hi on stdout
+$ @kbd{echo hello on stderr 1>&2}
+@error{} hello on stderr
+@end example
+
+@ifnotinfo
+In the text, command names appear in @code{this font}, while code segments
+appear in the same font and quoted, @samp{like this}.  Options look
+like this: @option{-f}.  Some things are emphasized @emph{like this},
+and if a point needs to be made strongly, it is done @strong{like this}.
+The first occurrence of a new term is usually its @dfn{definition} and
+appears in the same font as the previous occurrence of ``definition''
+in this sentence.  Finally, file names are indicated like this:
+@file{/path/to/our/file}.
+@end ifnotinfo
+
+@node Acknowledgements
+@unnumberedsec Acknowledgements
+
+Acknowledgments here...
+
+@c ====================
+@c MAIN BODY NODES
+@c ====================
+
+@node Introduction
+@unnumbered Introduction
+
+Build and deploy fullstack web apps with NodeJS, React, Redux, Express, and MongoDB.
+
+Course website: @url{https://www.udemy.com/node-with-react-fullstack-web-development/learn/v4/content}
+
+@node About
+@unnumberedsec About This Course
+
+Build and deploy fullstack web apps with NodeJS, React, Redux, Express,
+and MongoDB.
+
+195 Lectures
+
+25.5 hours of video
+
+@node Description
+@unnumberedsec Course Description
+
+Note: This course assumes you've got the basics of React and Redux down.
+Check out my course 'Modern React with Redux', its the perfect
+preparation!
+
+Go beyond the basics of React and Redux!  This course will teach you to
+combine the ultra-popular React, Redux, Express, and MongoDB
+technologies to build a fullstack web application.
+
+Advanced Deployment? You will learn it.  Billing/Payments? Included.
+Handling Email? Of course!
+
+@subsubheading What Will You Build?
+
+All of my courses are 'learn-by-doing': no boring endless lectures with
+Powerpoints, only live, interactive coding examples.  In this course
+we'll build one massive web application that profiles the advanced
+features of React, Redux, Express, and Mongo.  By putting each concept
+into a real app, you'll get a better idea of when to use each unique and
+powerful feature.
+
+Build a large feedback-collection app. This mega app will include the
+full gamut of features, including everything from authentication to
+email handling.  You'll learn how to build an app that can be used to
+send mass emails to a big list of users for the purpose of collecting
+feedback.  It's my goal to ensure you understand each feature we build
+into this app so you can apply them to your own personal or professional
+projects in the future.
+
+@subsubheading Here's what we'll learn
+
+@itemize
+@item
+Learn the architectural considerations of building a full stack app
+
+@item
+Connect a front-end Create-React-App server to a NodeJS and Express
+backend
+
+@item
+Communicate data from your Mongo database to your React application
+
+@item
+Understand how to route user requests on the front end with React Router
+and on the backend with Express
+
+@item
+Build reusable user inputs with Redux Form, complete with navigation
+
+@item
+Handle credit cards and receive payments from your users with Stripe
+
+@item
+Engage your users with automated emails
+
+@item
+Enhance authentication flows in your app with Google OAuth
+authentication
+
+@item
+Separate production and development resources with advanced API key
+handling techniques
+
+@item
+Educate your users on how to use your app with custom build landing
+pages
+
+@end itemize
+
+I've built the course that I would have wanted to take when I was
+learning to build fullstack apps. A course that explains the concepts
+and how they're implemented in the best order for you to learn and
+deeply understand them.
+
+@subsubheading What am I going to get from this course?
+
+@itemize
+@item
+Create boilerplate starter projects with React, Redux, Express, and
+Mongo
+
+@item
+Understand common web technologies and design patterns to connect them
+together
+
+@item
+Master deployment techniques between the production and development
+environments
+
+@item
+Make an app with Google OAuth authentication
+
+@item
+Learn to effectively create and send emails from a backend server
+
+Accept and process credit card payments from users
+@end itemize
+
+@node Course Overview
+@chapter Course Overview
+@cindex overview
+
+Course Overview
+
+NodeJS version must be at least version 8.1.1.
+
+@node Help
+@section How to Get Help
+@cindex help
+
+@enumerate
+@item
+Udemy Discussion Threads
+
+@item
+PM Stephen Grider on Udemy
+
+@item
+Twitter @url{https://twitter.com/ste_grider}
+
+@item
+Official Course Repo GitHub
+@enumerate a
+@item
+@url{https://github.com/StephenGrider/FullstackReactCode/issues}
+
+@item
+Poor notifications; use PM or Tweet as well
+@end enumerate
+
+@end enumerate
+
+@node Resources
+@section Course Resources Document
+@cindex resources document
+
+@subheading Course Resources Documents
+
+@url{https://goo.gl/Xv4ZgB}
+
+@subheading Course Diagrams
+
+Can view all course diagrams at GitHub site:
+
+@url{https://github.com/StephenGrider/FullstackReactCode/tree/master/diagrams}
+
+All diagrams are authored by @url{https:www.draw.io/, Draw IO}
+
+@subsubheading How to edit diagrams on own:
+
+@itemize
+@item
+Go to above GitHub site
+
+@item
+open folder containing set of diagrams you want to edit
+
+@item
+click on @file{.xml} file
+
+@item
+click on @samp{raw} button
+
+@item
+copy the URL
+
+@item
+go to @url{https://www.draw.io}
+
+@item
+on the @samp{Save Diagrams To...} window click @key{Decide later} at the
+bottom
+
+@item
+click @key{File} @result{} @samp{Import From} @result{} @samp{URL}
+
+@item
+paste the link to the XML file
+@end itemize
+
+
+@node Prettier
+@section Prettier Setup
+@cindex prettier
+
+Optional editor add-on to auto-format your JS code.
+
+@url{https://github.com/prettier/prettier}
+
+@subheading Prettier-js for Emacs
+
+@url{https://github.com/prettier/prettier-emacs}
+
+@file{prettier-js} is a function that formats the current buffer using
+@file{prettier}. The package also exports a minor mode that applies
+@code{(prettier-js}) on save.
+
+Go to the above web page to review @slanted{configuration}.
+
+@node App Overview
+@section App Overview
+@cindex overview, app
+
+@subheading Hypothetical Situation
+
+@itemize
+@item
+Someone uses startup owner's app/service
+
+@item
+Startup owner wants feedback
+
+@item
+Send customer an email requesting feedback
+
+@item
+Get tabulation of results
+
+@item
+Make app/server better with feedback
+@end itemize
+
+
+@node App User Flow
+@section App User Flow Walkthrough
+@cindex app user flow
+@cindex user flow, app
+
+@node Tech Stack
+@section Tech Stack
+@cindex tech stack
+@cindex stack, tech
+
+@node App Mockups
+@section App Mockups
+@cindex mockups, app
+@cindex app mockups
+
+@node Server
+@chapter Server Side Architecture
+@cindex server side architecture
+
+@node Authentication
+@chapter Authentication with Google OAuth
+@cindex oauth
+@cindex OAuth
+
+@node MongoDB
+@chapter Adding MongoDB
+@cindex mongodb
+@cindex MongoDB
+
+@node Environments
+@chapter Dev vs Prod Environments
+@cindex environemnts, dev vs prod
+@cindex dev environment
+@cindex prod environment
+
+@node Client
+@chapter Moving to the Client Side
+@cindex client side
+
+@node Developing Client
+@chapter Developing the Client Side
+@cindex client, developing
+
+@node Payments
+@chapter Handling Payments
+@cindex payments, handling
+
+@node Production Routing
+@chapter Back-End to Front-End Routing in Production
+@cindex routing in production
+@cindex production routing
+@cindex back-end routing
+@cindex front-end routing
+
+@node Mongoose
+@chapter Mongoose for Survey Creation
+@cindex mongoose
+@cindex Mongoose
+
+@node Back to Client
+@chapter Back to the Client
+@cindex client, back to
+
+@node Webhook Data
+@chapter Handling Webhook Data
+@cindex webhook data
+
+@node Home Stretch
+@chapter The Home Stretch
+@cindex home stretch
+
+@c ====================
+@c APPENDICES
+@c ====================
+
+@node Appendix One
+@appendix Appendix One
+
+@node Meta Appendix
+@appendix Meta (Makefile) Appendix
+
+@menu
+* Makefile::
+@end menu
+
+@node Makefile Definitions
+@appendixsec Makefile Initial Definitions
+
+@(Makefile@)=
+@<Makefile Constants@>
+@<Makefile Default Targets@>
+@<Makefile Tangle@>
+@<Makefile Weave@>
+@<Makefile Info@>
+@<Makefile Clean@>
+@<Makefile Dist Clean@>
+@<Makefile Directory Creation@>
+@<Makefile Move Hook@>
+@<Makefile Move JS To Source@>
+@<Makefile Move HTML@>
+@
+
+@menu
+* Makefile Constants::
+* Makefile Default Targets::
+* Makefile Tangle::
+* Makefile Weave::
+* Makefile Info::
+* Makefile Clean::
+* Makefile Dist Clean::
+* Makefile Move Hook::
+* Makefile Move JS::
+* Makefile Move HTML::
+@end menu
+
+@node Makefile Constants
+@appendixsubsec Makefile Constant Definitions
+
+@<Makefile Constants@>=
+@<Makefile Directory Definitions@>
+@<Makefile Filename Definitions@>
+@
+
+@menu
+* Directory Definitions::
+* Filename Definitions::
+@end menu
+
+@node Directory Definitions
+@appendixsubsubsec Makefile Directory Definitions
+
+@<Makefile Directory Definitions@>=
+PREFIX := .
+SOURCE_DIR := ${PREFIX}/src
+PUBLIC_DIR := ${PREFIX}/public
+HTML_DIR := ${PREFIX}/html
+
+@
+
+@node Filename Definitions
+@appendixsubsubsec Makefile Filename Definitions
+
+@<Makefile Filename Definitions@>=
+FILENAME := nodeWithReact
+TWJR_FILENAME := ${FILENAME}.twjr
+TEXI_FILENAME := ${FILENAME}.texi
+INFO_FILENAME := ${FILENAME}.info
+
+@
+
+@node Makefile Default Targets
+@appendixsubsec Makefile Default Targets
+
+@<Makefile Default Targets@>=
+.Phony : all
+all : tangle weave
+
+@
+
+@node Makefile Tangle
+@appendixsubsubsec Makefile Tangle
+
+@<Makefile Tangle@>=
+.Phony : tangle
+tangle :
+	jrtangle ${TWJR_FILENAME}
+
+@
+
+@node Makefile Weave
+@appendixsubsubsec Meta Weave
+
+@<Makefile Weave@>=
+.Phony : weave
+weave : ${TEXI_FILENAME}
+
+${TEXI_FILENAME} : ${TWJR_FILENAME}
+	jrweave ${TWJR_FILENAME} > ${TEXI_FILENAME}
+
+@
+
+@node Makefile Info
+@appendixsubsubsec Makefile Info
+
+@<Makefile Info@>=
+.Phony : info
+info : ${INFO_FILENAME}
+
+${INFO_FILENAME} : ${TEXI_FILENAME}
+	makeinfo ${TEXI_FILENAME}
+
+@
+
+@node Makefile Clean Targets
+@appendixsubsec Makefile Clean Targets
+
+@node Makefile Clean
+@appendixsubsubsec Makefile Clean Definition
+
+@<Makefile Clean@>=
+.Phony : clean
+clean :
+	rm -f *~
+
+@
+
+@node Makefile Dist Clean
+@appendixsubsubsec Meta Dist Clean Definition
+
+@<Makefile Dist Clean@>=
+.Phony : dist-clean
+dist-clean : clean
+	rm -f *.texi
+	rm -f *.info
+
+@
+
+@node Makefile Directory Creation
+@appendixsubsec Makefile Directory Creation Targets
+
+@<Makefile Directory Creation@>=
+.Phony : ${SOURCE_DIR}
+${SOURCE_DIR} :
+	mkdir -p ${SOURCE_DIR}
+
+.Phony : ${PUBLIC_DIR}
+${PUBLIC_DIR} :
+	mkdir -p ${PUBLIC_DIR}
+
+.Phony : ${HTML_DIR}
+${HTML_DIR} :
+	mkdir -p ${HTML_DIR}
+
+@
+
+@node Makefile Move Targets
+@appendixsubsec Makefile Move Targets
+
+@node Makefile Move Hook
+@appendixsubsubsec Makefile Move Hook
+
+Use this hook for moving files to a different directory
+than Source; it will execute just prior to the next
+code block moving all .js files to Source.
+
+@<Makefile Move Hook@>=
+@
+
+@node Makefile Move JS
+@appendixsubsubsec Makefile Move JS To Source
+
+@<Makefile Move JS To Source@>=
+.Phony : move-js-to-source
+move-js-to-source : | ${SOURCE_DIR}
+	find ${PREFIX} -depth=1 -name \*.js -exec mv {} ${SOURCE_DIR} \;
+
+@
+
+@node Makefile Move HTML
+@appendixsubsubsec Makefile Move HTML
+
+@<Makefile Move HTML@>=
+.Phony : move-html
+move-html : | ${HTML_DIR}
+	find ${PREFIX} -depth=1 -name \*.html -exec mv {} ${HTML_DIR}\;
+
+@
+
+@node Code Chunk Summaries
+@appendix Code Chunk Summaries
+
+This @value{APPENDIX} presents alphabetical lists of
+all the file definitions, the code chunk definitions,
+and the code chunk references.
+
+@menu
+* File Definitions::
+* Code Chunk Definitions::
+* Code Chunk References::
+@end menu
+
+@node File Definitions
+@appendixsec Source File Definitions
+
+@print_file_defs
+
+@node Code Chunk Definitions
+@appendixsec Code Chunk Definitions
+
+@print_code_defs
+
+@node Code Chunk References
+@appendixsec Code Chunk References
+
+@print_code_refs
+
+@c ====================
+@c BIBLIOGRAPHY; INDEX; END
+@c ====================
+
+@node Bibliography
+@unnumbered Bibliography
+
+@node Concept Index
+@unnumbered Index
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
+
+@c ====================
+@c TODOs
+@c ====================
+
+1. Create a script to fill in named variables
+1.1 twjr
+1.1.1 init [--dir <directory>]
+1.1.2 config
+1.1.3 weave [--info --pdf --html --xml --docbook]
+1.1.4 tangle [--file <filename>]
