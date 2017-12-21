@@ -2,7 +2,7 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c VERSION: 2017-12-19 VERSION 0.0.1
+@c VERSION: 2017-12-20 VERSION 0.0.2
 @c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -52,7 +52,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.1
+@set EDITION 0.0.2
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -480,6 +480,10 @@ Go to the above web page to review @slanted{configuration}.
 @section App Overview
 @cindex overview, app
 
+@heading Feedback Collection Application
+
+marketed to startup owners and product managers.
+
 @subheading Hypothetical Situation
 
 @itemize
@@ -499,25 +503,496 @@ Get tabulation of results
 Make app/server better with feedback
 @end itemize
 
+It will be quite diverse in its feature set.  It will send out a lot of
+emails to different people.  There should be some kind of billing
+feature.  There would also need to be user accounts as well, which
+requires authentication.
 
 @node App User Flow
 @section App User Flow Walkthrough
 @cindex app user flow
 @cindex user flow, app
 
+Here is a detailed walk-through of how a use will make use of the
+application and a discussion of all the different technologies that will
+need to be incorporated into the application.
+
+@enumerate
+@item
+User signs up via Google OAuth
+
+@item
+User pays for email credits via stripe
+
+@item
+User creates a new 'campaign'
+
+@item
+User enters list of emails to send survey to
+
+@item
+We send emails to list of surveyees
+
+@item
+Surveyees click on link in email to provide feedback
+
+@item
+We tabulate feedback
+
+@item
+User can see report of all survey responses
+@end enumerate
+
 @node Tech Stack
 @section Tech Stack
 @cindex tech stack
 @cindex stack, tech
+
+@enumerate
+@item
+Authentication:  Express server + MongoDB + PasportJS
+
+@item
+Payment: Stripe + MongoDB
+
+@item
+Campaign: React + Redux + Redux Form
+
+@item
+Emails: Email provider
+
+@item
+Feedback: Email provider, Express, Mongo
+
+@item
+Tabulate Feedback: Mongo
+
+@item
+Report: Mongo + React + Redux
+@end enumerate
 
 @node App Mockups
 @section App Mockups
 @cindex mockups, app
 @cindex app mockups
 
+@enumerate
+@item
+Landing Page; app called @samp{Emaily}; will have a Login button, and
+some text; not too concerned about styling; focus on functionality.
+
+@item
+Login Button: OAuth flow
+
+@item
+Results screen of all different campaigns; name of campaign; list of
+responses; other buttons for payment;
+
+@item
+Credit card payment
+
+@item
+Create a new survey (campaign); add information
+
+@item
+Review input information; submit
+@end enumerate
+
 @node Server
 @chapter Server Side Architecture
 @cindex server side architecture
+@cindex architecture, server
+
+Discussion about @i{how} to write the code to make the application.
+
+Discussion about the tech stack that will be built and how they will all
+communicate with each other.  Primary concern of this course is to
+provide direction on getting all of these technologies to work
+together.  
+
+@node Application Architecture
+@section Application Architecture
+@cindex architecture, application
+@cindex React app
+@cindex Mongo database
+@cindex Express server
+@cindex API
+@cindex AJAX
+@cindex JSON
+
+@itemize
+@item
+Browser at domain sends browseree an HTML document and some files that
+contain a React application.
+
+@item
+React application does not have the data; the data will be stored on a
+Mongo database, i.e., surveys and results of surveys.  The problem to be
+solved will be how to get the data in the Mongo database into the React
+application.
+
+@item
+The React app will never communicate directly with MongoDB; instead,
+there will be an Express API in between the React app and the Mongo
+database.  The API takes in requests from the app, pulls information out
+of the database, and sends it to the app.
+
+@item
+React and Express communicate solely through HTTP requests (AJAX
+requests); each request contains some JSON.
+
+@itemize
+@item
+React App
+
+@item
+HTTP Request/Response
+
+@item
+Express/Node API
+
+@item
+MongoDB
+@end itemize
+@end itemize
+
+Will start with the Express Server first.
+
+@node Node and Express
+@section Relationship Between Node and Express
+@cindex node and express
+@cindex express and node
+
+@set PROJECT server
+
+Will start a brand new Node project directory and install Express into
+it, and then discuss the differences between Node and Express inside the
+project.  The new project directory will be @file{@value{PROJECT}}.  NPM
+will create a new @file{package.json} file in the project directory
+through the @code{npm init --yes} command.
+
+@node Install Node Project With Express
+@subsection Install a New Node Project With Express
+@cindex install node project
+@cindex node project, install
+@cindex express node project
+
+@itemize
+@item
+Create project directory @file{@value{PROJECT}}
+
+@<Makefile Root Definition@>=
+ROOT := server
+
+@
+
+@item
+Initialize new Node Project: @code{npm init --yes}
+
+@item
+Install @file{express}
+
+@<Makefile NPM Install Hook@>=
+.Phony : npm-install-express
+npm-install-express : package.json
+	cd ${ROOT} && npm install express
+
+@
+
+@end itemize
+
+@node Relationship Between Node and Express
+@subsection Relationship Between Node and Express Inside the App
+@cindex node and express, relationship
+@cindex express and node, relationship
+@cindex relationship between node and express
+
+@table @code
+@item Node
+Javascript runtime used to execute code outside of the browswer;
+traditionally, JavaScript code has always been executed inside a web
+browser; that is how JavaScript got its start; people wanted to execute
+JavaScript code outside the browswer in some other environments; Node
+makes that possible.
+
+@item Express
+Library that runs in the Node runtime; has helpers (functions) to make
+dealing with HTTP traffic easier;
+@end table
+
+@subheading How Node and Express Work Together
+@cindex port
+@cindex HTTP requests
+@cindex HTTP responses
+@cindex requests
+@cindex reponses
+@cindex route handlers
+@cindex Route Handler
+
+When a server is running, it is looking for HTTP traffic coming in on a
+particular @dfn{port}, a door through which HTTP requests can be
+routed.  Node listens for traffic on a particular port and then takes
+that information and hands it off to @file{express} for help.  Node
+actually handles all of the underlying HTTP traffic.
+
+@file{express} then looks at the @dfn{request} and decides what part of
+its code will @dfn{handle} or respond to that request.  The coder will
+write a collection of @dfn{route handlers} to handle HTTP requests that
+are asking for a very particular service.
+
+@itemize
+@item
+Route Handler #1
+
+@item
+Route Handler #2
+
+@item
+Route Handler #3
+@end itemize
+
+These route handlers then send a @dfn{response} back to Node, and Node
+will respond to the incoming HTTP request.
+
+@node Express Apps
+@section Generating Express Apps
+@cindex express apps
+@cindex index.js
+
+Create the root file @file{index.js} in the root directory of the
+project: @value{PROJECT}
+
+Import @file{express} library, then create an @samp{application} by
+executing the @file{express} code.  That is, inside of a single Node.js
+project, there might be several different @file{express} applications.
+Executing @file{express} as a function returns a running express app
+referenced by the @var{app} variable.
+
+@var{app} is used to set up configuration to listen for incoming HTTP
+requests that are being routed from Node to @file{express} and will then
+route those requests to different route handlers.  The route handlers
+will be associated with the @file{express} @var{app} that we create here.
+
+@(index.js@)=
+@<Import Express@>
+@<Index JS Constant Definitions@>
+@<Create App@>
+@<Create Route Handlers@>
+@<Start App@>
+@
+
+@<Create App@>=
+const app = express();
+
+@
+
+This code tells Node that the application wants to receive requests
+coming in from port 5000.
+
+@<Start App@>=
+app.listen(PORT);
+
+@
+
+@subheading Create the first Route Handler in @var{app}
+
+@<Create Route Handlers@>=
+@<Root Route Handler@>
+@
+
+@<Root Route Handler@>=
+app.get('/', (req, res) => {
+  res.send({hi: 'there' });
+});
+
+@
+
+@node Express
+@subsection Express
+@cindex express
+
+Will be using @dfn{common js modules} on the server side because at this
+time Node only has support for this, and not @dfn{ES2015} modules using
+the @code{import @dots{} from <module>} syntax.  The front end (React
+side), we can use @samp{ES2015} modules, however.
+
+@<Import Express@>=
+const express = require('express');
+@
+
+@node Index JS Constants
+@subsection @file{index.js} Constant Definitions
+@cindex constant definitions
+
+@<Index JS Constant Definitions@>=
+@<Index JS Port Assignment@>
+@
+
+@node Makefile Additions
+@subsection Makefile Additions for @file{index.js}
+
+@<Makefile Filename Definitions@>=
+INDEXJS := index.js
+
+@
+
+@<Makefile Create Files Targets@>=
+${INDEXJS} : | ${ROOT}
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-index.js
+move-index.js : | ${INDEXJS}
+	mv -f ${INDEXJS} ${ROOT}
+
+@
+
+@node Run IndexJS
+@subsection Run @file{index.js}
+@cindex index.js, run
+
+@<Makefile Run Hooks@>=
+.Phony : run-index.js
+run-index.js :
+	cd ${ROOT} && node ${INDEXJS}
+
+@
+
+@node Route Handlers
+@section Express Route Handlers
+@cindex route handlers, express
+@cindex express route handlers
+
+This section will analyze the @code{app.get} from above.
+
+@table @code
+@item app
+Express App to register this route handler with
+
+@item get
+Watch for incoming requests with this method; other methods could be: 
+
+@itemize
+@item
+get: get info
+
+@item
+post: send info
+
+@item
+put: update all properties
+
+@item
+delete: delete info
+
+@item
+patch: update one or two properties
+@end itemize
+
+@item '/'
+Watch for requests trying to access the '/' route; could have a
+different route, such as '/greeting';
+
+@item req
+Object representing the incoming request
+
+@item res
+Object representing the outgoing response
+
+@item res.send()
+Immediate send some JSON back to whomever made this request
+@end table
+
+
+@node Heroku Deployment
+@section Heroku Deployment Checklist
+@cindex Heroku deployment
+@cindex heroku deployment
+@cindex deployment, Heroku
+
+This section will be about deploying our application to the Internet via
+Heroku, making changes, then redeploying the changes.
+
+@url{https://www.heroku.com, Herokum}
+
+@subheading Deployment Checklist
+
+@itemize
+@item
+First Time Deploy
+
+@itemize
+@item
+Create Heroku accoutn
+
+@item
+Commit codebase to Git
+
+@item
+Install Heroku CLI and create Heroku app
+
+@item
+Deploy Heroku app with Git
+
+@item
+Heroku deploys project
+@end itemize
+@item
+Subsequent Deploys
+@itemize
+@item
+Commit modified codebase to Git
+
+@item
+Deploy modified Heroku App
+@end itemize
+@end itemize
+
+@node Deployment Checklist
+@subsection Deployment Checklist
+@cindex deployment checklist
+
+@table @b
+@item Dynamic Port Binding
+Heroku tells us which port our app will use, se we need to make sure we
+listen to the port they tell us to; if we are running in a development
+environment, then we can leave this variable unassigned, and it will use
+5000 by default.
+
+@<Index JS Port Assignment@>=
+const PORT = process.env.PORT | 5000;
+
+@
+
+@item Specify Node Environment
+We want to use a specific version of Node, so we need to tell Heroku
+which version we want
+
+@item Specify Start Script
+Instruct Heroku what command to run to start our server running
+
+@item Craete .gitignore File
+We don't want to include dependencies; Heroku will do that for us 
+@end table
+
+@node Subsequent Deployment
+@subsection Subsequent Deployment
+@cindex deployment, subsequent
+
+@node Heroku CLI
+@section Installing the Heroku CLI
+@cindex Heroku CLI
+@cindex heroku CLI
+
+@node Verifying Deployment
+@section Verifying Heroku Deployment
+@cindex Heroku deployment, verifying
+@cindex heroku deployment, verifying
+@cindex deployment, verifying
+
+@node Followup Deployments
+@section Followup Deployments
+@cindex deployments, followup
 
 @node Authentication
 @chapter Authentication with Google OAuth
@@ -594,12 +1069,13 @@ Make app/server better with feedback
 @<Makefile Tangle@>
 @<Makefile Weave@>
 @<Makefile Info@>
-@<Makefile Clean@>
-@<Makefile Dist Clean@>
+@<Makefile Clean Targets@>
 @<Makefile Directory Creation@>
-@<Makefile Move Hook@>
-@<Makefile Move JS To Source@>
-@<Makefile Move HTML@>
+@<Makefile Create Files Targets@>
+@<Makefile Move Targets@>
+@<Makefile NPM Init Target@>
+@<Makefile NPM Install Target@>
+@<Makefile Run Hooks@>
 @
 
 @menu
@@ -611,8 +1087,6 @@ Make app/server better with feedback
 * Makefile Clean::
 * Makefile Dist Clean::
 * Makefile Move Hook::
-* Makefile Move JS::
-* Makefile Move HTML::
 @end menu
 
 @node Makefile Constants
@@ -633,9 +1107,10 @@ Make app/server better with feedback
 
 @<Makefile Directory Definitions@>=
 PREFIX := .
-SOURCE_DIR := ${PREFIX}/src
-PUBLIC_DIR := ${PREFIX}/public
-HTML_DIR := ${PREFIX}/html
+@<Makefile Root Definition@>
+SOURCE_DIR := ${PREFIX}/${ROOT}/src
+PUBLIC_DIR := ${PREFIX}/${ROOT}/public
+HTML_DIR := ${PREFIX}/${ROOT}/html
 
 @
 
@@ -655,7 +1130,7 @@ INFO_FILENAME := ${FILENAME}.info
 
 @<Makefile Default Targets@>=
 .Phony : all
-all : tangle weave
+all : tangle weave move npm-init
 
 @
 
@@ -696,6 +1171,11 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 @node Makefile Clean Targets
 @appendixsubsec Makefile Clean Targets
 
+@<Makefile Clean Targets@>=
+@<Makefile Clean@>
+@<Makefile Dist Clean@>
+@
+
 @node Makefile Clean
 @appendixsubsubsec Makefile Clean Definition
 
@@ -703,17 +1183,26 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 .Phony : clean
 clean :
 	rm -f *~
+	rm -f *.{texi,aux,cp,log,toc}
 
 @
 
 @node Makefile Dist Clean
-@appendixsubsubsec Meta Dist Clean Definition
+@appendixsubsubsec Makefile Dist Clean
 
 @<Makefile Dist Clean@>=
+@<Makefile Dist Clean Default@>
+@
+
+@node Makefile Dist Clean Default
+@appendixsubsubsec Makefile Dist Clean Default
+
+@<Makefile Dist Clean Default@>=
 .Phony : dist-clean
 dist-clean : clean
-	rm -f *.texi
-	rm -f *.info
+	rm -f *.{texi,info,js,html}
+	rm -rf ${SOURCE_DIR}
+	RM -rf ${ROOT}
 
 @
 
@@ -721,6 +1210,10 @@ dist-clean : clean
 @appendixsubsec Makefile Directory Creation Targets
 
 @<Makefile Directory Creation@>=
+.Phony : ${ROOT}
+${ROOT} :
+	mkdir -p ${ROOT}
+
 .Phony : ${SOURCE_DIR}
 ${SOURCE_DIR} :
 	mkdir -p ${SOURCE_DIR}
@@ -735,8 +1228,22 @@ ${HTML_DIR} :
 
 @
 
+@node Makefile Create Files Targets
+@appendixsubsec Makefile Create Files Targets
+
+Use this target to add new file definitions
+
+@<Makefile Create Files Targets@>=
+@
+
 @node Makefile Move Targets
 @appendixsubsec Makefile Move Targets
+
+@<Makefile Move Targets@>=
+.Phony : move
+move : move-index-to-root move-js-to-source move-html-to-source
+@<Makefile Move Hook@>
+@
 
 @node Makefile Move Hook
 @appendixsubsubsec Makefile Move Hook
@@ -746,6 +1253,19 @@ than Source; it will execute just prior to the next
 code block moving all .js files to Source.
 
 @<Makefile Move Hook@>=
+@<Makefile Move Index to Root@>
+@<Makefile Move JS To Source@>
+@<Makefile Move HTML@>
+@
+
+@node Makefile Move Index to Root
+@appendixsubsubsec Makefile Move Index to Root
+
+@<Makefile Move Index to Root@>=
+.Phony : move-index-to-root
+move-index-to-root : | ${ROOT}
+	find ${PREFIX} -depth 1 -name ${INDEXJS} -exec mv {} ${ROOT} \;
+
 @
 
 @node Makefile Move JS
@@ -753,8 +1273,8 @@ code block moving all .js files to Source.
 
 @<Makefile Move JS To Source@>=
 .Phony : move-js-to-source
-move-js-to-source : | ${SOURCE_DIR}
-	find ${PREFIX} -depth=1 -name \*.js -exec mv {} ${SOURCE_DIR} \;
+move-js-to-source : | ${ROOT} ${SOURCE_DIR}
+	find ${PREFIX} -depth 1 -name \*.js -exec mv {} ${SOURCE_DIR} \;
 
 @
 
@@ -762,10 +1282,32 @@ move-js-to-source : | ${SOURCE_DIR}
 @appendixsubsubsec Makefile Move HTML
 
 @<Makefile Move HTML@>=
-.Phony : move-html
-move-html : | ${HTML_DIR}
-	find ${PREFIX} -depth=1 -name \*.html -exec mv {} ${HTML_DIR}\;
+.Phony : move-html-to-source
+move-html-to-source : | ${HTML_DIR}
+	find ${PREFIX} -depth 1 -name \*.html -exec mv {} ${HTML_DIR} \;
 
+@
+
+@node Makefile NPM Init Target
+@appendixsubsec Makefile NPM Init Target
+
+@<Makefile NPM Init Target@>=
+.Phony : npm-init
+npm-init : package.json
+
+package.json : | ${ROOT}
+	cd ${ROOT} && npm init --yes
+
+@
+
+@node Makefile NPM Install Target
+@appendixsubsec Makefile NPM Install Target
+
+@<Makefile NPM Install Target@>=
+@<Makefile NPM Install Hook@>
+@
+
+@<Makefile Run Hooks@>=
 @
 
 @node Code Chunk Summaries
