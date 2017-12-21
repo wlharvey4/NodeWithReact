@@ -2,7 +2,7 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c VERSION: 2017-12-21 VERSION 0.0.3
+@c VERSION: 2017-12-21 VERSION 0.0.4
 @c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -52,7 +52,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.3
+@set EDITION 0.0.4
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -802,7 +802,7 @@ app.listen(PORT);
 
 @<Root Route Handler@>=
 app.get('/', (req, res) => {
-  res.send({hi: 'there' });
+  res.send({"hi": "there"});
 });
 
 @
@@ -845,8 +845,8 @@ ${INDEXJS} : | ${ROOT}
 @cindex index.js, run
 
 @<Makefile Run Hooks@>=
-.Phony : run-index.js
-run-index.js :
+.Phony : server-start
+server-start :
 	cd ${ROOT} && node ${INDEXJS} &
 
 @
@@ -906,7 +906,7 @@ Immediate send some JSON back to whomever made this request
 This section will be about deploying our application to the Internet via
 Heroku, making changes, then redeploying the changes.
 
-@url{https://www.heroku.com, Herokum}
+@url{https://www.heroku.com, Heroku}
 
 @subheading Deployment Checklist
 
@@ -916,13 +916,13 @@ First Time Deploy
 
 @itemize
 @item
-Create Heroku accoutn
+Create Heroku account; @xref{Heroku Account}
 
 @item
-Commit codebase to Git
+Commit codebase to Git; @xref{Commit to Git}
 
 @item
-Install Heroku CLI and create Heroku app
+Install Heroku CLI and create Heroku app; @xref{Install Heroku CLI}
 
 @item
 Deploy Heroku app with Git
@@ -979,26 +979,8 @@ we want Heroku to use.  The code should read:
 @},
 @end example
 
-There does not seem to be any easy way to either set up a default
-@file{engines} attribute using @code{npm init} or to edit the code using
-@file{npm}, so I am here creating a little utility @file{sed} script to
-insert the @code{engines} attributes and also change the @file{scripts}
-attribute (described next).  This script is deleted by @file{make} after
-it has done its work.  The script is called by @file{make} after
-@file{npm} initializes and has created the @file{package.json} file.
-
-@(util.sed@)=
-/scripts/i\
-\ \ "engines": {\
-\ \ \ \ "node": ">8.1.1",\
-\ \ \ \ "npm": ">5.0.3"\
-\ \ },
-
-@
-
-@<Makefile NPM Init Hook@>=
-	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
-@
+@xref{Sed Utility} and
+@pxref{Makefile Sed Utility Additions}
 
 @item Specify Start Script
 @cindex start script
@@ -1012,17 +994,54 @@ Delete the @samp{test} script, and replace it with:
 @},
 @end example
 
-@(util.sed@)=
-/test/c\
-\ \ \ \ "start": "node server/index.js"
-
-@
-
 @item Craete .gitignore File
+@cindex .gitignore file, Heroku
+
 We don't want to include dependencies; Heroku will do that for us 
 
 Add @file{node_modules} to the project's @file{.gitignore} file.
+@xref{Heroku Gitignore File}
 @end table
+
+@node Sed Utility
+@subsubsection Sed Utility
+
+There does not seem to be any easy way to either set up a default
+@file{engines} attribute using @code{npm init} or to edit the code using
+@file{npm}, so I am here creating a little utility @file{sed} script to
+insert the @code{engines} attributes and also change the @file{scripts}
+attribute (described next).  This script is deleted by @file{make} after
+it has done its work.  The script is called by @file{make} after
+@file{npm} initializes and has created the @file{package.json} file.
+
+@subsubheading Sed Utility for Engines Addition
+
+@(util.sed@)=
+/scripts/i\
+\ \ "engines": {\
+\ \ \ \ "node": "8.1.1",\
+\ \ \ \ "npm": "5.0.3"\
+\ \ },
+
+@
+
+@subsubheading Sed Utility for Scripts Start Addition
+
+@(util.sed@)=
+/test/c\
+\ \ \ \ "start": "node index.js"
+
+@
+
+@node Makefile Sed Utility Additions
+@subsubsection Makefile Sed Utility Additions
+
+@<Makefile NPM Init Hook@>=
+	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
+@
+
+@node Heroku Gitignore File
+@subsubsection Heroku .gitignore File
 
 @(gitignore@)=
 node_modules
@@ -1032,24 +1051,116 @@ node_modules
 	mv gitignore ${ROOT}/.gitignore
 @
 
-@<Makefile Dist Clean Hook@>=
+@<Makefile Clean Hook@>=
 	rm -f gitignore
+	rm -f *.sed
 @
+
+@node Heroku CLI
+@subsection Installing the Heroku CLI
+@cindex Heroku CLI
+@cindex heroku CLI
+
+@subsubheading Sign Up for Heroku Account
+@anchor{Heroku Account}
+
+This section is about deploying to Heroku for the first time.  The first
+step is to create a Heroku account.  Go to @url{https://www.heroku.com}
+and sign up for a free account.  Then, sign into that account.
+
+@subsubheading Commit Codebase to Git
+@anchor{Commit to Git}
+
+By default, Heroku uses a @dfn{Git-based deployment workflow}.  All that
+we have to do is commit our codebase to Git.
+
+@subsubheading Create Local Repository and Add Code
+
+@<Makefile Git Targets@>=
+.Phony : git-init
+git-init :
+	cd ${ROOT} && git init && git add . && git commit -m "Initial commit"
+@
+
+@example
+git add .
+git commit -m "initial commit"
+@end example
+
+@subsubheading Install Heroku CLI
+@anchor{Install Heroku CLI}
+
+The Heroku CLI will allow us to create a brand new application on Heroku
+from the command line.  Go to
+@url{https://devcenter.heroku.com/articles/heroku-cli}.  Install the
+Heroku CLI: @file{heroku}.  You should be able to obtain an answer to
+the query @code{heroku --version}, such as
+
+@verb{|heroku-cli/6.14.39-addc925 (darwin-x64) node-v9.2.0|}
 
 @node Subsequent Deployment
 @subsection Subsequent Deployment
 @cindex deployment, subsequent
-
-@node Heroku CLI
-@section Installing the Heroku CLI
-@cindex Heroku CLI
-@cindex heroku CLI
 
 @node Verifying Deployment
 @section Verifying Heroku Deployment
 @cindex Heroku deployment, verifying
 @cindex heroku deployment, verifying
 @cindex deployment, verifying
+
+Will now create a new Heroku app using the Heroku CLI.  This involves
+logging into Heroku from its CLI (@code{heroku login)}, creating an app
+on Heroku (@code{heroku create)}, receiving connection information
+(deployment target and repo url), creating a remote @file{heroku} Git
+branch, and finally pushing our local app to the Heroku Git repository
+on a Heroku branch (@code{git push heroku master)}.
+
+Heroku should automatically deploy the app when it receives the pushed
+local repo.
+
+@subheading Login to Heroku
+
+Type on the command-line: @code{heroku login}
+
+Now enter your Heroku credentials: @samp{email} and @samp{password}. 
+This will start the Heroku CLI and place you at its prompt.
+
+@subheading Create Heroku App
+
+Type at the command-line:
+
+@code{heroku create}
+
+Heroku will process the command and produce two links.
+
+@enumerate
+@item
+@cindex heroku app url
+The new app's URL,
+e.g. @indicateurl{https://agile-bayou-65260.herokuapp.com/}
+
+@item
+@cindex deployment target
+Our @dfn{deployment target}, a Git repo that we can push our local
+server to,
+e.g. @indicateurl{https://git.heroku.com/agile-bayou-65260.git}; when
+Heroku receives our pushed app's repo, it will deploy it.
+
+@item
+Add @file{remote} Heroku branch to Git:@* @code{git remote add heroku
+https://git.heroku.com/agile-bayou-65260.git}
+@end enumerate
+
+@subheading Deploy App to Heroku
+
+Type at the command-line:
+
+@code{git push heroku master}
+
+Heroku should indicate that it is processing the information and
+deploying the app using Node.  Now open the app by typing:
+
+@code{heroku open}
 
 @node Followup Deployments
 @section Followup Deployments
@@ -1138,7 +1249,8 @@ node_modules
 @<Makefile NPM Install Target@>
 @<Makefile Run Hooks@>
 @<Makefile Open Browser@>
-@<Makefile Close Server@>
+@<Makefile Server Stop@>
+@<Makefile Git Targets@>
 @
 
 @menu
@@ -1193,7 +1305,7 @@ INFO_FILENAME := ${FILENAME}.info
 
 @<Makefile Default Targets@>=
 .Phony : all
-all : tangle weave move npm-init npm-install-express run-index.js open-browser
+all : tangle weave move npm-init npm-install-express git-init server-start open-browser
 
 @
 
@@ -1244,10 +1356,13 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 
 @<Makefile Clean@>=
 .Phony : clean
-clean :
+clean : server-stop
 	rm -f *~
-	rm -f *.{texi,aux,cp,log,toc}
+	rm -f *.{texi,aux,cp,log,toc,js}
+@<Makefile Clean Hook@>
+@
 
+@<Makefile Clean Hook@>=
 @
 
 @node Makefile Dist Clean
@@ -1264,7 +1379,7 @@ clean :
 @<Makefile Dist Clean Default@>=
 .Phony : dist-clean
 dist-clean : clean
-	rm -f *.{texi,info,js,html,sed}
+	rm -f *.{texi,info,js,html}
 	rm -rf ${SOURCE_DIR}
 	rm -rf ${ROOT}
 
@@ -1393,14 +1508,17 @@ open-browser :
 
 @
 
-@node Makefile Close Server
-@appendixsubsec Makefile Close Server
+@node Makefile Server Stop
+@appendixsubsec Makefile Server Stop
 
-@<Makefile Close Server@>=
-.Phony : close-server
-close-server :
-	kill $$(ps | grep 'node index.js$$' | cut -d ' ' -f 1);
+@<Makefile Server Stop@>=
+.Phony : server-stop
+server-stop :
+	PS=$$(ps | grep 'node index.js$$' | cut -d ' ' -f 1); [ $${#PS} -ne 0 ] && kill $${PS} || echo no index.js process to kill
 
+@
+
+@<Makefile Git Targets@>=
 @
 
 @node Code Chunk Summaries
