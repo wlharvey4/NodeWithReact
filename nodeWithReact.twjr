@@ -2,7 +2,7 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c VERSION: 2017-12-21 VERSION 0.0.4
+@c VERSION: 2017-12-21 VERSION 0.0.5
 @c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -52,7 +52,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.4
+@set EDITION 0.0.5
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -693,8 +693,6 @@ Initialize new Node Project: @code{npm init --yes}
 Install @file{express}
 
 @<Makefile NPM Install Hook@>=
-.Phony : npm-install-express
-npm-install-express :
 	cd ${ROOT} && npm install express
 
 @
@@ -1165,6 +1163,20 @@ deploying the app using Node.  Now open the app by typing:
 @node Followup Deployments
 @section Followup Deployments
 @cindex deployments, followup
+@cindex redployment
+@cindex updated codebase, deployment
+
+Deploying changes is essentially the same process:
+
+@enumerate
+@item
+Commit codebase to Git
+
+@item
+Push updated codebase to Heroku
+@end enumerate
+
+Heroku will take the changes and redeploy.
 
 @node Authentication
 @chapter Authentication with Google OAuth
@@ -1305,7 +1317,7 @@ INFO_FILENAME := ${FILENAME}.info
 
 @<Makefile Default Targets@>=
 .Phony : all
-all : tangle weave move npm-init npm-install-express git-init server-start open-browser
+all : tangle weave move npm-init npm-install npm-install-hook git-init server-start open-browser
 
 @
 
@@ -1348,6 +1360,7 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 
 @<Makefile Clean Targets@>=
 @<Makefile Clean@>
+@<Makefile Very Clean@>
 @<Makefile Dist Clean@>
 @
 
@@ -1365,6 +1378,15 @@ clean : server-stop
 @<Makefile Clean Hook@>=
 @
 
+@<Makefile Very Clean@>=
+.Phony : very-clean
+very-clean : clean
+	rm -f *.{texi,info,js,html}
+	rm -rf 	${HTML_DIR}
+	find ${ROOT} -depth 1 -name \*.js -exec rm {} \;
+	find ${SOURCE_DIR} -depth 1 -name \*.js -exec rm {} \;
+@
+
 @node Makefile Dist Clean
 @appendixsubsubsec Makefile Dist Clean
 
@@ -1379,7 +1401,6 @@ clean : server-stop
 @<Makefile Dist Clean Default@>=
 .Phony : dist-clean
 dist-clean : clean
-	rm -f *.{texi,info,js,html}
 	rm -rf ${SOURCE_DIR}
 	rm -rf ${ROOT}
 
@@ -1492,7 +1513,17 @@ package.json : | ${ROOT}
 @appendixsubsec Makefile NPM Install Target
 
 @<Makefile NPM Install Target@>=
+.Phony : npm-install
+npm-install : npm-init
+	cd ${ROOT} && npm install
+
 @<Makefile NPM Install Hook@>
+@
+
+
+@<Makefile NPM Install Hook@>=
+.Phony : npm-install-hook
+npm-install-hook : npm-install
 @
 
 @<Makefile Run Hooks@>=
