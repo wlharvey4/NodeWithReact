@@ -2,7 +2,7 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c VERSION: 2017-12-20 VERSION 0.0.2
+@c VERSION: 2017-12-21 VERSION 0.0.3
 @c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -52,7 +52,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.2
+@set EDITION 0.0.3
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -694,7 +694,7 @@ Install @file{express}
 
 @<Makefile NPM Install Hook@>=
 .Phony : npm-install-express
-npm-install-express : package.json
+npm-install-express :
 	cd ${ROOT} && npm install express
 
 @
@@ -840,13 +840,6 @@ INDEXJS := index.js
 ${INDEXJS} : | ${ROOT}
 @
 
-@<Makefile Move Hook@>=
-.Phony : move-index.js
-move-index.js : | ${INDEXJS}
-	mv -f ${INDEXJS} ${ROOT}
-
-@
-
 @node Run IndexJS
 @subsection Run @file{index.js}
 @cindex index.js, run
@@ -854,7 +847,7 @@ move-index.js : | ${INDEXJS}
 @<Makefile Run Hooks@>=
 .Phony : run-index.js
 run-index.js :
-	cd ${ROOT} && node ${INDEXJS}
+	cd ${ROOT} && node ${INDEXJS} &
 
 @
 
@@ -951,6 +944,9 @@ Deploy modified Heroku App
 @node Deployment Checklist
 @subsection Deployment Checklist
 @cindex deployment checklist
+@vindex PORT
+@cindex dynamic port binding
+@cindex port assignment
 
 @table @b
 @item Dynamic Port Binding
@@ -960,20 +956,85 @@ environment, then we can leave this variable unassigned, and it will use
 5000 by default.
 
 @<Index JS Port Assignment@>=
-const PORT = process.env.PORT | 5000;
+const PORT = process.env.PORT || 5000;
 
 @
 
 @item Specify Node Environment
+@cindex node environment
+@cindex environment, node
+@cindex engines, node and npm
 We want to use a specific version of Node, so we need to tell Heroku
-which version we want
+which version we want; by default, Heroku uses an older version of Node
+which would not be compatible with what this app will be doing.
+
+This is done by adding an @samp{engines} attribute to the
+@file{package.json} file, which specify the Node and NPM versions that
+we want Heroku to use.  The code should read:
+
+@example
+"engines": @{
+  "node": "8.1.1",
+  "npm": "5.0.3"
+@},
+@end example
+
+There does not seem to be any easy way to either set up a default
+@file{engines} attribute using @code{npm init} or to edit the code using
+@file{npm}, so I am here creating a little utility @file{sed} script to
+insert the @code{engines} attributes and also change the @file{scripts}
+attribute (described next).  This script is deleted by @file{make} after
+it has done its work.  The script is called by @file{make} after
+@file{npm} initializes and has created the @file{package.json} file.
+
+@(util.sed@)=
+/scripts/i\
+\ \ "engines": {\
+\ \ \ \ "node": ">8.1.1",\
+\ \ \ \ "npm": ">5.0.3"\
+\ \ },
+
+@
+
+@<Makefile NPM Init Hook@>=
+	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
+@
 
 @item Specify Start Script
+@cindex start script
 Instruct Heroku what command to run to start our server running
+
+Delete the @samp{test} script, and replace it with:
+
+@example
+"scripts": @{
+  "start": "node index.js"
+@},
+@end example
+
+@(util.sed@)=
+/test/c\
+\ \ \ \ "start": "node server/index.js"
+
+@
 
 @item Craete .gitignore File
 We don't want to include dependencies; Heroku will do that for us 
+
+Add @file{node_modules} to the project's @file{.gitignore} file.
 @end table
+
+@(gitignore@)=
+node_modules
+@
+
+@<Makefile Move Hook@>=
+	mv gitignore ${ROOT}/.gitignore
+@
+
+@<Makefile Dist Clean Hook@>=
+	rm -f gitignore
+@
 
 @node Subsequent Deployment
 @subsection Subsequent Deployment
@@ -1076,6 +1137,8 @@ We don't want to include dependencies; Heroku will do that for us
 @<Makefile NPM Init Target@>
 @<Makefile NPM Install Target@>
 @<Makefile Run Hooks@>
+@<Makefile Open Browser@>
+@<Makefile Close Server@>
 @
 
 @menu
@@ -1130,7 +1193,7 @@ INFO_FILENAME := ${FILENAME}.info
 
 @<Makefile Default Targets@>=
 .Phony : all
-all : tangle weave move npm-init
+all : tangle weave move npm-init npm-install-express run-index.js open-browser
 
 @
 
@@ -1192,6 +1255,7 @@ clean :
 
 @<Makefile Dist Clean@>=
 @<Makefile Dist Clean Default@>
+@<Makefile Dist Clean Hook@>
 @
 
 @node Makefile Dist Clean Default
@@ -1200,10 +1264,13 @@ clean :
 @<Makefile Dist Clean Default@>=
 .Phony : dist-clean
 dist-clean : clean
-	rm -f *.{texi,info,js,html}
+	rm -f *.{texi,info,js,html,sed}
 	rm -rf ${SOURCE_DIR}
-	RM -rf ${ROOT}
+	rm -rf ${ROOT}
 
+@
+
+@<Makefile Dist Clean Hook@>=
 @
 
 @node Makefile Directory Creation
@@ -1241,21 +1308,15 @@ Use this target to add new file definitions
 
 @<Makefile Move Targets@>=
 .Phony : move
-move : move-index-to-root move-js-to-source move-html-to-source
-@<Makefile Move Hook@>
-@
+move : move-index-to-root move-js-to-source move-html-to-source move-hook
 
-@node Makefile Move Hook
-@appendixsubsubsec Makefile Move Hook
-
-Use this hook for moving files to a different directory
-than Source; it will execute just prior to the next
-code block moving all .js files to Source.
-
-@<Makefile Move Hook@>=
 @<Makefile Move Index to Root@>
 @<Makefile Move JS To Source@>
 @<Makefile Move HTML@>
+
+.Phony : move-hook
+move-hook :
+@<Makefile Move Hook@>
 @
 
 @node Makefile Move Index to Root
@@ -1288,6 +1349,16 @@ move-html-to-source : | ${HTML_DIR}
 
 @
 
+@node Makefile Move Hook
+@appendixsubsubsec Makefile Move Hook
+
+Use this hook for moving files to a different directory
+than Source; it will execute just prior to the next
+code block moving all .js files to Source.
+
+@<Makefile Move Hook@>=
+@
+
 @node Makefile NPM Init Target
 @appendixsubsec Makefile NPM Init Target
 
@@ -1297,6 +1368,8 @@ npm-init : package.json
 
 package.json : | ${ROOT}
 	cd ${ROOT} && npm init --yes
+
+@<Makefile NPM Init Hook@>
 
 @
 
@@ -1308,6 +1381,26 @@ package.json : | ${ROOT}
 @
 
 @<Makefile Run Hooks@>=
+@
+
+@node Makefile Open Browser
+@appendixsubsec Makefile Open Browswer
+
+@<Makefile Open Browser@>=
+.Phony : open-browser
+open-browser :
+	open -a Safari "http://localhost:5000"
+
+@
+
+@node Makefile Close Server
+@appendixsubsec Makefile Close Server
+
+@<Makefile Close Server@>=
+.Phony : close-server
+close-server :
+	kill $$(ps | grep 'node index.js$$' | cut -d ' ' -f 1);
+
 @
 
 @node Code Chunk Summaries
