@@ -2,8 +2,9 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c VERSION: 2017-12-21 VERSION 0.0.5
-@c DESC:    based upon Udemy Node With React---Fullstack Web Development V4
+@c DATE:    2017-12-22T05:21:28
+@c VERSION: VERSION 0.0.6
+@c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
 @c ==================================================
@@ -52,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.5
+@set EDITION 0.0.6
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -180,9 +181,133 @@ Published by @dots{}
 @c Preface and Foreward come right after Top node in 'unnumbered' sections
 @c consider commenting out Foreward and Preface
 @menu
+* Foreword::
+* Preface::
+* Introduction::
+* Course Overview::
+* Server::
+* Authentication::
+* MongoDB::
+* Environments::
+* Client::
+* Developing Client::
+* Payments::
+* Production Routing::
+* Mongoose::
+* Back to Client::
+* Webhook Data::
+* Home Stretch::
+* Appendix One::
+* Meta Appendix::
+* Code Chunk Summaries::
+* Bibliography::
+* Concept Index::
+* Index::
 
 @detailmenu
  --- The Detailed Node Listing ---
+
+Preface
+
+* Overview::
+* Conventions::
+* Acknowledgements::
+
+Introduction
+
+* About::
+* Description::
+
+Course Overview
+
+* Help::
+* Resources::
+* Prettier::
+* App Overview::
+* App User Flow::
+* Tech Stack::
+* App Mockups::
+
+Server Side Architecture
+
+* Application Architecture::
+* Node and Express::
+* Express Apps::
+* Route Handlers::
+* Heroku Deployment::
+* Verifying Deployment::
+* Followup Deployments::
+
+Relationship Between Node and Express
+
+* Install Node Project With Express::
+* Relationship Between Node and Express::
+
+Create the first Route Handler in @var{app}
+
+* Express::
+* Index JS Constants::
+* Makefile Additions::
+* Run IndexJS::
+
+Deployment Checklist
+
+* Deployment Checklist::
+* Heroku CLI::
+* Subsequent Deployment::
+
+Deployment Checklist
+
+* Sed Utility::
+* Makefile Sed Utility Additions::
+* Heroku Gitignore File::
+
+Meta (Makefile) Appendix
+
+* Makefile Definitions::
+
+Makefile Initial Definitions
+
+* Makefile Constants::
+* Makefile Default Targets::
+* Makefile Clean Targets::
+* Makefile Directory Creation::
+* Makefile Create Files Targets::
+* Makefile Move Targets::
+* Makefile NPM Init Target::
+* Makefile NPM Install Target::
+* Makefile Open Browser::
+* Makefile Server Stop::
+
+Makefile Constant Definitions
+
+* Directory Definitions::
+* Filename Definitions::
+
+Makefile Default Targets
+
+* Makefile Tangle::
+* Makefile Weave::
+* Makefile Info::
+
+Makefile Clean Targets
+
+* Makefile Clean::
+* Makefile Dist Clean::
+* Makefile Dist Clean Default::
+
+Makefile Move Targets
+
+* Makefile Move Index to Root::
+* Makefile Move JS::
+* Makefile Move HTML::
+* Makefile Move Hook::
+
+Code Chunk Summaries
+
+* File Definitions::
+* Code Chunk Definitions::
+* Code Chunk References::
 
 @end detailmenu
 @end menu
@@ -894,9 +1019,8 @@ Object representing the outgoing response
 Immediate send some JSON back to whomever made this request
 @end table
 
-
 @node Heroku Deployment
-@section Heroku Deployment Checklist
+@section Heroku Deployment
 @cindex Heroku deployment
 @cindex heroku deployment
 @cindex deployment, Heroku
@@ -906,7 +1030,13 @@ Heroku, making changes, then redeploying the changes.
 
 @url{https://www.heroku.com, Heroku}
 
-@subheading Deployment Checklist
+Deployment occurs in two phases, outlined below.  The steps involve,
+first, getting signed up to Heroku, installing Heroku's command-line
+interface (CLI), creating an app on Heroku, then sending your app's code
+to Heroku, at which time Heroku assembles the app and deploys it; then
+second, making changes to your app's code, and redeploying to Heroku.
+
+@subheading Deployment Cycles
 
 @itemize
 @item
@@ -923,13 +1053,15 @@ Commit codebase to Git; @xref{Commit to Git}
 Install Heroku CLI and create Heroku app; @xref{Install Heroku CLI}
 
 @item
-Deploy Heroku app with Git
+Deploy Heroku app with Git; @xref{Deploying to Heroku}
 
 @item
 Heroku deploys project
 @end itemize
+
 @item
-Subsequent Deploys
+Subsequent Deploys; @xref{Subsequent Deployment}
+
 @itemize
 @item
 Commit modified codebase to Git
@@ -939,19 +1071,30 @@ Deploy modified Heroku App
 @end itemize
 @end itemize
 
-@node Deployment Checklist
-@subsection Deployment Checklist
-@cindex deployment checklist
+@node Preparing for Deployment
+@subsection Preparing for Deployment
+@cindex deployment preparation
 @vindex PORT
 @cindex dynamic port binding
 @cindex port assignment
 
+Preparing for deployment means providing the information that Heroku
+will need in order to get the app up and running, such as port
+information, the app's runtime environment (required versions of Node
+and NPM), the app's entry point, and so forth.
+
+Preparing for deployment also involves obtaining Heroku's command-line
+interface for communicating with Heroku from the command-line, which
+allows you to log into Heroku, create an app on Heroku, and send code to
+the app on Heroku.
+
 @table @b
 @item Dynamic Port Binding
-Heroku tells us which port our app will use, se we need to make sure we
-listen to the port they tell us to; if we are running in a development
-environment, then we can leave this variable unassigned, and it will use
-5000 by default.
+Heroku dynamically assigns a port on which our app will listen, so we need
+to incorporate that port assignment into our app using an environment
+variable that Heroku uses: @samp{process.env.PORT}; in the alternative,
+we can use a default port assignment, such as 5000, if we are deploying
+locally. 
 
 @<Index JS Port Assignment@>=
 const PORT = process.env.PORT || 5000;
@@ -1054,10 +1197,11 @@ node_modules
 	rm -f *.sed
 @
 
-@node Heroku CLI
-@subsection Installing the Heroku CLI
+@node Interacting with Heroku
+@subsection Interacting with Heroku
 @cindex Heroku CLI
 @cindex heroku CLI
+@cindex interacting with Heroku
 
 @subsubheading Sign Up for Heroku Account
 @anchor{Heroku Account}
@@ -1096,15 +1240,12 @@ the query @code{heroku --version}, such as
 
 @verb{|heroku-cli/6.14.39-addc925 (darwin-x64) node-v9.2.0|}
 
-@node Subsequent Deployment
-@subsection Subsequent Deployment
-@cindex deployment, subsequent
-
-@node Verifying Deployment
-@section Verifying Heroku Deployment
-@cindex Heroku deployment, verifying
-@cindex heroku deployment, verifying
-@cindex deployment, verifying
+@node Deploying to Heroku
+@subsection Deploying to Heroku
+@cindex Heroku deployment
+@cindex heroku deployment
+@cindex deploy
+@cindex deployment, Heroku
 
 Will now create a new Heroku app using the Heroku CLI.  This involves
 logging into Heroku from its CLI (@code{heroku login)}, creating an app
@@ -1160,20 +1301,37 @@ deploying the app using Node.  Now open the app by typing:
 
 @code{heroku open}
 
-@node Followup Deployments
-@section Followup Deployments
+@node Subsequent Deployment
+@subsection Subsequent Deployment
+@cindex deployment, subsequent
 @cindex deployments, followup
 @cindex redployment
 @cindex updated codebase, deployment
 
-Deploying changes is essentially the same process:
+Subsequent deployments to Heroku involve making changes to your app's
+code base, commiting the changes to Heroku, and pushing those changes to
+Heroku.  Heroku will recompile and redeploy when it receives the updated
+code.
 
 @enumerate
 @item
+Make changes to codebase
+
+@item
 Commit codebase to Git
+
+@example
+git add .
+git commit -m "message"
+@end example
 
 @item
 Push updated codebase to Heroku
+
+@example
+git push heroku master
+@end example
+
 @end enumerate
 
 Heroku will take the changes and redeploy.
@@ -1240,10 +1398,6 @@ Heroku will take the changes and redeploy.
 @node Meta Appendix
 @appendix Meta (Makefile) Appendix
 
-@menu
-* Makefile::
-@end menu
-
 @node Makefile Definitions
 @appendixsec Makefile Initial Definitions
 
@@ -1265,17 +1419,6 @@ Heroku will take the changes and redeploy.
 @<Makefile Git Targets@>
 @
 
-@menu
-* Makefile Constants::
-* Makefile Default Targets::
-* Makefile Tangle::
-* Makefile Weave::
-* Makefile Info::
-* Makefile Clean::
-* Makefile Dist Clean::
-* Makefile Move Hook::
-@end menu
-
 @node Makefile Constants
 @appendixsubsec Makefile Constant Definitions
 
@@ -1283,11 +1426,6 @@ Heroku will take the changes and redeploy.
 @<Makefile Directory Definitions@>
 @<Makefile Filename Definitions@>
 @
-
-@menu
-* Directory Definitions::
-* Filename Definitions::
-@end menu
 
 @node Directory Definitions
 @appendixsubsubsec Makefile Directory Definitions
@@ -1378,13 +1516,16 @@ clean : server-stop
 @<Makefile Clean Hook@>=
 @
 
+@node Makefile Very Clean
+@appendixsubsubsec Makefile Very Clean
+
 @<Makefile Very Clean@>=
 .Phony : very-clean
 very-clean : clean
-	rm -f *.{texi,info,js,html}
-	rm -rf 	${HTML_DIR}
-	find ${ROOT} -depth 1 -name \*.js -exec rm {} \;
-	find ${SOURCE_DIR} -depth 1 -name \*.js -exec rm {} \;
+	rm -f *.{info,js,html}
+	rm -rf ${HTML_DIR}
+	find ${PREFIX} -depth 2 -name \*.js -exec rm {} \;
+
 @
 
 @node Makefile Dist Clean
@@ -1400,8 +1541,7 @@ very-clean : clean
 
 @<Makefile Dist Clean Default@>=
 .Phony : dist-clean
-dist-clean : clean
-	rm -rf ${SOURCE_DIR}
+dist-clean : very-clean
 	rm -rf ${ROOT}
 
 @
@@ -1558,12 +1698,6 @@ server-stop :
 This @value{APPENDIX} presents alphabetical lists of
 all the file definitions, the code chunk definitions,
 and the code chunk references.
-
-@menu
-* File Definitions::
-* Code Chunk Definitions::
-* Code Chunk References::
-@end menu
 
 @node File Definitions
 @appendixsec Source File Definitions
