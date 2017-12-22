@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-22T05:21:28
-@c VERSION: VERSION 0.0.6
+@c DATE:    2017-12-22T10:01:30
+@c VERSION: VERSION 0.0.7
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.6
+@set EDITION 0.0.7
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -819,7 +819,6 @@ Install @file{express}
 
 @<Makefile NPM Install Hook@>=
 	cd ${ROOT} && npm install express
-
 @
 
 @end itemize
@@ -1340,6 +1339,171 @@ Heroku will take the changes and redeploy.
 @chapter Authentication with Google OAuth
 @cindex oauth
 @cindex OAuth
+@cindex authentication
+
+This is the first step in how a User will interact with this
+application.  This is a completely server-side feature.
+
+@node Intro to Google OAuth
+@section Introduction to Google OAuth
+@cindex oauth, introduction
+@cindex OAuth, introduction
+
+On the surface, OAuth will start with a button that says @samp{Sign in
+with Google}.  This system uses the OAuth certification process, which
+we can tap into.
+
+@node OAuth Flow
+@section The OAuth Flow
+@cindex oauth flow
+@cindex OAuth flow
+
+@itemize
+@item
+Client
+
+@itemize
+@item
+User clicks ``login''
+
+@item
+User is directored to @url{localhost:5000/auth/google} (on the server);
+this is an arbitrary name; nothing inherently important about the name.
+
+@item
+User's browser receives cookie from server and is kicked back to
+localhost:3000 and is logged in
+
+@item
+User requests some resources from the server API
+@end itemize
+
+@item
+Server
+
+@itemize
+@item
+The server receives and forwards the User's request on to Google to
+allow the User to grant Google permission to reveal the User's information
+to the application; the server sends along an @samp{app id} to Google:
+@url{google.com/auth?appId=123}
+
+@item
+The server receives a code from Google's redirect as a parameter:
+@url{localhost:5000/auth/google/callback?code=456}
+
+@item
+The server sends the request back to Google with @samp{code} and its
+value included;
+
+@item
+The server receives details about the User from Google and creates a new
+record in its database
+
+@item
+Sends a User ID in a cookie for this User
+
+@item
+The server receives a request from the User with a cookie that has the User
+ID 
+@end itemize
+
+@item
+Google
+
+@itemize
+@item
+Google receives User's request and asks the User if s/he grants
+permission
+
+@item
+User grants permission
+
+@item
+Google then redirects back to the server at
+@url{localhost:5000/auth/google/callback?code=456}; this redirect URL is
+again not inherently important; what is important is the parameter
+@samp{code} and its value;
+
+@item
+Google receives 2nd request from the server with @samp{code} in the URL
+and replies with details about this user;
+@end itemize
+
+@end itemize
+
+@node PassportJS
+@section PassportJS
+@cindex passportjs, overview
+
+@url{https://passportjs.org}
+
+Will be using a helper library called @file{PassportJS} to create the
+OAuth authentication flow.  This library encapsulates many of the steps
+outlined in the flow in the previous section:
+
+@node PassportJS Overview
+@subsection PassportJS Overview
+@cindex passportjs overview
+
+@subheading On the server side, it encapsulates the following:
+
+@itemize
+@item
+Forward User's initial request to Google
+
+@item
+Receive Google's initial response with an authorization code
+
+@item
+Forward User's authenticated request back to Google
+@end itemize
+
+@subheading On Google's side, it encapsulates every step:
+
+@itemize
+@item
+Receive initial request from the server and asks User if s/he grants
+permission for it to reveal the User's information
+
+@item
+Returns a code to the server indicating that the User has authorized it
+to reveal information
+
+@item
+Receives second request with authorization from the server, and reveals
+the requested User's information
+@end itemize
+
+@node Passport Library Components
+@subsection Passport Library Components
+@cindex passportjs library components
+
+@table @strong
+@item passport
+General helpers for handling auth in Express apps
+
+@item passport strategy
+Helpers for authenticating with one very specific method
+(email/password, Google, Facebook, etc)
+@end table
+
+Passport utilizes different @samp{strategies} to authenticate with
+specific organizations.  Learning how to utilize one strategy will make
+utilizing other strategies easy.
+
+@node Passport Setup
+@subsection Passport Setup
+@cindex passport setup
+
+Will be installing PassportJs, the Google strategy, and wiring them up
+to our application.
+
+@subsubheading Install PassportJS and Its Google Strategy
+
+@<Makefile NPM Install Hook@>=
+	cd ${ROOT} && npm install passport passport-google-oauth20
+@
 
 @node MongoDB
 @chapter Adding MongoDB
@@ -1455,7 +1619,7 @@ INFO_FILENAME := ${FILENAME}.info
 
 @<Makefile Default Targets@>=
 .Phony : all
-all : tangle weave move npm-init npm-install npm-install-hook git-init server-start open-browser
+all : tangle weave move npm-init npm-install git-init server-start open-browser
 
 @
 
@@ -1656,14 +1820,8 @@ package.json : | ${ROOT}
 .Phony : npm-install
 npm-install : npm-init
 	cd ${ROOT} && npm install
-
 @<Makefile NPM Install Hook@>
-@
 
-
-@<Makefile NPM Install Hook@>=
-.Phony : npm-install-hook
-npm-install-hook : npm-install
 @
 
 @<Makefile Run Hooks@>=
