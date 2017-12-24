@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-22T10:01:30
-@c VERSION: VERSION 0.0.7
+@c DATE:    2017-12-23T18:32:32
+@c VERSION: VERSION 0.0.8
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.7
+@set EDITION 0.0.8
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -181,133 +181,9 @@ Published by @dots{}
 @c Preface and Foreward come right after Top node in 'unnumbered' sections
 @c consider commenting out Foreward and Preface
 @menu
-* Foreword::
-* Preface::
-* Introduction::
-* Course Overview::
-* Server::
-* Authentication::
-* MongoDB::
-* Environments::
-* Client::
-* Developing Client::
-* Payments::
-* Production Routing::
-* Mongoose::
-* Back to Client::
-* Webhook Data::
-* Home Stretch::
-* Appendix One::
-* Meta Appendix::
-* Code Chunk Summaries::
-* Bibliography::
-* Concept Index::
-* Index::
 
 @detailmenu
  --- The Detailed Node Listing ---
-
-Preface
-
-* Overview::
-* Conventions::
-* Acknowledgements::
-
-Introduction
-
-* About::
-* Description::
-
-Course Overview
-
-* Help::
-* Resources::
-* Prettier::
-* App Overview::
-* App User Flow::
-* Tech Stack::
-* App Mockups::
-
-Server Side Architecture
-
-* Application Architecture::
-* Node and Express::
-* Express Apps::
-* Route Handlers::
-* Heroku Deployment::
-* Verifying Deployment::
-* Followup Deployments::
-
-Relationship Between Node and Express
-
-* Install Node Project With Express::
-* Relationship Between Node and Express::
-
-Create the first Route Handler in @var{app}
-
-* Express::
-* Index JS Constants::
-* Makefile Additions::
-* Run IndexJS::
-
-Deployment Checklist
-
-* Deployment Checklist::
-* Heroku CLI::
-* Subsequent Deployment::
-
-Deployment Checklist
-
-* Sed Utility::
-* Makefile Sed Utility Additions::
-* Heroku Gitignore File::
-
-Meta (Makefile) Appendix
-
-* Makefile Definitions::
-
-Makefile Initial Definitions
-
-* Makefile Constants::
-* Makefile Default Targets::
-* Makefile Clean Targets::
-* Makefile Directory Creation::
-* Makefile Create Files Targets::
-* Makefile Move Targets::
-* Makefile NPM Init Target::
-* Makefile NPM Install Target::
-* Makefile Open Browser::
-* Makefile Server Stop::
-
-Makefile Constant Definitions
-
-* Directory Definitions::
-* Filename Definitions::
-
-Makefile Default Targets
-
-* Makefile Tangle::
-* Makefile Weave::
-* Makefile Info::
-
-Makefile Clean Targets
-
-* Makefile Clean::
-* Makefile Dist Clean::
-* Makefile Dist Clean Default::
-
-Makefile Move Targets
-
-* Makefile Move Index to Root::
-* Makefile Move JS::
-* Makefile Move HTML::
-* Makefile Move Hook::
-
-Code Chunk Summaries
-
-* File Definitions::
-* Code Chunk Definitions::
-* Code Chunk References::
 
 @end detailmenu
 @end menu
@@ -321,12 +197,6 @@ Foreward text...
 @unnumbered Preface
 
 Preface text...
-
-@menu
-* Overview::
-* Conventions::
-* Acknowledgements::
-@end menu
 
 @node Overview
 @unnumberedsec Overview
@@ -895,9 +765,9 @@ requests that are being routed from Node to @file{express} and will then
 route those requests to different route handlers.  The route handlers
 will be associated with the @file{express} @var{app} that we create here.
 
-@(index.js@)=
+@(index0.js@)=
 @<Import Express@>
-@<Index JS Constant Definitions@>
+@<IndexJS Constant Definitions@>
 @<Create App@>
 @<Create Route Handlers@>
 @<Start App@>
@@ -946,16 +816,15 @@ const express = require('express');
 @subsection @file{index.js} Constant Definitions
 @cindex constant definitions
 
-@<Index JS Constant Definitions@>=
-@<Index JS Port Assignment@>
+@<IndexJS Constant Definitions@>=
+@<IndexJS Port Assignment@>
 @
 
 @node Makefile Additions
 @subsection Makefile Additions for @file{index.js}
 
-@<Makefile Filename Definitions@>=
+@<Makefile Filename Definitions Hook@>=
 INDEXJS := index.js
-
 @
 
 @<Makefile Create Files Targets@>=
@@ -1095,7 +964,7 @@ variable that Heroku uses: @samp{process.env.PORT}; in the alternative,
 we can use a default port assignment, such as 5000, if we are deploying
 locally. 
 
-@<Index JS Port Assignment@>=
+@<IndexJS Port Assignment@>=
 const PORT = process.env.PORT || 5000;
 
 @
@@ -1505,6 +1374,290 @@ to our application.
 	cd ${ROOT} && npm install passport passport-google-oauth20
 @
 
+@node Incorporate Passport into IndexJS
+@subsection Incorporate Passport into IndexJS
+@cindex passport and index.js
+@cindex index.js and passport
+
+The file @file{index.js}, our @samp{server} file for the moment, needs
+to be refactored so that it imports the @file{passport} module and also
+the Google @file{strategy} code (there are other strategies that we can
+use later, such as Facebook and LinkedIn), and then hooks into them.
+Because the Google strategy code exports more functions than we need, we
+can specifically require only the function that we will be using, in
+this case @code{Strategy}.
+
+@<Import Passport@>=
+const passport = require('passport');
+@
+
+@<Import GoogleStrategy@>=
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+@
+
+@subsubheading Google Strategy
+@cindex google strategy
+
+The @file{passport} module needs to be given a strategy in order to
+work.  At this point, we are using the Google strategy, and so we will
+tell @file{passport} to @samp{use} it.  In a future section
+(@pxref{Google Strategy Options}) we will give our @samp{GoogleStrategy}
+object some configurations options to use, and so to make things simpler
+those will be added here at this point, even though we discuss them later.
+
+@anchor{Use GoogleStrategy Options}
+@<Use Passport@>=
+passport.use(
+  new GoogleStrategy(
+    @<GoogleStrategy Options@>
+  )
+);
+
+@
+
+@node Refactored IndexJS for Passport
+@subsubsection Refactored @file{index.js} for Passport
+@cindex index.js refactored for passport
+
+@(index.js@)=
+@<IndexJS Requires@>
+@<IndexJS Port Assignment@>
+@<Create App@>
+@<Create Route Handlers@>
+@<Use Passport@>
+@<Start App@>
+@
+
+@subsubheading IndexJS Requires
+
+@<IndexJS Requires@>=
+@<Import Express@>
+@<Import Passport@>
+@<Import GoogleStrategy@>
+@
+
+@node Google OAuth API
+@subsection Enable Google OAuth API
+@cindex google oauth api
+@cindex api, google oauth
+@cindex api credential
+@cindex google project, create
+
+We need to pass some additional configuration options to the Google
+strategy: a @samp{client id} and a @samp{client secret}.  These are
+provided to us by Google's OAuth service.  Our application must be
+signed up, or registered, with the Google OAuth API.
+
+@subsubheading Create Google Project
+
+Go to @url{https://console.developers.google.com} to create a Google
+project to use with authentication.  Create a new project and name it
+@samp{emaily-dev}.  Now, do the following things:
+
+@table @strong
+@item Enable the Google OAuth API
+@itemize
+@item
+click the button @samp{Enable APIs and Services}
+
+@item
+search for @key{google+}
+
+@item
+choose @samp{Google+ API}
+
+@item
+click @kbd{Enable}
+@end itemize
+
+@item Generate an API credential.
+@itemize
+@item
+Click on the button @key{Create credentials};
+
+@item
+choose @samp{client id},
+
+@item
+then @key{Configure consent screen};
+
+@item
+fill out the @samp{Product name} with @samp{emaily-dev}
+
+@item
+and click @kbd{Save};
+
+@item
+for @samp{Application type}, choose @samp{Web application}
+
+@item
+Under @samp{Restrictions},
+
+@table @i
+@item Authorized JavaScript origins
+@url{http://localhost:5000}
+
+@item Authorized redirect URIs
+@url{http://localhost:5000/*}
+@end table
+
+@item
+Google will present a pop-up with a @samp{Client ID} and a @samp{Client
+Secret}; copy these items and save them someplace safe (@pxref{Securing
+API Keys}).
+
+@itemize
+@item Client ID: 
+
+@item Client Secret: 
+@end itemize
+
+@end itemize
+
+@end table
+
+@node Securing API Keys
+@unnumberedsubsubsec Securing API Keys
+@cindex api keys, securing
+@cindex keys
+@cindex secret keys
+@cindex client secret
+@cindex clientSecret
+@cindex client id
+@cindex clientID
+
+@table @emph
+@item clientID
+Public token --- identifies our application to Google servers; can share
+this with the public
+
+@item clientSecret
+Private token --- must keep it hidden from the public
+@end table
+
+It is important not to make the client secret a part of a GitHub repo.
+At this point, we will implement a short-term solution to keeping the
+secret hidden.
+
+@itemize
+@item
+Create a new folder inside the root folder (@file{server}) and name it
+@file{config}
+
+@<Makefile Directory Definitions Hook@>=
+CONFIG_DIR := ${SOURCE_DIR}/config
+@
+
+@<Makefile Directory Creation Hook@>=
+.Phony : ${CONFIG_DIR}
+${CONFIG_DIR} : | ${ROOT} ${PREFIX} ${SOURCE_DIR}
+	mkdir -p ${CONFIG_DIR}
+@
+
+@item
+Inside the folder @file{config}, create a file and name it
+@file{keys.js}
+
+@<Makefile Filename Definitions Hook@>=
+KEYS := keys.js
+@
+
+@<Makefile Create Files Targets@>=
+${KEYS} : | ${CONFIG_DIR}
+
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-keys-to-config
+move-keys-to-config : | ${CONFIG_DIR}
+	mv ${SOURCE_DIR}/${KEYS} ${CONFIG_DIR}
+@
+
+@item
+Create inside @file{keys.js} the object named @code{module.exports}
+
+@item
+Inside @code{module.exports}, create an attribte called
+@code{googleClientID} and make its value the Google client id that was
+generated in the last step;
+
+@item
+make an attribute called @code{googleClientSecret} make its value the
+Google client secret generated in the last step;
+
+@item
+never commit the file @file{keys.js} to Git by adding its name to the
+@file{.gitignore} file
+
+@end itemize
+
+@subsubheading @file{keys.js} @code{module.exports} Object
+@findex keys.js
+
+@(keys.js@)=
+module.exports = {
+  @<Google Client Secret Keys@>
+  @<Google Callback URL@>
+}
+
+@
+
+@<Google Client Secret Keys@>=
+  googleClientID: process.env.WEB_CLIENT_1_ID,
+  googleClientSecret: process.env.WEB_CLIENT_1_SECRET,
+@
+
+@subsubheading @file{.gitignore}
+@findex .gitignore
+
+@example
+keys.js
+@end example
+
+@node Google Strategy Options
+@subsection Google Strategy Options
+@cindex google strategy options
+
+Now that we have the Google API keys, we need to import the keys into
+our @file{index.js} file by using the @code{require} keyword and then
+pass the keys to our @code{GoogleStrategy} object so it can use them
+when authorizing our app with Google.
+
+@<IndexJS Requires@>=
+const keys = require('./src/config/keys');
+@
+
+@subsubheading Google Strategy
+@cindex callback
+@cindex callback route and function
+@cindex access token
+@cindex token, access
+
+The @code{GoogleStrategy} object needs to know the @code{clientID} and
+@code{clientSecret}, as well as a @code{callback} route.  There also
+needs to be a @code{callback} function that receives Google's
+@code{access token}.  For now, just log the access token.
+
+@<Google Callback URL@>=
+  googleCallbackURL: '/auth/google/callback'
+@
+
+@<GoogleStrategy Options@>=
+{
+  clientID: keys.googleClientID,
+  clientSecret: keys.googleClientSecret,
+  callbackURL: keys.googleCallbackURL
+}, (accessToken) => {
+  console.log(accessToken);
+}
+@
+
+@xref{Use GoogleStrategy Options}
+
+@node Testing OAuth
+@subsection Testing OAuth
+@cindex oauth testing
+
 @node MongoDB
 @chapter Adding MongoDB
 @cindex mongodb
@@ -1600,6 +1753,7 @@ PREFIX := .
 SOURCE_DIR := ${PREFIX}/${ROOT}/src
 PUBLIC_DIR := ${PREFIX}/${ROOT}/public
 HTML_DIR := ${PREFIX}/${ROOT}/html
+@<Makefile Directory Definitions Hook@>
 
 @
 
@@ -1611,6 +1765,7 @@ FILENAME := nodeWithReact
 TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
+@<Makefile Filename Definitions Hook@>
 
 @
 
@@ -1733,6 +1888,8 @@ ${PUBLIC_DIR} :
 ${HTML_DIR} :
 	mkdir -p ${HTML_DIR}
 
+@<Makefile Directory Creation Hook@>
+
 @
 
 @node Makefile Create Files Targets
@@ -1748,7 +1905,8 @@ Use this target to add new file definitions
 
 @<Makefile Move Targets@>=
 .Phony : move
-move : move-index-to-root move-js-to-source move-html-to-source move-hook
+move : move-index-to-root move-js-to-source move-html-to-source move-hook \
+	move-keys-to-config
 
 @<Makefile Move Index to Root@>
 @<Makefile Move JS To Source@>
