@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-23T18:32:32
-@c VERSION: VERSION 0.0.8
+@c DATE:    2017-12-23T20:31:59
+@c VERSION: VERSION 0.0.9
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.8
+@set EDITION 0.0.9
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -1398,12 +1398,13 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 @subsubheading Google Strategy
 @cindex google strategy
 
-The @file{passport} module needs to be given a strategy in order to
-work.  At this point, we are using the Google strategy, and so we will
-tell @file{passport} to @samp{use} it.  In a future section
+The @file{passport} module needs to be given a @dfn{strategy} in order
+to work.  At this point, we are using the Google strategy, and so we
+will tell @file{passport} to @samp{use} it.  In a future section
 (@pxref{Google Strategy Options}) we will give our @samp{GoogleStrategy}
 object some configurations options to use, and so to make things simpler
-those will be added here at this point, even though we discuss them later.
+those will be added here at this point, even though we discuss them
+later.
 
 @anchor{Use GoogleStrategy Options}
 @<Use Passport@>=
@@ -1636,7 +1637,9 @@ const keys = require('./src/config/keys');
 The @code{GoogleStrategy} object needs to know the @code{clientID} and
 @code{clientSecret}, as well as a @code{callback} route.  There also
 needs to be a @code{callback} function that receives Google's
-@code{access token}.  For now, just log the access token.
+@code{access token}.  For now, just log the access token in the
+callback.  In other words, the @samp{GoogleStrategy} object takes two
+parameters, options and callback:
 
 @<Google Callback URL@>=
   googleCallbackURL: '/auth/google/callback'
@@ -1653,6 +1656,27 @@ needs to be a @code{callback} function that receives Google's
 @
 
 @xref{Use GoogleStrategy Options}
+
+@node OAuth Route Handler
+@subsection Google OAuth Route Handler
+@cindex google oauth route handler
+@cindex route handler, google oauth
+
+When a User clicks @key{Login}, a route handler should direct that User
+to the Google OAuth authorization mechanism, which is managed by
+@file{PassportJS}.  Therefore, we need to create a route handler to
+handle this event.  The callback function will utilize the
+@file{passport} functionality.
+
+@<Create Route Handlers@>=
+app.get(
+  '/auth/google',
+  passport.authenticate('google, {
+    scope: ['profile', 'email']
+  })
+);
+
+@
 
 @node Testing OAuth
 @subsection Testing OAuth
