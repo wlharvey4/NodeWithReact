@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-23T20:31:59
-@c VERSION: VERSION 0.0.9
+@c DATE:    2017-12-26T15:52:00
+@c VERSION: VERSION 0.0.10
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.9
+@set EDITION 0.0.10
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -766,29 +766,48 @@ route those requests to different route handlers.  The route handlers
 will be associated with the @file{express} @var{app} that we create here.
 
 @(index0.js@)=
-@<Import Express@>
-@<IndexJS Constant Definitions@>
+@<Index0JS Requirements@>
+@<Index0JS Constant Definitions@>
 @<Create App@>
-@<Create Route Handlers@>
+@<Create Initial Route Handlers@>
 @<Start App@>
 @
 
-@<Create App@>=
-const app = express();
+@<Index0JS Requirements@>=
+/*********************
+  REQUIREMENTS
+ *********************/
+@<Import Express@>
+@
 
+@<Create App@>=
+
+/*********************
+  APPLICATION
+ *********************/
+const app = express();
 @
 
 This code tells Node that the application wants to receive requests
 coming in from port 5000.
 
 @<Start App@>=
-app.listen(PORT);
 
+/*********************
+  START SERVER
+ *********************/
+app.listen(PORT);
 @
 
 @subheading Create the first Route Handler in @var{app}
+@<Create Initial Route Handlers@>=
+@<Create Route Handlers@>
+@
 
 @<Create Route Handlers@>=
+/*********************
+  ROUTE HANDLERS
+ *********************/
 @<Root Route Handler@>
 @
 
@@ -796,7 +815,6 @@ app.listen(PORT);
 app.get('/', (req, res) => {
   res.send({"hi": "there"});
 });
-
 @
 
 @node Express
@@ -816,7 +834,14 @@ const express = require('express');
 @subsection @file{index.js} Constant Definitions
 @cindex constant definitions
 
-@<IndexJS Constant Definitions@>=
+@<Index0JS Constant Definitions@>=
+@<Server Port Assignment@>
+@
+
+@<Server Port Assignment@>=
+/*********************
+  CONSTANTS
+ *********************/
 @<IndexJS Port Assignment@>
 @
 
@@ -966,7 +991,6 @@ locally.
 
 @<IndexJS Port Assignment@>=
 const PORT = process.env.PORT || 5000;
-
 @
 
 @item Specify Node Environment
@@ -1408,6 +1432,9 @@ later.
 
 @anchor{Use GoogleStrategy Options}
 @<Use Passport@>=
+/*********************
+  PASSPORT
+ *********************/
 passport.use(
   new GoogleStrategy(
     @<GoogleStrategy Options@>
@@ -1421,18 +1448,18 @@ passport.use(
 @cindex index.js refactored for passport
 
 @(index.js@)=
-@<IndexJS Requires@>
-@<IndexJS Port Assignment@>
+@<Index1JS Requirements@>
+@<Index0JS Constant Definitions@>
 @<Create App@>
-@<Create Route Handlers@>
+@<Create Second Route Handlers@>
 @<Use Passport@>
 @<Start App@>
 @
 
 @subsubheading IndexJS Requires
 
-@<IndexJS Requires@>=
-@<Import Express@>
+@<Index1JS Requirements@>=
+@<Index0JS Requirements@>
 @<Import Passport@>
 @<Import GoogleStrategy@>
 @
@@ -1624,7 +1651,7 @@ our @file{index.js} file by using the @code{require} keyword and then
 pass the keys to our @code{GoogleStrategy} object so it can use them
 when authorizing our app with Google.
 
-@<IndexJS Requires@>=
+@<Index1JS Requirements@>=
 const keys = require('./src/config/keys');
 @
 
@@ -1668,14 +1695,14 @@ to the Google OAuth authorization mechanism, which is managed by
 handle this event.  The callback function will utilize the
 @file{passport} functionality.
 
-@<Create Route Handlers@>=
+@<Create Second Route Handlers@>=
+@<Create Initial Route Handlers@>
 app.get(
   '/auth/google',
   passport.authenticate('google, {
     scope: ['profile', 'email']
   })
 );
-
 @
 
 @node Testing OAuth
@@ -1886,6 +1913,7 @@ very-clean : clean
 .Phony : dist-clean
 dist-clean : very-clean
 	rm -rf ${ROOT}
+	rm -rf auto
 
 @
 
