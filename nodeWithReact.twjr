@@ -774,6 +774,7 @@ will be associated with the @file{express} @var{app} that we create here.
 @
 
 @<Index0JS Requirements@>=
+ 
 /*********************
   REQUIREMENTS
  *********************/
@@ -781,7 +782,7 @@ will be associated with the @file{express} @var{app} that we create here.
 @
 
 @<Create App@>=
-
+ 
 /*********************
   APPLICATION
  *********************/
@@ -792,7 +793,7 @@ This code tells Node that the application wants to receive requests
 coming in from port 5000.
 
 @<Start App@>=
-
+ 
 /*********************
   START SERVER
  *********************/
@@ -805,6 +806,7 @@ app.listen(PORT);
 @
 
 @<Create Route Handlers@>=
+ 
 /*********************
   ROUTE HANDLERS
  *********************/
@@ -839,6 +841,7 @@ const express = require('express');
 @
 
 @<Server Port Assignment@>=
+ 
 /*********************
   CONSTANTS
  *********************/
@@ -849,7 +852,11 @@ const express = require('express');
 @subsection Makefile Additions for @file{index.js}
 
 @<Makefile Filename Definitions Hook@>=
-INDEXJS := index.js
+@<Makefile Filename INDEXJS Hook@>
+@
+
+@<Makefile Filename INDEXJS Hook@>=
+INDEXJS := index0.js
 @
 
 @<Makefile Create Files Targets@>=
@@ -1385,11 +1392,13 @@ Passport utilizes different @samp{strategies} to authenticate with
 specific organizations.  Learning how to utilize one strategy will make
 utilizing other strategies easy.
 
-@node Passport Setup
-@subsection Passport Setup
-@cindex passport setup
+@node Passport Installation
+@subsection Passport Installation
+@cindex passport install
+@cindex install passport
 
-Will be installing PassportJs, the Google strategy, and wiring them up
+Will be installing PassportJs (@file{passport.js}, and the Google
+strategy (@file{passport-google-oauth20}, and then wiring them up
 to our application.
 
 @subsubheading Install PassportJS and Its Google Strategy
@@ -1411,6 +1420,8 @@ Because the Google strategy code exports more functions than we need, we
 can specifically require only the function that we will be using, in
 this case @code{Strategy}.
 
+@subsubheading Passport and Google Strategy Imports
+
 @<Import Passport@>=
 const passport = require('passport');
 @
@@ -1431,29 +1442,37 @@ those will be added here at this point, even though we discuss them
 later.
 
 @anchor{Use GoogleStrategy Options}
-@<Use Passport@>=
+@<Passport Header@>=
+ 
 /*********************
   PASSPORT
  *********************/
+@
+
+@<Passport Use GoogleStrategy0@>=
+@<Passport Header@>
 passport.use(
   new GoogleStrategy(
-    @<GoogleStrategy Options@>
+    @<GoogleStrategy Options0@>
   )
-);
-
+)
 @
 
 @node Refactored IndexJS for Passport
 @subsubsection Refactored @file{index.js} for Passport
 @cindex index.js refactored for passport
 
-@(index.js@)=
+@(index1.js@)=
 @<Index1JS Requirements@>
 @<Index0JS Constant Definitions@>
 @<Create App@>
-@<Create Second Route Handlers@>
-@<Use Passport@>
+@<Create Google Auth Route Handlers@>
+@<Passport Use GoogleStrategy0@>
 @<Start App@>
+@
+
+@<Makefile Filename INDEXJS Hook@>=
+INDEXJS += index1.js
 @
 
 @subsubheading IndexJS Requires
@@ -1465,7 +1484,7 @@ passport.use(
 @
 
 @node Google OAuth API
-@subsection Enable Google OAuth API
+@section Enable Google OAuth API
 @cindex google oauth api
 @cindex api, google oauth
 @cindex api credential
@@ -1476,7 +1495,8 @@ strategy: a @samp{client id} and a @samp{client secret}.  These are
 provided to us by Google's OAuth service.  Our application must be
 signed up, or registered, with the Google OAuth API.
 
-@subsubheading Create Google Project
+@node Create Google Project
+@subsection Create Google Project
 
 Go to @url{https://console.developers.google.com} to create a Google
 project to use with authentication.  Create a new project and name it
@@ -1545,7 +1565,7 @@ API Keys}).
 @end table
 
 @node Securing API Keys
-@unnumberedsubsubsec Securing API Keys
+@unnumberedsubsec Securing API Keys
 @cindex api keys, securing
 @cindex keys
 @cindex secret keys
@@ -1619,7 +1639,7 @@ never commit the file @file{keys.js} to Git by adding its name to the
 
 @end itemize
 
-@subsubheading @file{keys.js} @code{module.exports} Object
+@subheading @file{keys.js} @code{module.exports} Object
 @findex keys.js
 
 @(keys.js@)=
@@ -1635,7 +1655,7 @@ module.exports = {
   googleClientSecret: process.env.WEB_CLIENT_1_SECRET,
 @
 
-@subsubheading @file{.gitignore}
+@subheading @file{.gitignore}
 @findex .gitignore
 
 @example
@@ -1646,6 +1666,8 @@ keys.js
 @subsection Google Strategy Options
 @cindex google strategy options
 
+@subsubheading Require Keys
+
 Now that we have the Google API keys, we need to import the keys into
 our @file{index.js} file by using the @code{require} keyword and then
 pass the keys to our @code{GoogleStrategy} object so it can use them
@@ -1655,59 +1677,215 @@ when authorizing our app with Google.
 const keys = require('./src/config/keys');
 @
 
-@subsubheading Google Strategy
+@subsubheading Google Strategy Keys and Callback URI
 @cindex callback
 @cindex callback route and function
 @cindex access token
 @cindex token, access
 
 The @code{GoogleStrategy} object needs to know the @code{clientID} and
-@code{clientSecret}, as well as a @code{callback} route.  There also
-needs to be a @code{callback} function that receives Google's
-@code{access token}.  For now, just log the access token in the
-callback.  In other words, the @samp{GoogleStrategy} object takes two
-parameters, options and callback:
+@code{clientSecret}, as well as a @code{callback} route.  These are
+obtained from the @file{keys.js} file imported above.  There also needs
+to be a @code{callback} function that receives Google's @code{access
+token} as a parameter.  More parameters can be included, but for now,
+just log the access token in the callback.  In other words, the
+@samp{GoogleStrategy} object takes two parameters, options and callback,
+and the callback takes one parameter, an @samp{access token}:
+
+@subsubheading Google Strategy Object
+
+This code reads from the @file{keys.js} file.
+
+@<Google Strategy Object@>=
+{
+  clientID: keys.googleClientID,
+  clientSecret: keys.googleClientSecret,
+  callbackURL: keys.googleCallbackURL
+}
+@
+
+@subsubheading Google Strategy Callback URL
+
+This callback URL is placed into the @file{keys.js} file.
 
 @<Google Callback URL@>=
   googleCallbackURL: '/auth/google/callback'
 @
 
-@<GoogleStrategy Options@>=
-{
-  clientID: keys.googleClientID,
-  clientSecret: keys.googleClientSecret,
-  callbackURL: keys.googleCallbackURL
-}, (accessToken) => {
+@subsubheading Google Strategy Callback Function
+
+As a callback, for now, just log the access token.  This will be
+expanded later.
+
+@<Google Strategy Callback Function0@>=
+(accessToken) => {
   console.log(accessToken);
 }
 @
 
+Here are the combined GoogleStrategy options: keys and callback
+function.  
+
+@<GoogleStrategy Options0@>=
+@<Google Strategy Object@>,
+@<Google Strategy Callback Function0@>
+@
+
 @xref{Use GoogleStrategy Options}
 
-@node OAuth Route Handler
-@subsection Google OAuth Route Handler
-@cindex google oauth route handler
-@cindex route handler, google oauth
+@node Testing OAuth
+@section Testing OAuth
+@cindex oauth testing
+@cindex testing, oauth
+
+At this point we have put together the minimum amount of information for
+the Google strategy to work.  The Google Strategy receives some
+configuration options and a lambda function as a callback to handle the
+access token received from Google.  We will ignore the callback for the
+time being and just log it to the console.
 
 When a User clicks @key{Login}, a route handler should direct that User
-to the Google OAuth authorization mechanism, which is managed by
-@file{PassportJS}.  Therefore, we need to create a route handler to
+to the Google Strategy OAuth authorization mechanism, which is managed
+by @file{PassportJS}.  Therefore, we need to create a route handler to
 handle this event.  The callback function will utilize the
 @file{passport} functionality.
 
-@<Create Second Route Handlers@>=
+@node Review OAuth Flow
+@subsection Review of OAuth Flow
+
+@itemize
+@item
+User clicks @key{Login}
+
+@item
+Directed to the Express server at the URL
+@url{http://localhost:5000/auth/google}
+
+@item
+The Express server will then forward the User to the Google server
+
+@item
+User is asked to grant permission for the App to access their
+information
+
+@item
+Assuming the User does grant permission, the User will be sent back to
+the Express server at the URL and with an authorization code:
+@url{http://localhost:5000/auth/google/callback?code=456}  
+@end itemize
+
+@node Route Handler Implementation
+@subsection Google Strategy Route Handler Implementation
+@cindex implementation, route handler, google strategy
+
+Therefore need to configure the server to send and receive the User, as
+per the above.  This is done by creating a route handler at
+@code{/auth/google} that sends the User into the Passport object for
+processing and then receives the response from Google at
+@code{/auth/google/callback} with a special authorization code as a
+query string.
+
+Instead of giving the route handler a callback, give it a Passport
+function call into Passport's @code{authenticate} method, with two scope
+arguments of @samp{profile} and @samp{email}.  Why @samp{google} as an
+argument to @code{authenticate}?  Because the class
+@file{GoogleStrategy} has some internal code that sets this string to
+Google's oauth strategy code.  The @samp{scope} arguments tell Google
+what portions of the User's profile the application is seeking to
+access.  These two scopes are not actually needed for this application;
+this is just an example of how to request specific scopes.
+
+@<Create Google Auth Route Handlers@>=
 @<Create Initial Route Handlers@>
 app.get(
   '/auth/google',
-  passport.authenticate('google, {
+  passport.authenticate('google', {
     scope: ['profile', 'email']
   })
 );
 @
 
-@node Testing OAuth
-@subsection Testing OAuth
-@cindex oauth testing
+@node Authorized Redirect URIs
+@subsection Authorized Redirect URI's
+@cindex redirect uri
+
+If the code is run at this point, it will successfully jump into
+Google's OAuth authorization section, but then will throw the error
+@samp{redirect_uri_mismatch}.  This is caused because we have not
+registered this redirect uri with Google.  Google will not allow a
+redirect without this authorization as a security feature.
+
+To allow this callback, log into Google API's, tab into
+@kbd{credentials}, and add the callback uri to @samp{Authorized redirect
+URIs}.
+
+@node OAuth Callbacks
+@subsection OAuth Callbacks
+@cindex oauth callbacks
+
+Now we need to set up another route handler to handle the redirect from
+Google with the authorization code.  When the callback is triggered, it
+will forward to Passport the code that is embedded in the uri that is
+received from Google.  While the @code{authenticate} method call looks
+to be the same, the difference is that the uri contains the
+authorization code, which is forwarded to Google by this call.
+
+@<Create Google Auth Route Handlers@>=
+app.get('/auth/google/callback',
+  passport.authenticate('google')
+);
+@
+
+@node Tokens
+@subsection Access and Refresh Tokens
+@cindex tokens, access and refresh
+
+At this point, we can start to take a look at Google Strategy's callback
+function.  Currently it is just logging an access token to the console.
+Let us log a couple more items to the console using a slightly modified
+callback function.
+
+@<Google Strategy Callback Function1@>=
+  (accessToken, refreshToken, profile, done) => {
+    console.log('access token', accessToken);
+    console.log('refresh token', refreshToken);
+    console.log('profile', profile);
+  }
+@
+
+Combine the strategy object with the callback function:
+
+@<GoogleStrategy Options1@>=
+@<Google Strategy Object@>,
+@<Google Strategy Callback Function1@>
+@
+
+Place the new options into the passport @samp{use} method:
+
+@<Passport Use GoogleStrategy1@>=
+@<Passport Header@>
+passport.use(
+  new GoogleStrategy(
+    @<GoogleStrategy Options1@>
+  )
+);
+@
+
+Create a new @file{index.js} file with the modified GoogleStrategy
+callback:  
+
+@(index2.js@)=
+@<Index1JS Requirements@>
+@<Index0JS Constant Definitions@>
+@<Create App@>
+@<Create Google Auth Route Handlers@>
+@<Passport Use GoogleStrategy1@>
+@<Start App@>
+@
+
+@<Makefile Filename INDEXJS Hook@>=
+INDEXJS += index2.js
+@
 
 @node MongoDB
 @chapter Adding MongoDB
@@ -1785,6 +1963,7 @@ app.get(
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
 @<Makefile Git Targets@>
+@<Makefile Echo Variables@>
 @
 
 @node Makefile Constants
@@ -2060,6 +2239,14 @@ server-stop :
 @<Makefile Git Targets@>=
 @
 
+@node Make Echo Variables
+@appendixsec Make Echo Variables
+
+@<Makefile Echo Variables@>=
+echo-index :
+	echo INDEXJS: ${INDEXJS}
+@
+
 @node Code Chunk Summaries
 @appendix Code Chunk Summaries
 
@@ -2108,4 +2295,4 @@ and the code chunk references.
 1.1.1 init [--dir <directory>]
 1.1.2 config
 1.1.3 weave [--info --pdf --html --xml --docbook]
-1.1.4 tangle [--file <filename>]
+1.1.4 tangle [--file <filename>
