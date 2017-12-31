@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-26T15:52:00
-@c VERSION: VERSION 0.0.10
+@c DATE:    2017-12-30T16:15:00
+@c VERSION: VERSION 0.1.0
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.0.10
+@set EDITION 0.1.0
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -671,6 +671,7 @@ through the @code{npm init --yes} command.
 @cindex install node project
 @cindex node project, install
 @cindex express node project
+@cindex package.json, create
 
 @itemize
 @item
@@ -684,11 +685,28 @@ ROOT := server
 @item
 Initialize new Node Project: @code{npm init --yes}
 
+@<Makefile NPM Hooks@>=
+.Phony : npm-init
+npm-init : package.json
+package.json : | ${ROOT}
+	cd ${ROOT} && npm init --yes
+@
+
+@<Makefile NPM@>=
+NPM += npm-init
+@
+
 @item
 Install @file{express}
 
-@<Makefile NPM Install Hook@>=
+@<Makefile NPM Hooks@>=
+.Phony : npm-install-express
+npm-install-express : package.json
 	cd ${ROOT} && npm install express
+@
+
+@<Makefile NPM@>=
+NPM += npm-install-express
 @
 
 @end itemize
@@ -819,6 +837,31 @@ app.get('/', (req, res) => {
 });
 @
 
+@node Move Index Hook
+@subsection Move Index Hook
+
+@<Makefile Move Hook@>=
+@<Makefile Move INDEXJS Hook@>
+@
+
+@<Makefile Move INDEXJS Hook@>=
+.Phony : move-indexjs
+move-indexjs : | ${ROOT}
+	mv index*.js ${ROOT}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-indexjs
+@
+
+@node Link Index0
+@subsection Link Index0
+@cindex link index0.js
+
+@<Makefile Link Target Hook@>=
+	ln -f ${ROOT}/index0.js ${ROOT}/index.js
+@
+
 @node Express
 @subsection Express
 @cindex express
@@ -856,11 +899,11 @@ const express = require('express');
 @
 
 @<Makefile Filename INDEXJS Hook@>=
-INDEXJS := index0.js
+INDEXJS_ALL := index0.js
 @
 
 @<Makefile Create Files Targets@>=
-${INDEXJS} : | ${ROOT}
+${INDEXJS_ALL} : | ${ROOT}
 @
 
 @node Run IndexJS
@@ -871,7 +914,6 @@ ${INDEXJS} : | ${ROOT}
 .Phony : server-start
 server-start :
 	cd ${ROOT} && node ${INDEXJS} &
-
 @
 
 @node Route Handlers
@@ -1076,8 +1118,14 @@ it has done its work.  The script is called by @file{make} after
 @node Makefile Sed Utility Additions
 @subsubsection Makefile Sed Utility Additions
 
-@<Makefile NPM Init Hook@>=
+@<Makefile NPM Hooks@>=
+.Phony : npm-package.modify
+npm-package-modify :
 	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
+@
+
+@<Makefile NPM@>=
+NPM += npm-package-modify
 @
 
 @node Heroku Gitignore File
@@ -1088,7 +1136,13 @@ node_modules
 @
 
 @<Makefile Move Hook@>=
+.Phony : move-gitignore
+move-gitignore : | ${ROOT}
 	mv gitignore ${ROOT}/.gitignore
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-gitignore
 @
 
 @<Makefile Clean Hook@>=
@@ -1403,8 +1457,14 @@ to our application.
 
 @subsubheading Install PassportJS and Its Google Strategy
 
-@<Makefile NPM Install Hook@>=
+@<Makefile NPM Hooks@>=
+.Phony : npm-install-passport
+npm-install-passport : 
 	cd ${ROOT} && npm install passport passport-google-oauth20
+@
+
+@<Makefile NPM@>=
+NPM += npm-install-passport
 @
 
 @node Incorporate Passport into IndexJS
@@ -1472,7 +1532,11 @@ passport.use(
 @
 
 @<Makefile Filename INDEXJS Hook@>=
-INDEXJS += index1.js
+INDEXJS_ALL += index1.js
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${ROOT}/index1.js ${ROOT}/index.js
 @
 
 @subsubheading IndexJS Requires
@@ -1617,8 +1681,12 @@ ${KEYS} : | ${CONFIG_DIR}
 
 @<Makefile Move Hook@>=
 .Phony : move-keys-to-config
-move-keys-to-config : | ${CONFIG_DIR}
-	mv ${SOURCE_DIR}/${KEYS} ${CONFIG_DIR}
+move-keys-to-config : ${KEYS}
+	mv ${KEYS} ${CONFIG_DIR}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-keys-to-config
 @
 
 @item
@@ -1884,7 +1952,11 @@ callback:
 @
 
 @<Makefile Filename INDEXJS Hook@>=
-INDEXJS += index2.js
+INDEXJS_ALL += index2.js
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${ROOT}/index2.js ${ROOT}/index.js
 @
 
 @node MongoDB
@@ -1957,8 +2029,8 @@ INDEXJS += index2.js
 @<Makefile Directory Creation@>
 @<Makefile Create Files Targets@>
 @<Makefile Move Targets@>
-@<Makefile NPM Init Target@>
-@<Makefile NPM Install Target@>
+@<Makefile Link Target@>
+@<Makefile NPM Targets@>
 @<Makefile Run Hooks@>
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
@@ -1972,6 +2044,8 @@ INDEXJS += index2.js
 @<Makefile Constants@>=
 @<Makefile Directory Definitions@>
 @<Makefile Filename Definitions@>
+@<Makefile Move Prereqs@>
+@<Makefile NPM@>
 @
 
 @node Directory Definitions
@@ -1995,7 +2069,16 @@ FILENAME := nodeWithReact
 TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
+INDEXJS := index.js
 @<Makefile Filename Definitions Hook@>
+
+@
+
+@node Move Prereqs
+@appendixsubsubsec Makefile Move Prereqs
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS ?= NOT_DEFINED
 
 @
 
@@ -2003,8 +2086,24 @@ INFO_FILENAME := ${FILENAME}.info
 @appendixsubsec Makefile Default Targets
 
 @<Makefile Default Targets@>=
+ 
 .Phony : all
-all : tangle weave move npm-init npm-install git-init server-start open-browser
+all : install-files server-browser
+
+.Phony : install-files
+install-files : meta-move-link npm git-init
+
+.Phony : server-browser
+server-browser : server-start browser-open
+
+.Phony : meta-move-link
+meta-move-link : make-meta move-and-link
+
+.Phony : make-meta
+make-meta : tangle weave
+
+.Phony : move-and-link
+move-and-link : move link-indexjs
 
 @
 
@@ -2123,6 +2222,17 @@ ${HTML_DIR} :
 
 @
 
+@node Directories to gitignore
+@appendixsubsubsec Directories to gitignore
+@cindex gitignore directories
+
+@(gitignore@)=
+${ROOT}
+${SOURCE_DIR}
+${PUBLIC_DIR}
+${HTML_DIR}
+@
+
 @node Makefile Create Files Targets
 @appendixsubsec Makefile Create Files Targets
 
@@ -2136,46 +2246,9 @@ Use this target to add new file definitions
 
 @<Makefile Move Targets@>=
 .Phony : move
-move : move-index-to-root move-js-to-source move-html-to-source move-hook \
-	move-keys-to-config
+move : ${MOVE_PREREQS}
 
-@<Makefile Move Index to Root@>
-@<Makefile Move JS To Source@>
-@<Makefile Move HTML@>
-
-.Phony : move-hook
-move-hook :
 @<Makefile Move Hook@>
-@
-
-@node Makefile Move Index to Root
-@appendixsubsubsec Makefile Move Index to Root
-
-@<Makefile Move Index to Root@>=
-.Phony : move-index-to-root
-move-index-to-root : | ${ROOT}
-	find ${PREFIX} -depth 1 -name ${INDEXJS} -exec mv {} ${ROOT} \;
-
-@
-
-@node Makefile Move JS
-@appendixsubsubsec Makefile Move JS To Source
-
-@<Makefile Move JS To Source@>=
-.Phony : move-js-to-source
-move-js-to-source : | ${ROOT} ${SOURCE_DIR}
-	find ${PREFIX} -depth 1 -name \*.js -exec mv {} ${SOURCE_DIR} \;
-
-@
-
-@node Makefile Move HTML
-@appendixsubsubsec Makefile Move HTML
-
-@<Makefile Move HTML@>=
-.Phony : move-html-to-source
-move-html-to-source : | ${HTML_DIR}
-	find ${PREFIX} -depth 1 -name \*.html -exec mv {} ${HTML_DIR} \;
-
 @
 
 @node Makefile Move Hook
@@ -2188,29 +2261,23 @@ code block moving all .js files to Source.
 @<Makefile Move Hook@>=
 @
 
-@node Makefile NPM Init Target
-@appendixsubsec Makefile NPM Init Target
+@node Makefile Link Target
+@appendixsubsec Makefile Link Target
 
-@<Makefile NPM Init Target@>=
-.Phony : npm-init
-npm-init : package.json
-
-package.json : | ${ROOT}
-	cd ${ROOT} && npm init --yes
-
-@<Makefile NPM Init Hook@>
-
+@<Makefile Link Target@>=
+.Phony : link-indexjs
+link-indexjs :
+@<Makefile Link Target Hook@>
 @
 
-@node Makefile NPM Install Target
-@appendixsubsec Makefile NPM Install Target
+@node Makefile NPM Targets
+@appendixsubsec Makefile NPM Targets
 
-@<Makefile NPM Install Target@>=
-.Phony : npm-install
-npm-install : npm-init
-	cd ${ROOT} && npm install
-@<Makefile NPM Install Hook@>
+@<Makefile NPM Targets@>=
+.Phony : npm
+npm : ${NPM}
 
+@<Makefile NPM Hooks@>
 @
 
 @<Makefile Run Hooks@>=
@@ -2220,8 +2287,8 @@ npm-install : npm-init
 @appendixsubsec Makefile Open Browswer
 
 @<Makefile Open Browser@>=
-.Phony : open-browser
-open-browser :
+.Phony : browser-open
+browser-open :
 	open -a Safari "http://localhost:5000"
 
 @
@@ -2232,7 +2299,11 @@ open-browser :
 @<Makefile Server Stop@>=
 .Phony : server-stop
 server-stop :
-	PS=$$(ps | grep 'node index.js$$' | cut -d ' ' -f 1); [ $${#PS} -ne 0 ] && kill $${PS} || echo no index.js process to kill
+	PS=$$(ps -o pid -o comm | grep node | sed -e 's/[^[:digit:]]//g'); \
+	[ $${#PS} -ne 0 ] && \
+	{ kill $${PS}; echo server process $${PS} stopped; } || \
+	echo no node process to kill
+#	PS=$$(ps | grep 'node index.js$$' | cut -d ' ' -f 1); [ $${#PS} -ne 0 ] && kill $${PS} || echo no index.js process to kill
 
 @
 
@@ -2243,8 +2314,13 @@ server-stop :
 @appendixsec Make Echo Variables
 
 @<Makefile Echo Variables@>=
+echo-all : echo-index echo-index-all     echo-move-prereqs
 echo-index :
 	echo INDEXJS: ${INDEXJS}
+echo-index-all :
+	echo INDEXJS_ALL: ${INDEXJS_ALL}
+echo-move-prereqs :
+	echo MOVE_PREREQS: ${MOVE_PREREQS}
 @
 
 @node Code Chunk Summaries
