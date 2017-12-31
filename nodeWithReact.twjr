@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-30T19:15:00
-@c VERSION: VERSION 0.1.2
+@c DATE:    2017-12-30T23:00:00
+@c VERSION: VERSION 0.1.3
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.1.2
+@set EDITION 0.1.3
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -1742,8 +1742,12 @@ our @file{index.js} file by using the @code{require} keyword and then
 pass the keys to our @code{GoogleStrategy} object so it can use them
 when authorizing our app with Google.
 
-@<Index1JS Requirements@>=
+@<Import Config Keys@>=
 const keys = require('./src/config/keys');
+@
+
+@<Index1JS Requirements@>=
+@<Import Config Keys@>
 @
 
 @subsubheading Google Strategy Keys and Callback URI
@@ -2054,6 +2058,212 @@ and newline to the end of the prior script to allow this to work):
 @chapter Adding MongoDB
 @cindex mongodb
 @cindex MongoDB
+
+@node Server Refactor
+@section Server Structure Refactor
+@cindex server, refactor
+
+This is a good point to refactor our code.  There is no consensus in the
+Node community on how best to structure projects.  The way chosen in
+this project is one possible way, not necessarily the best way for all
+projects, but one that works well here.
+
+@node Structure Diagram
+@subsection Structure Diagram
+@cindex diagram, structure
+
+@subsubheading @file{server directory}
+
+@table @file
+@item config
+Protected API keys and settings
+
+@item routes
+All route handlers grouped by purpose
+
+@item services
+Helper modules and business logic
+
+@item index.js
+Helper modules and business logic
+
+@end table
+
+@node New Directories
+@subsection New Directories
+@cindex refactor, new directories
+
+Will start off by creating two new directories inside the @file{server}
+directory.  These directories will be called
+
+@itemize
+@item
+@b{routes}: to hold the route handlers
+
+@<Makefile Directory Definitions Hook@>=
+ROUTES := ${SOURCE_DIR}/routes
+@
+
+@<Makefile Directory Creation Hook@>=
+.Phony : ${ROUTES}
+${ROUTES} :
+	mkdir -p ${ROUTES}
+@
+
+@item
+@b{services}: to hold the Passport code
+
+@<Makefile Directory Definitions Hook@>=
+SERVICES := ${SOURCE_DIR}/services
+@
+
+@<Makefile Directory Creation Hook@>=
+.Phony : ${SERVICES}
+${SERVICES} :
+	mkdir -p ${SERVICES}
+@
+
+@end itemize
+
+@node New Files in New Directories
+@subsection New Files in New Directories
+
+@node authRoutes_js
+@subsubsection @file{authRoutes.js}
+@cindex authRoutes.js
+
+@(authRoutes.js@)=
+@<Import Passport@>
+module.exports = (app) => {
+  @<Create Google Auth Route Handlers@>
+}
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-authRoutes
+move-authRoutes : | ${ROUTES}
+	mv -f authRoutes.js ${ROUTES}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-authRoutes
+@
+
+@node passport_js
+@subsubsection @file{passport.js}
+@cindex passport.js
+
+@(passport.js@)=
+@<Import Passport@>
+@<Import GoogleStrategy@>
+@<Import Config Keys2@>
+@<Passport Use GoogleStrategy1@>
+@
+
+@<Import Config Keys2@>=
+const keys = require('../config/keys');
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-passport
+move-passport : | ${SERVICES}
+	mv -f passport.js ${SERVICES}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-passport
+@
+
+@node index4_js
+@subsubsection @file{index4.js}
+@cindex index4.js
+
+@(index4.js@)=
+@<Index4JS Requirements@>
+@<Server Port Assignment@>
+@<Create App@>
+require('./src/routes/authRoutes')(app);
+@<Start App@>
+@
+
+@<Index4JS Requirements@>=
+@<Index0JS Requirements@>
+@<Import Passport1@>
+@
+
+@<Import Passport1@>=
+require('./src/services/passport');
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${ROOT}/index4.js ${ROOT}/index.js
+@
+
+@<Makefile Filename INDEXJS Hook@>=
+INDEXJS_ALL += index4.js
+@
+
+@node Authentication Theory
+@section The Theory of Authentication
+@cindex authentication theory
+
+@node Signing in Users
+@section Signing in Users with OAuth
+@cindex users, sign in
+
+@node MongoDB Intro
+@section Introduction to MongoDB
+@cindex mongodb introduction
+
+@node MongoDB Setup
+@section MongoDB Setup
+@cindex mongodb setup
+@cindex setup, mongodb
+
+@node Mongoose to MongoDB
+@section Connecting Mongoose to MongoDB
+@cindex mongoose, connecting to mongodb
+
+@node Mongoose Model Classes
+@section Mongoose Model Classes
+@cindex model classes, mongoose
+
+@node Saving Model Instances
+@section Saving Model Instances
+@cindex model instances, saving
+
+@node Mongoose Queries
+@section Mongoose Queries
+@cindex queries, mongoose
+
+@node Passport Callbacks
+@section Passport Callbacks
+@cindex passport callbacks
+
+@node Encoding Users
+@section Encoding Users
+@cindex encoding users
+
+@node Deserialize User
+@section Deserialize User
+@cindex deserialize user
+
+@node Enable Cookies
+@section Enable Cookies
+@cindex cookies, enable
+
+@node Testing Authentication
+@section Testing Authentication
+@cindex authentication, testing
+
+@node Logging Out Users
+@section Logging Out Users
+@cindex logging out, users
+@cindex users, logging out
+
+@node Deeper Dive
+@section A Deeper Dive
+@cindex deeper
 
 @node Environments
 @chapter Dev vs Prod Environments
