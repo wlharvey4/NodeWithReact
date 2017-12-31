@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-30T16:15:00
-@c VERSION: VERSION 0.1.0
+@c DATE:    2017-12-30T18:15:00
+@c VERSION: VERSION 0.1.1
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.1.0
+@set EDITION 0.1.1
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -700,13 +700,21 @@ NPM += npm-init
 Install @file{express}
 
 @<Makefile NPM Hooks@>=
-.Phony : npm-install-express
-npm-install-express : package.json
-	cd ${ROOT} && npm install express
+.Phony : npm-install
+npm-install : package.json
+	cd ${ROOT} && npm install ${NPM_INSTALLS}
 @
 
 @<Makefile NPM@>=
-NPM += npm-install-express
+NPM += npm-install
+@
+
+@<Makefile Filename Definitions Hook@>=
+@<Makefile NPM_INSTALLS@>
+@
+
+@<Makefile NPM_INSTALLS@>=
+NPM_INSTALLS += express
 @
 
 @end itemize
@@ -1119,7 +1127,7 @@ it has done its work.  The script is called by @file{make} after
 @subsubsection Makefile Sed Utility Additions
 
 @<Makefile NPM Hooks@>=
-.Phony : npm-package.modify
+.Phony : npm-package-modify
 npm-package-modify :
 	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
 @
@@ -1457,14 +1465,8 @@ to our application.
 
 @subsubheading Install PassportJS and Its Google Strategy
 
-@<Makefile NPM Hooks@>=
-.Phony : npm-install-passport
-npm-install-passport : 
-	cd ${ROOT} && npm install passport passport-google-oauth20
-@
-
-@<Makefile NPM@>=
-NPM += npm-install-passport
+@<Makefile NPM_INSTALLS@>=
+NPM_INSTALLS += passport passport-google-oauth20
 @
 
 @node Incorporate Passport into IndexJS
@@ -1921,12 +1923,16 @@ callback function.
   }
 @
 
-Combine the strategy object with the callback function:
+@subsubheading Create New Options Object
+
+Combine the @samp{strategy} object with the @samp{callback} function:
 
 @<GoogleStrategy Options1@>=
 @<Google Strategy Object@>,
 @<Google Strategy Callback Function1@>
 @
+
+@subsubheading Use New Options
 
 Place the new options into the passport @samp{use} method:
 
@@ -1938,6 +1944,8 @@ passport.use(
   )
 );
 @
+
+@subsubheading New @file{index.js} File with new Options
 
 Create a new @file{index.js} file with the modified GoogleStrategy
 callback:  
@@ -1951,12 +1959,86 @@ callback:
 @<Start App@>
 @
 
+@node OAuth Tokens Output
+@subsubsection OAuth Tokens Output
+@cindex tokens output
+
+When the server is started and we visit the
+@url{http://localhost:5000/auth/google} url, then it should appear that
+the server is hanging, but the server will have received @samp{access
+token} and @samp{profile} from Google and logged their values to the
+terminal.  These tokens contain our @dfn{identifying information}, i.e.,
+our name, email, and other such items.  This is the heart of what we are
+getting at in this OAuth section.
+
+@subsubheading Access Token
+
+We could use this access token to access and modify the user's
+information (but we are not doing so in this tutorial).
+
+@subsubheading Refresh Token
+
+The refresh token allows us to refresh the access token after it
+expires.
+
+@subsubheading Profile
+
+Contains our identifying information.
+
+@subsubheading Conclusion of Passport
+
+This basically concludes with the canned Passport functionality.  The
+next steps involve storing the User's data in a data base and logging
+them into our application.
+
+@node Tokens Output
+@subsubsection Tokens Output
+
+@verbatim
+access token
+ya29.GlszBVwKKRnKIEK8ILFz4wRGtLgNJEHrdC1lKYHYqH2FMmVN2G3t87ohGKh6eSJUP7QaDhyU0Lgaj55Tqw1bwkI3MGANdeT7LIy8mekV_2eacvnbz_Va47TNKvww
+
+profile { id: '111187604413365458197',                       
+  displayName: 'wl Harvey',                                                                                                                                                                                 
+  name: { familyName: 'Harvey', givenName: 'wl' },                                                                                                                                                          
+  emails: [ { value: 'pinecone062@gmail.com', type: 'account' } ],                                                                                                                                          
+  photos:                  
+   [ { value: 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg?sz=50' } ],
+  gender: undefined,                                              
+  provider: 'google',                                                
+  _raw: '{\n "kind": "plus#person",\n "etag":
+  "\\"ucaTEV-ZanNH5M3SCxYRM0QRw2Y/HQ4l1fcTNzqAdBbiIPZ0TrDpLkg\\"",\n
+  "emails": [\n  {\n   "value": "pinecone062@gmail.com",\n   "type":
+  "account"\n  }\n ],\n "objectType": "person",\n "id":
+  "111187604413365458197",\n "displayName": "wl Harvey",\n "name": {\n
+  "familyName": "Harvey",\n  "givenName": "wl"\n },\n "image": {\n
+  "url":
+  "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg?sz=50",\n
+  "isDefault": t  _raw: '{\n "kind": "plus#person",\n "etag":
+  "\\"ucaTEV-ZanNH5M3SCxYRM0QRw2Y/HQ4l1fcTNzqAdBbiIPZ0TrDpLkg\\"",\n
+  "emails": [\n  {\n   "va-bash: =: command not found
+  
+@end verbatim
+
+@node Makefile Additions New Options Object
+@subsubsection Makefile Additions for New Options Object
+
 @<Makefile Filename INDEXJS Hook@>=
 INDEXJS_ALL += index2.js
 @
 
 @<Makefile Link Target Hook@>=
 	ln -f ${ROOT}/index2.js ${ROOT}/index.js
+@
+
+@node Nodemon
+@section Nodemon Setup
+@cindex nodemon
+
+Let's install the @file{nodemon} package:
+
+@<Makefile NPM_INSTALLS@>=
+NPM_INSTALLS += nodemon
 @
 
 @node MongoDB
@@ -2314,13 +2396,15 @@ server-stop :
 @appendixsec Make Echo Variables
 
 @<Makefile Echo Variables@>=
-echo-all : echo-index echo-index-all     echo-move-prereqs
+echo-all : echo-index echo-index-all echo-move-prereqs echo-npm-installs
 echo-index :
 	echo INDEXJS: ${INDEXJS}
 echo-index-all :
 	echo INDEXJS_ALL: ${INDEXJS_ALL}
 echo-move-prereqs :
 	echo MOVE_PREREQS: ${MOVE_PREREQS}
+echo-npm-installs :
+	echo NPM_INSTALLS: ${NPM_INSTALLS}
 @
 
 @node Code Chunk Summaries
