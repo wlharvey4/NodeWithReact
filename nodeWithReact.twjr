@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2017-12-30T18:15:00
-@c VERSION: VERSION 0.1.1
+@c DATE:    2017-12-30T19:15:00
+@c VERSION: VERSION 0.1.2
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH DECEMBER, 2017
-@set EDITION 0.1.1
+@set EDITION 0.1.2
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -921,7 +921,8 @@ ${INDEXJS_ALL} : | ${ROOT}
 @<Makefile Run Hooks@>=
 .Phony : server-start
 server-start :
-	cd ${ROOT} && node ${INDEXJS} &
+	cd ${ROOT} && npm run dev
+#	cd ${ROOT} && node ${INDEXJS} &
 @
 
 @node Route Handlers
@@ -1112,15 +1113,13 @@ it has done its work.  The script is called by @file{make} after
 \ \ \ \ "node": "8.1.1",\
 \ \ \ \ "npm": "5.0.3"\
 \ \ },
-
 @
 
 @subsubheading Sed Utility for Scripts Start Addition
 
 @(util.sed@)=
 /test/c\
-\ \ \ \ "start": "node index.js"
-
+\ \ \ \ "start": "node index.js",\
 @
 
 @node Makefile Sed Utility Additions
@@ -2035,10 +2034,20 @@ INDEXJS_ALL += index2.js
 @section Nodemon Setup
 @cindex nodemon
 
-Let's install the @file{nodemon} package:
+Let's install the @file{nodemon} package; to do that we just add the
+package @file{nodemon} to our @code{npm install} variable:
 
 @<Makefile NPM_INSTALLS@>=
 NPM_INSTALLS += nodemon
+@
+
+We also need to add a script to the @file{package.json} @samp{scripts}
+section, which we can do simply by tacking this onto the end of our
+current @file{util.sed} script created earlier (but first append a comma
+and newline to the end of the prior script to allow this to work):
+
+@(util.sed@)=
+\ \ \ \ "dev": "nodemon index.js &"
 @
 
 @node MongoDB
