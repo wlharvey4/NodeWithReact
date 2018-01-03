@@ -3,7 +3,7 @@
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
 @c DATE:    2018-01-03T11:11:31
-@c VERSION: VERSION 0.1.4
+@c VERSION: VERSION 0.1.5
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.4
+@set EDITION 0.1.5
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -2085,6 +2085,10 @@ The @file{server} directory holds all of our server-side logic.
 @subsubheading @file{server directory}
 
 @table @file
+@item src
+Holds all subdirectories and associated JS code
+
+@table @file
 @item config
 Protected API keys and settings; additional secret keys will be placed
 into the @file{keys.js} file.
@@ -2096,6 +2100,8 @@ go into a @file{authRoutes.js} file.
 @item services
 Helper modules and business logic; at this point the @file{passport}
 code will go into this directory.
+
+@end table
 
 @item index.js
 Helper modules and business logic; @file{index.js} will remain the app's
@@ -2109,11 +2115,13 @@ described above.
 @cindex refactor, new directories
 
 Will start off by creating two new directories inside the
-@file{server/src} directory.  These directories will be called
+@file{server/src} directory: @file{routes} and @file{services}.
 
 @itemize
 @item
-@b{routes}: to hold the route handlers
+@b{routes}: to hold the route handlers;
+
+@xref{authRoutes_js}
 
 @<Makefile Directory Definitions Hook@>=
 ROUTES := ${SOURCE_DIR}/routes
@@ -2126,7 +2134,9 @@ ${ROUTES} :
 @
 
 @item
-@b{services}: to hold the Passport code
+@b{services}: to hold the Passport code;
+
+@xref{passport_js}
 
 @<Makefile Directory Definitions Hook@>=
 SERVICES := ${SOURCE_DIR}/services
@@ -2147,13 +2157,14 @@ ${SERVICES} :
 @subsubsection @file{authRoutes.js}
 @cindex authRoutes.js
 
-@file{authRoutes.js} will hold the @file{passport} code that is
-currently in @file{index.js}.  @file{passport.js} needs to be
-@code{require}'d.  This code needs the @file{app} server, and so the
-code will be wrapped in an arrow function that takes one parameter, the
-@file{app} that is created in @file{index.js}.  @file{index.js} will
-@code{require} this file, then execute the arrow function with the
-@code{app} argument.
+@file{authRoutes.js} will hold the route handling code that is
+currently in @file{index.js}.
+
+This file (@file{authRoutes.js}) needs the @file{app} server in order to
+set up the routes, and so this code will be wrapped in an arrow function
+with one parameter, the @file{app} variable.  @file{index.js} will
+import this function, then call it with the @file{app} that it has
+created.
 
 @(authRoutes.js@)=
 @<Import Passport@>
