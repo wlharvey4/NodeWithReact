@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-03T11:11:31
-@c VERSION: VERSION 0.1.5
+@c DATE:    2018-01-03T13:59:08
+@c VERSION: VERSION 0.1.6.5
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.5
+@set EDITION 0.1.6
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -2320,9 +2320,37 @@ will add this User to the database.  If the User is found, the server
 will not add the User, but will instead have a reference to the User's
 data.  
 
-@node MongoDB Intro
-@section Introduction to MongoDB
+@subheading Mongo --- Mongoose Connection
+
+@itemize
+@item
+Install Mongo / Install Mongoose
+
+@item
+Identify Users
+
+Need to be able to identify Users who sign up and return to our
+application.  We want to save the @samp{id} in their Google in our
+database 
+@samp{profile}
+
+@item
+Mongo Collection (Mongoose @code{model class})
+
+Use Mongoose's @code{model class} to create a new collection in Mongo
+called @code{users}
+
+@item
+New User
+
+When a User signs in, save a new record to the @code{users} collection 
+@end itemize
+
+@node MongoDB Intro and Setup
+@section Introduction to MongoDB and Setup
 @cindex mongodb introduction
+@cindex mongodb setup
+@cindex setup mongodb
 
 How Mongo internally stores information.
 
@@ -2410,7 +2438,7 @@ Mongoose's Model Class corresponds to MongoDB's Collection.
 Mongoose's Model Instance corresponds to MongoDB's Record
 
 @node MongoDB Setup
-@section MongoDB Setup
+@subsection MongoDB Setup
 @cindex mongodb setup
 @cindex setup, mongodb
 
@@ -2486,8 +2514,11 @@ The database user should appear in the Database Users section
 @end enumerate
 
 @node Database Information
-@subsubsection Database Information
+@subsection Database Information
 @cindex database information
+
+This information is provided by @file{mLab} at the conclusion of the
+setup procedure.
 
 @table @strong
 @item Mongo Shell Template
@@ -2517,7 +2548,7 @@ pinecone062_user
 @end table
 
 @node mLab Driver Examples
-@subsubsection mLab MongoDB Language Center---Driver Examples
+@subsection mLab MongoDB Language Center---Driver Examples
 @cindex language center
 @cindex driver examples
 
@@ -2554,22 +2585,19 @@ Mongoose CRUD example}
 @url{http://blog.mlab.com/2014/04/mongodb-driver-mongoose/, Mongoose
 Tips & Tricks (from mLab’s blog)}
 
-
-
 @end table
-
 
 @node Mongoose to MongoDB
 @section Connecting Mongoose to MongoDB
 @cindex mongoose, connecting to mongodb
 
-Install the @file{mongoose} node package in our app.
+@subsubheading Install the @file{mongoose} driver in @file{packages}.
 
 @<Makefile NPM_INSTALLS@>=
 NPM_INSTALLS += mongoose
 @
 
-Incorporate @file{mongoose} in our database:
+@subsubheading Require the @file{mongoose} driver in our application:
 
 @<Require Mongoose@>=
 const mongoose = require('mongoose');
@@ -2579,21 +2607,28 @@ const mongoose = require('mongoose');
 @<Require Mongoose@>
 @
 
+@subsubheading Mongo URI
+
 Connect to the @file{mLab} MongoDB instance at the correct MongoDB URI
 given by @file{mLab}, of the form:
 
 @verb{|mongodb://<dbuser>:<dbpassword>@ds239587.mlab.com:39587/lolh-emaily-dev|}
 
-The actual URI will be placed inside the @file{keys.js} file in the
-@file{config} directory.
+The URI is placed inside the @file{keys.js} file in the @file{config}
+directory.
 
 @<Keys_JS Internals@>=
 @<MongoDB URI@>
 @
 
 @<MongoDB URI@>=
-  mongoURI: 'mongodb://pinecone062_user:Pinus sabiniana@@ds151242.mlab.com:51242/emaily-dev',
+  mongoURI: 'mongodb://pinecone062_user:Pinus sabiniana@@ds239587.mlab.com:39587/lolh-emaily-dev',
 @
+
+@subsubheading Connect
+
+Finally, have @file{mongoose} call its @code{connect} method to connect
+to the MongoDB database.
 
 @<Connect Mongoose@>=
 mongoose.connect(keys.mongoURI)
@@ -2602,6 +2637,104 @@ mongoose.connect(keys.mongoURI)
 @node Mongoose Model Classes
 @section Mongoose Model Classes
 @cindex model classes, mongoose
+@cindex model class, mongoose
+
+Need to find a suitable location for adding code to create the Mongoose
+model classes.  This code does not belong inside our @file{index.js}
+because that file is dedicated to booting up our server.  Add a new
+directory called @file{models}, and inside this directory add a new file
+called @file{User.js}
+
+@node models Directory
+@subsection @file{models} Directory
+@cindex models directory
+
+@<Makefile Directory Definitions Hook@>=
+MODELS := ${SOURCE_DIR}/models
+@
+
+@<Makefile Directory Creation Hook@>=
+.Phony : ${MODELS}
+${MODELS} :
+	mkdir -p ${MODELS}
+@
+
+@(User.js@)=
+/* User.js
+ * Mongoose Model Classes
+ */
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-User
+move-User: | ${MODELS}
+	mv -f User.js ${MODELS}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-User
+@
+
+@node Model Class File User
+@subsection Model Class File @file{User.js}
+@cindex User.js file
+
+@(User.js@)=
+@<User_JS Requirements@>
+@<User_JS Schema Definition@>
+@<User_JS Model Class@>
+@
+
+This code must be @code{require}d by some code in order to be executed.
+This is best done from within our @file{index.js} file, as a requirement.
+
+@node User Implementation
+@subsubsection User.js Implementation
+@cindex User.js implementation
+
+@subsubheading Requirements
+
+To create a User schema, we must import the @file{mongoose} package, and
+then grab its @file{Schema} method (using ES6 shortcut).
+
+@<User_JS Requirements@>=
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+@
+
+@subsubheading Schema
+
+Create a new schema that contains the User's Google profile @samp{id};
+add a hook here so that we can add new schema attributes in the future. 
+
+@<User_JS Schema Definition@>=
+const userSchema = new Schema({
+  @<User_JS Schema Hook@>
+});
+@
+
+@<User_JS Schema Hook@>=
+googleId: String,
+@
+
+@subsubheading Model Class
+
+Create a model class for a @samp{user} collection and @samp{userSchema};
+a model class is created by calling the method with two parameters:
+
+@defun mongoose.model @var{collection} @var{schema}
+@end defun
+
+@<User_JS Model Class@>=
+mongoose.model('user', userSchema);
+@
+
+@node Required by Index_JS
+@subsubsection Require'd by @file{index.js}
+
+@<Index3JS Requirements@>=
+require('./src/models/User');
+@
 
 @node Saving Model Instances
 @section Saving Model Instances
