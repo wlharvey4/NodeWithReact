@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-03T17:09:30
-@c VERSION: VERSION 0.1.7
+@c DATE:    2018-01-03T19:27:46
+@c VERSION: VERSION 0.1.8
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.7
+@set EDITION 0.1.8
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -2817,13 +2817,29 @@ const User = mongoose.model('users');
 @
 
 @subsubheading Create a Model Instance from User Class
+@cindex new User
 
-A @code{new User} represents a single record, i.e., a single User inside
-the database.  The @code{save} method must be called to persist this record.
+A @code{new User} represents the creation of a single record, i.e., a
+single User inside the database.  The @code{save} method must be called
+to persist this record.  This method returns a promise, which will later
+be used to call the @code{done} method.
+
+@<Mongoose New User Save@>=
+new User({ googleId: profile.id }).save()
+@
+
+The new User and save code will be used in the event a new User logs in;
+however, we need to first @code{query} our database to see if the User
+is new or not; if not, then there is no need to create a new entry in
+the database.  The @code{findOne} method simply queries the database for
+an existing user.  @xref{Mongoose Queries}. 
+@cindex findOne
+@cindex done
+@anchor{Done}
 
 @<Google Strategy Callback Function2@>=
 (accessToken, refreshToken, profile, done) => {
-  new User({ googleId: profile.id }).save();
+  @<Mongoose User FindOne@>  
 }
 @
 
@@ -2846,14 +2862,59 @@ passport.use(
 );
 @
 
-
 @node Mongoose Queries
 @section Mongoose Queries
 @cindex queries, mongoose
+@cindex findOne
+@cindex asynchronous operation
+@cindex promise
+
+At this point our code will simply add a new entry in our database even
+if it represents the same User.  This code must be refactored to first
+check to see if the User attempting to log in has already logged in
+before.  If so, then skip the create User code.  If not, then create a
+new User.
+
+We will use our Model Class to search through all of the records in our
+database.  We will use a method @code{findOne} on the @code{User} Class
+object.  This method is an @dfn{asynchronous} operation and therefore
+returns a @code{promise} and is placed first in the callback.  The
+promise will return a User Model Instance (@code{existingUser} that will
+be null if there is no User already stored in the database.
+
+@<Mongoose User FindOne@>=
+ User.findOne({ googleId: profile.id })
+   .then( (existingUser) => {
+     if (existingUser) {
+       // have a record
+       @<Mongoose Done@>
+     } else {
+       // create a new record
+       @<Mongoose New User Save@>
+       .then(user => done(null, user));
+     }
+   });
+@
 
 @node Passport Callbacks
 @section Passport Callbacks
 @cindex passport callbacks
+@cindex done
+
+The GoogleStragegy code provides us with a @code{done} function as one
+of its parameters.  @xref{Done}. When we have finished creating our User
+in our database, or have found a User in the database, we call this
+@code{done} function to inform Passport that we are @samp{done} with
+what we have to do and it can proceed with the authentication flow.
+Done takes two parameters, as follows:
+
+@defun
+done @var{error} @var{USER_RECORD}
+@end defun
+
+@<Mongoose Done@>=
+done(null, existingUser);
+@
 
 @node Encoding Users
 @section Encoding Users
