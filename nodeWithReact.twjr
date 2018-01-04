@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-03T13:59:08
-@c VERSION: VERSION 0.1.6.5
+@c DATE:    2018-01-03T17:09:30
+@c VERSION: VERSION 0.1.7
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.6
+@set EDITION 0.1.7
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -2063,6 +2063,25 @@ and newline to the end of the prior script to allow this to work):
 @cindex mongodb
 @cindex MongoDB
 
+In this chapter, we will first refactor our code by splitting out much
+of the logic currently in @file{index.js} into separate directories and
+files.  Then, we will review authentication theory and signing in of
+Users, both for the first time and subsequent logins.  Then we will
+begin to incorporate MongoDB and Mongoose into our project.
+
+We will introduction MongoDB and Mongoose on a conceptual level, then
+set up a MongoDB deployment on @file{mLab} and obtain configuration data
+to use with our app.  After we get the configuration data, we will
+configure out app to actually connect to the @file{mlab} MongoDB
+database.
+
+The third phase will then discuss how to use Mongoose to save a User's
+Google ID in our Mongo database using Schemas, Model Classes and
+Instances.  We will see that requiring all of the code must be done in a
+particular order to avoid some difficult errors.  The callback function
+in GoogleStrategy will receive the User's Google ID, and save it to a
+collection that was previously defined in a schema.
+
 @node Server Refactor
 @section Server Structure Refactor
 @cindex server, refactor
@@ -2197,10 +2216,14 @@ personal information.  This file needs to import @file{passport},
 @code{use}'s the @file{GoogleStrategy}.
 
 @(passport.js@)=
+@<Passport Requirements@>
+@<Passport Use GoogleStrategy2@>
+@
+
+@<Passport Requirements@>=
 @<Import Passport@>
 @<Import GoogleStrategy@>
 @<Import Config Keys2@>
-@<Passport Use GoogleStrategy1@>
 @
 
 The path to the @file{keys.js} file has changed slightly.
@@ -2242,10 +2265,22 @@ require('./src/routes/authRoutes')(app);
 @<Start App@>
 @
 
+@anchor{Tricky Order}
+In many cases, the order of importing is not important.  However,
+because of the way the @file{passport.js} file will be implemented,
+there is an ordering issue that crops up later.  @file{index.js} must
+call both @file{passport.js} and @file{User.js} in order to execute
+them.  The code in @file{User.js} creates a Class that
+@file{passport.js} uses, and therefore @file{User.js} must be
+@code{require}d first, and is included here even though we have not yet
+discussed it. @xref{Model Class File User}.  
+
 @<Index3JS Requirements@>=
 @<Index0JS Requirements@>
-@<Import Passport1@>
+@<Require Mongoose@>
 @<Import Config Keys@>
+@<Import Model User@>
+@<Import Passport1@>
 @
 
 The @file{passport.js} file does not export anything, but it still needs
@@ -2587,7 +2622,7 @@ Tips & Tricks (from mLab’s blog)}
 
 @end table
 
-@node Mongoose to MongoDB
+@node Connect Mongoose to Mongo
 @section Connecting Mongoose to MongoDB
 @cindex mongoose, connecting to mongodb
 
@@ -2601,10 +2636,6 @@ NPM_INSTALLS += mongoose
 
 @<Require Mongoose@>=
 const mongoose = require('mongoose');
-@
-
-@<Index3JS Requirements@>=
-@<Require Mongoose@>
 @
 
 @subsubheading Mongo URI
@@ -2622,7 +2653,7 @@ directory.
 @
 
 @<MongoDB URI@>=
-  mongoURI: 'mongodb://pinecone062_user:Pinus sabiniana@@ds239587.mlab.com:39587/lolh-emaily-dev',
+  mongoURI: 'mongodb://pinecone062_user:Pinus-sabiniana@ds239587.mlab.com:39587/lolh-emaily-dev',
 @
 
 @subsubheading Connect
@@ -2724,21 +2755,97 @@ a model class is created by calling the method with two parameters:
 
 @defun mongoose.model @var{collection} @var{schema}
 @end defun
+@anchor{Model Class}
 
 @<User_JS Model Class@>=
-mongoose.model('user', userSchema);
+mongoose.model('users', userSchema);
 @
 
 @node Required by Index_JS
 @subsubsection Require'd by @file{index.js}
 
-@<Index3JS Requirements@>=
+For a note about tricky ordering, @pxref{Tricky Order}.
+
+@<Import Model User@>=
 require('./src/models/User');
 @
 
-@node Saving Model Instances
+@node Mongoose Model Instances
 @section Saving Model Instances
 @cindex model instances, saving
+
+Now that we have created a @samp{model class}, we need to create and
+save a @samp{model instance} so that a User's @code{id} can be stored
+and then later retrieved.  The User's profile is obtained from the
+callback function associated with the Passport authentication and
+authorization call currently in @file{passport.js} (@pxref{Tokens}).
+The callback receives several parameters, one of which is a
+@code{profile}.  One of the objects attached to this @code{profile} is
+the @code{id}.  The callback function receives the @code{profile}, and
+extracts the @code{id} from it.  This token must be @code{save}d in our
+database in order to retrieve it in future sessions.
+
+@subheading Accessing Mongoose Model Class
+
+First, however, we need to get access to the Mongoose Model that we
+created in @file{models/User.js} (@pxref{Model Class File User}).
+Usually, this file would @code{export} some code that would then be
+@code{require}d by some other code.  We will not do that here because it
+would become confused about what Models we were actually using when run
+inside a testing environment (@file{mocha} or @file{jest}).  So,
+instead, the @file{passport.js} file will @code{require} the
+@file{mongoose} package, and then call its @code{model} method with the
+collection name: @code{users}.
+
+@subsubheading Require mongoose package
+
+@<Passport Requirements@>=
+const mongoose = require('mongoose');
+@
+
+@subsubheading Create a User Object
+
+Our @file{User.js} code loaded a @code{userSchema} associated with a
+@code{users} collection into Mongoose.  Now, we can extract that schema
+into an object by called the @code{model} method with just the
+collection name, @code{users}.  The variable @code{User} becomes our
+Model Class.  This Model Class can then be used to create a Model
+Instance (a single record) that can be persisted in our database.
+
+@<Passport Requirements@>=
+const User = mongoose.model('users');
+@
+
+@subsubheading Create a Model Instance from User Class
+
+A @code{new User} represents a single record, i.e., a single User inside
+the database.  The @code{save} method must be called to persist this record.
+
+@<Google Strategy Callback Function2@>=
+(accessToken, refreshToken, profile, done) => {
+  new User({ googleId: profile.id }).save();
+}
+@
+
+This callback function is the second argument of the GoogleStrategy
+options; the first argument does not change.
+
+@<Google Strategy Options2@>=
+@<Google Strategy Object@>,
+@<Google Strategy Callback Function2@>
+@
+
+Now use the new GoogleStrategy with the new callback:
+
+@<Passport Use GoogleStrategy2@>=
+@<Passport Header@>
+passport.use(
+  new GoogleStrategy(
+    @<Google Strategy Options2@>
+  )
+);
+@
+
 
 @node Mongoose Queries
 @section Mongoose Queries
