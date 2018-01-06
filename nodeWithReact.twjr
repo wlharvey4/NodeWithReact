@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-03T19:27:46
-@c VERSION: VERSION 0.1.8
+@c DATE:    2018-01-06T10:26:15
+@c VERSION: VERSION 0.1.9
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.8
+@set EDITION 0.1.9
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -659,12 +659,14 @@ Will start with the Express Server first.
 @cindex express and node
 
 @set PROJECT server
+@set BASE_FILENAME nodeWithReact
 
 Will start a brand new Node project directory and install Express into
 it, and then discuss the differences between Node and Express inside the
-project.  The new project directory will be @file{@value{PROJECT}}.  NPM
-will create a new @file{package.json} file in the project directory
-through the @code{npm init --yes} command.
+project.  The new project directory will be @file{@value{PROJECT}}.  The
+base filename will be @file{@value{BASE_FILENAME}}.  NPM will create a
+new @file{package.json} file in the project directory through the
+@code{npm init --yes} command.
 
 @node Install Node Project With Express
 @subsection Install a New Node Project With Express
@@ -682,31 +684,40 @@ ROOT := server
 
 @
 
+@<Makefile Base Filename Definition@>=
+FILENAME := nodeWithReact
+@
+
 @item
 Initialize new Node Project: @code{npm init --yes}
 
+@<Makefile Filename Definitions Hook@>=
+PACKAGE.JSON := ${ROOT}/package.json
+@
+
 @<Makefile NPM Hooks@>=
 .Phony : npm-init
-npm-init : package.json
-package.json : | ${ROOT}
+npm-init : ${PACKAGE.JSON}
+${PACKAGE.JSON} : | ${ROOT}
 	cd ${ROOT} && npm init --yes
 @
 
 @<Makefile NPM@>=
-NPM += npm-init
+NPM = npm-init
 @
 
 @item
 Install @file{express}
 
 @<Makefile NPM Hooks@>=
+ 
 .Phony : npm-install
-npm-install : package.json
-	cd ${ROOT} && npm install ${NPM_INSTALLS}
+npm-install : ${PACKAGE.JSON}
+	-[ ! -d ${ROOT}/node_modules ] && cd ${ROOT} && npm install ${NPM_INSTALLS}
 @
 
 @<Makefile NPM@>=
-NPM += npm-install
+NPM = npm-install
 @
 
 @<Makefile Filename Definitions Hook@>=
@@ -780,6 +791,10 @@ will respond to the incoming HTTP request.
 Create the root file @file{index.js} in the root directory of the
 project: @value{PROJECT}
 
+@<Makefile Filename Definitions Hook@>=
+INDEX.JS := index.js
+@
+
 Import @file{express} library, then create an @samp{application} by
 executing the @file{express} code.  That is, inside of a single Node.js
 project, there might be several different @file{express} applications.
@@ -849,10 +864,10 @@ app.get('/', (req, res) => {
 @subsection Move Index Hook
 
 @<Makefile Move Hook@>=
-@<Makefile Move INDEXJS Hook@>
+@<Makefile Move INDEX.JS Hook@>
 @
 
-@<Makefile Move INDEXJS Hook@>=
+@<Makefile Move INDEX.JS Hook@>=
 .Phony : move-indexjs
 move-indexjs : | ${ROOT}
 	mv index*.js ${ROOT}
@@ -903,15 +918,15 @@ const express = require('express');
 @subsection Makefile Additions for @file{index.js}
 
 @<Makefile Filename Definitions Hook@>=
-@<Makefile Filename INDEXJS Hook@>
+@<Makefile Filename INDEX.JS Hook@>
 @
 
-@<Makefile Filename INDEXJS Hook@>=
-INDEXJS_ALL := index0.js
+@<Makefile Filename INDEX.JS Hook@>=
+INDEX.JS_ALL := index0.js
 @
 
 @<Makefile Create Files Targets@>=
-${INDEXJS_ALL} : | ${ROOT}
+${INDEX.JS_ALL} : | ${ROOT}
 @
 
 @node Run IndexJS
@@ -919,10 +934,14 @@ ${INDEXJS_ALL} : | ${ROOT}
 @cindex index.js, run
 
 @<Makefile Run Hooks@>=
+ 
+####################
+# RUN HOOKS        #
+####################
 .Phony : server-start
 server-start :
 	cd ${ROOT} && npm run dev
-#	cd ${ROOT} && node ${INDEXJS} &
+#	cd ${ROOT} && node ${INDEX.JS} &
 @
 
 @node Route Handlers
@@ -1124,15 +1143,17 @@ it has done its work.  The script is called by @file{make} after
 
 @node Makefile Sed Utility Additions
 @subsubsection Makefile Sed Utility Additions
+@cindex npm-package-modify
 
 @<Makefile NPM Hooks@>=
+ 
 .Phony : npm-package-modify
-npm-package-modify :
-	sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
+npm-package-modify : npm-install
+	-sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
 @
 
 @<Makefile NPM@>=
-NPM += npm-package-modify
+NPM = npm-package-modify
 @
 
 @node Heroku Gitignore File
@@ -1532,8 +1553,8 @@ passport.use(
 @<Start App@>
 @
 
-@<Makefile Filename INDEXJS Hook@>=
-INDEXJS_ALL += index1.js
+@<Makefile Filename INDEX.JS Hook@>=
+INDEX.JS_ALL += index1.js
 @
 
 @<Makefile Link Target Hook@>=
@@ -2030,8 +2051,8 @@ profile { id: '111187604413365458197',
 @node Makefile Additions New Options Object
 @subsubsection Makefile Additions for New Options Object
 
-@<Makefile Filename INDEXJS Hook@>=
-INDEXJS_ALL += index2.js
+@<Makefile Filename INDEX.JS Hook@>=
+INDEX.JS_ALL += index2.js
 @
 
 @<Makefile Link Target Hook@>=
@@ -2256,10 +2277,14 @@ file still needs to set up and start the application's server,
 send it the @code{app} that it has created.  Finally, it needs to
 connect to the @file{mLab} Mongo database we will create shortly.
 
+To allow code down the line to hook into our app, we will give it a
+@samp{Use Hook} right after it is created.
+
 @(index3.js@)=
 @<Index3JS Requirements@>
 @<Server Port Assignment@>
 @<Create App@>
+@<App Use Hook@>
 require('./src/routes/authRoutes')(app);
 @<Connect Mongoose@>
 @<Start App@>
@@ -2296,8 +2321,8 @@ This code links the current @file{index3.js} as @file{index.js}.
 	ln -f ${ROOT}/index3.js ${ROOT}/index.js
 @
 
-@<Makefile Filename INDEXJS Hook@>=
-INDEXJS_ALL += index3.js
+@<Makefile Filename INDEX.JS Hook@>=
+INDEX.JS_ALL += index3.js
 @
 
 @node Authentication Theory
@@ -2908,8 +2933,9 @@ in our database, or have found a User in the database, we call this
 what we have to do and it can proceed with the authentication flow.
 Done takes two parameters, as follows:
 
-@defun
-done @var{error} @var{USER_RECORD}
+@defun done @var{error} @var{USER_RECORD}
+This function communicates with Passport that the callback has completed
+its job and Passport can continue its authentication flow.
 @end defun
 
 @<Mongoose Done@>=
@@ -2919,14 +2945,118 @@ done(null, existingUser);
 @node Encoding Users
 @section Encoding Users
 @cindex encoding users
+@cindex serializeUser
+
+Passport will call a function @code{serializeUser} with the User's
+@code{id} that it has obtained from Google.  This will set a
+@dfn{cookie} in the User's browser.  When a logged-in User makes another
+request to the server, that @samp{cookie} will automatically be sent by
+the browser.  Passport will then take that @samp{cookie} and call a
+second function called @code{deserializeUser}.  Passport will use that
+cookie to return a User Model to the server.
+
+@node Serialize User
+@subsection Serialize User Function
+@cindex serializeUser
+@cindex done
+
+Serialize User is already a function in Passport; we provide it with a
+function as its parameter.  Our function takes two arguments:
+@code{user} (our User Instance) and @code{done}.  @samp{done} takes two
+parameters: an error, and an @samp{id} (MongoDB's id code, not the
+Google id).
+
+@<Serialize User@>=
+passport.serializeUser(
+  (user, done) => {
+    done(null, user.id);
+  }
+);
+@
+
+@(passport.js@)=
+@<Serialize User@>
+@
 
 @node Deserialize User
-@section Deserialize User
+@subsection Deserialize User
 @cindex deserialize user
+@cindex deserializeUser
+@cindex findById
+
+@<Deserialize User@>=
+passport.deserializeUser(
+  (id, done) => {
+    User.findById().then (
+      user => {
+        done(null, user);
+      });
+});
+@
+
+@(passport.js@)=
+@<Deserialize User@>
+@
 
 @node Enable Cookies
 @section Enable Cookies
 @cindex cookies, enable
+
+Express does not know how to manage @samp{cookies}, and so it must
+receive a helper package, @file{cookie-session}.  Express must also be
+told to use @file{cookie-session}.
+
+@subheading Load and Import Cookie-Session
+
+@<Makefile NPM_INSTALLS@>=
+NPM_INSTALLS += cookie-session
+@
+
+@<Import Cookie-Sessions@>=
+const cookieSession = require('cookie-session');
+@
+
+@<Index3JS Requirements@>=
+@<Import Cookie-Sessions@>
+@<Import Passport@>
+@
+
+@subheading App Use Cookie-Sessions
+
+Express must be told to @code{use} CookieSessions.  It must also be told
+how to encrypt the cookie, and so first we add an attribute to our
+@file{keys.js} object to help Express do the encryption:
+@samp{cookieKey}, which is a random string of characters.
+
+@<CookieKey@>=
+  cookieKey: 'dkdfnvasiiennvkldaldkeislsldf',
+@
+
+@<Keys_JS Internals@>=
+@<CookieKey@>
+@
+
+The @samp{use} method is told to @samp{use} @code{cookieSession}, which
+takes two parameters: a @code{maxAge} (in milliseconds) and a
+@code{keys}, which is a random string of characters used to encrypt the
+cookie data.
+
+@<App Use Hook@>=
+app.use(
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [keys.cookieKey]
+  })
+);
+@
+
+Now tell the server to @code{use} Passport by @code{initalize}ing it and
+using cookie @code{session}s.
+
+@<App Use Hook@>=
+app.use(passport.initialize());
+app.use(passport.session());
+@
 
 @node Testing Authentication
 @section Testing Authentication
@@ -3019,6 +3149,10 @@ done(null, existingUser);
 @appendixsubsec Makefile Constant Definitions
 
 @<Makefile Constants@>=
+ 
+####################
+# CONSTANT DEF'S
+####################
 @<Makefile Directory Definitions@>
 @<Makefile Filename Definitions@>
 @<Makefile Move Prereqs@>
@@ -3029,6 +3163,10 @@ done(null, existingUser);
 @appendixsubsubsec Makefile Directory Definitions
 
 @<Makefile Directory Definitions@>=
+ 
+####################
+# DIRECTORY DEF'S  #
+####################
 PREFIX := .
 @<Makefile Root Definition@>
 SOURCE_DIR := ${PREFIX}/${ROOT}/src
@@ -3042,11 +3180,14 @@ HTML_DIR := ${PREFIX}/${ROOT}/html
 @appendixsubsubsec Makefile Filename Definitions
 
 @<Makefile Filename Definitions@>=
-FILENAME := nodeWithReact
+ 
+####################
+# FILENAME DEF'S   #
+####################
+@<Makefile Base Filename Definition@>
 TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
-INDEXJS := index.js
 @<Makefile Filename Definitions Hook@>
 
 @
@@ -3198,7 +3339,6 @@ ${HTML_DIR} :
 @<Makefile Directory Creation Hook@>
 
 @
-
 @node Directories to gitignore
 @appendixsubsubsec Directories to gitignore
 @cindex gitignore directories
@@ -3251,6 +3391,10 @@ link-indexjs :
 @appendixsubsec Makefile NPM Targets
 
 @<Makefile NPM Targets@>=
+ 
+####################
+# NPM TARGETS      #
+####################
 .Phony : npm
 npm : ${NPM}
 
@@ -3293,9 +3437,9 @@ server-stop :
 @<Makefile Echo Variables@>=
 echo-all : echo-index echo-index-all echo-move-prereqs echo-npm-installs
 echo-index :
-	echo INDEXJS: ${INDEXJS}
+	echo INDEX.JS: ${INDEX.JS}
 echo-index-all :
-	echo INDEXJS_ALL: ${INDEXJS_ALL}
+	echo INDEX.JS_ALL: ${INDEX.JS_ALL}
 echo-move-prereqs :
 	echo MOVE_PREREQS: ${MOVE_PREREQS}
 echo-npm-installs :
