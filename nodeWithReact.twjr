@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-06T10:26:15
-@c VERSION: VERSION 0.1.9
+@c DATE:    2018-01-06T18:48:51
+@c VERSION: VERSION 0.2.0
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.1.9
+@set EDITION 0.2.0
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -1165,8 +1165,15 @@ node_modules
 
 @<Makefile Move Hook@>=
 .Phony : move-gitignore
-move-gitignore : | ${ROOT}
+move-gitignore : ${ROOT}/.gitignore
+
+${ROOT}/.gitignore : | ${ROOT}
 	mv gitignore ${ROOT}/.gitignore
+
+# Necessary when install-files is run but .gitignore exists in ROOT
+.Phony : rm-gitignore
+rm-gitignore: 
+	[ -f gitignore ] && rm gitignore
 @
 
 @<Makefile Move Prereqs@>=
@@ -1201,8 +1208,13 @@ we have to do is commit our codebase to Git.
 
 @<Makefile Git Targets@>=
 .Phony : git-init
-git-init :
-	cd ${ROOT} && git init && git add . && git commit -m "Initial commit"
+git-init : ${ROOT}/.git move-gitignore rm-gitignore
+
+${ROOT}/.git : | ${ROOT}
+	cd ${ROOT} && \
+	git init && \
+	git add . && \
+	git commit -m "Initial commit"
 @
 
 @example
@@ -3274,8 +3286,7 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 @<Makefile Clean@>=
 .Phony : clean
 clean : server-stop
-	rm -f *~
-	rm -f *.{texi,aux,cp,log,toc,js}
+	rm -f *.{texi,aux,cp,log,toc,js} *~
 @<Makefile Clean Hook@>
 @
 
@@ -3288,9 +3299,14 @@ clean : server-stop
 @<Makefile Very Clean@>=
 .Phony : very-clean
 very-clean : clean
-	rm -f *.{info,js,html}
-	rm -rf ${HTML_DIR}
-	find ${PREFIX} -depth 2 -name \*.js -exec rm {} \;
+	rm -rf *.{info,js,html} ${HTML_DIR}
+	find -d ${ROOT} \
+		-not \( \
+		  -path \*/node_modules\* -or \
+		  -path \*/.git\* -or \
+		  -path ${ROOT} -or \
+		  -name package\* \
+		\) -exec rm -r {} \;
 
 @
 
@@ -3310,7 +3326,6 @@ very-clean : clean
 dist-clean : very-clean
 	rm -rf ${ROOT}
 	rm -rf auto
-
 @
 
 @<Makefile Dist Clean Hook@>=
