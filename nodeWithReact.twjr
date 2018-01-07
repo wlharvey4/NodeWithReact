@@ -2,8 +2,8 @@
 
 @c ==================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-06T18:48:51
-@c VERSION: VERSION 0.2.0
+@c DATE:    2018-01-06T19:05:52
+@c VERSION: VERSION 0.2.1
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.2.0
+@set EDITION 0.2.1
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -2663,19 +2663,41 @@ Tips & Tricks (from mLab’s blog)}
 @section Connecting Mongoose to MongoDB
 @cindex mongoose, connecting to mongodb
 
-@subsubheading Install the @file{mongoose} driver in @file{packages}.
+In order to connect Mongooose to MongoDB, perform the following steps:
+
+@enumerate
+@item
+Install the @file{mongoose} npm package (@pxref{mongoose npm package})
+
+@item
+Require Mongoose in our @file{index.js} file (@pxref{require mongoose
+driver})
+
+@item
+Place MongoDB's URI into the @file{keys.js} config file (@pxref{MongoDB
+URI})
+
+@item
+Call Mongoose's @code{connect} method to connect to MongoDB
+(@pxref{Connect to MongoDB})
+@end enumerate
+
+@node mongoose npm package
+@subsection Install the @file{mongoose} driver in @file{packages}.
 
 @<Makefile NPM_INSTALLS@>=
 NPM_INSTALLS += mongoose
 @
 
-@subsubheading Require the @file{mongoose} driver in our application:
+@node require mongoose driver
+@subsection Require the @file{mongoose} driver in our application:
 
 @<Require Mongoose@>=
 const mongoose = require('mongoose');
 @
 
-@subsubheading Mongo URI
+@node MongoDB URI
+@subsection MongoDB URI
 
 Connect to the @file{mLab} MongoDB instance at the correct MongoDB URI
 given by @file{mLab}, of the form:
@@ -2693,7 +2715,8 @@ directory.
   mongoURI: 'mongodb://pinecone062_user:Pinus-sabiniana@ds239587.mlab.com:39587/lolh-emaily-dev',
 @
 
-@subsubheading Connect
+@node Connect to MongoDB
+@subsection Connect to MongoDB
 
 Finally, have @file{mongoose} call its @code{connect} method to connect
 to the MongoDB database.
@@ -3286,7 +3309,7 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 @<Makefile Clean@>=
 .Phony : clean
 clean : server-stop
-	rm -f *.{texi,aux,cp,log,toc,js} *~
+	-rm -f *.{texi,aux,cp,log,toc,js} *~
 @<Makefile Clean Hook@>
 @
 
@@ -3299,8 +3322,8 @@ clean : server-stop
 @<Makefile Very Clean@>=
 .Phony : very-clean
 very-clean : clean
-	rm -rf *.{info,js,html} ${HTML_DIR}
-	find -d ${ROOT} \
+	-rm -rf *.{info,js,html} ${HTML_DIR}
+	-find -d ${ROOT} \
 		-not \( \
 		  -path \*/node_modules\* -or \
 		  -path \*/.git\* -or \
@@ -3324,8 +3347,8 @@ very-clean : clean
 @<Makefile Dist Clean Default@>=
 .Phony : dist-clean
 dist-clean : very-clean
-	rm -rf ${ROOT}
-	rm -rf auto
+	-rm -rf ${ROOT}
+	-rm -rf auto
 @
 
 @<Makefile Dist Clean Hook@>=
