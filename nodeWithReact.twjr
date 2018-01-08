@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.1.0
- * DATE:   2018-01-07T13:33:38
+ * VER:    v0.2.3
+ * DATE:   2018-01-08T05:50:26
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
