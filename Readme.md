@@ -8,7 +8,19 @@ The entire full stack project plus all notes and documentation plus a
 master Makefile are wrapped up inside the one source file
 _nodeWithReact.twjr_.
 
-# Install the Project
+# Requirements
+
+This is a literate programming project using _Texiweb Jr_ by Arnold
+Robbins.  See https://github.com/arnoldrobbins/texiwebjr.  This is
+a project written as a literate program itself.
+
+You will need _texiwebjr_ and _texinfo_ ver 6.5 installed in order to
+extract the files in this project.  When it is all done, I will
+probably have a PDF, HTML, and TEXT documents for review, but to
+create the project implementation you will still need to have the
+_texiwebjr_ and _texinfo_ files installed.
+
+# How to Install and Interact with the Project
 
 To extract the Makefile, execute _bootstrap_.
 
