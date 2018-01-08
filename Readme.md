@@ -8,6 +8,10 @@ The entire full stack project plus all notes and documentation plus a
 master Makefile are wrapped up inside the one source file
 _nodeWithReact.twjr_.
 
+The documentation can be extracted as either an _Info_ file or as a
+PDF or HTML file, and explains how to set up a faily complete and
+complex full stack web application.
+
 # Requirements
 
 This is a literate programming project using _Texiweb Jr_ by Arnold
