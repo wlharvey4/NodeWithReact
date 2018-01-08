@@ -1,13 +1,13 @@
 \input texinfo @c -*- texinfo -*-
 
-@c ==================================================
+@c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-06T19:05:52
-@c VERSION: VERSION 0.2.1
+@c DATE:    2018-01-08T03:50:26
+@c VERSION: VERSION 0.2.2
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
-@c ==================================================
+@c ==============================================================
 
 @c %**start of header
 @c edit
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.2.1
+@set EDITION 0.2.2
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -255,6 +255,22 @@ Acknowledgments here...
 
 @node Introduction
 @unnumbered Introduction
+
+@<App Header@> =
+/*
+ * FILE:   index.js
+ *         --------
+ * VER:    v0.1.0
+ * DATE:   2018-01-07T13:33:38
+ * AUTHOR: LOLH
+ * ABOUT:  Entry-point for app 'emaily';
+ *         Initialize and start application services, such as
+ *         server and routes, authentication, database
+ * NOTES:  From Udemy course 'Node with React---Full Stack
+ *         Web Development version 4'
+ * TODO:   
+ *************************************************************/
+@
 
 Build and deploy fullstack web apps with NodeJS, React, Redux, Express, and MongoDB.
 
@@ -814,8 +830,13 @@ will be associated with the @file{express} @var{app} that we create here.
 @<Start App@>
 @
 
+@set VERSION 0.1.0
+@set DATETIME 2018-01-07T13:30:47
+
 @<Index0JS Requirements@>=
  
+@<App Header@>
+
 /*********************
   REQUIREMENTS
  *********************/
@@ -825,7 +846,7 @@ will be associated with the @file{express} @var{app} that we create here.
 @<Create App@>=
  
 /*********************
-  APPLICATION
+  APPLICATION SERVER
  *********************/
 const app = express();
 @
@@ -835,9 +856,9 @@ coming in from port 5000.
 
 @<Start App@>=
  
-/*********************
-  START SERVER
- *********************/
+/*-------------------
+ * Start Server
+ *-------------------*/
 app.listen(PORT);
 @
 
@@ -2222,7 +2243,21 @@ created.
 @<Import Passport@>
 module.exports = (app) => {
   @<Create Google Auth Route Handlers@>
+  @<AuthRoutes Route Handler Hook@>
 }
+@
+
+@subsubheading authRoutes in index.js
+
+The above code must be be imported into @file{index.js}, which must
+execute the exported function with a parameter of the @file{app}.
+
+@<Initialize AuthRoutes With App@>=
+ 
+/*-------------------
+ * Initialize authRoutes
+ *-------------------*/
+require('./src/routes/authRoutes')(app);
 @
 
 This code moves the file @file{authRoutes.js} into the @file{routes}
@@ -2297,9 +2332,9 @@ To allow code down the line to hook into our app, we will give it a
 @<Server Port Assignment@>
 @<Create App@>
 @<App Use Hook@>
-require('./src/routes/authRoutes')(app);
-@<Connect Mongoose@>
+@<Initialize AuthRoutes With App@>
 @<Start App@>
+@<Connect Mongoose@>
 @
 
 @anchor{Tricky Order}
@@ -2717,12 +2752,34 @@ directory.
 
 @node Connect to MongoDB
 @subsection Connect to MongoDB
+@cindex mongoose connect
+@cindex connect to mongodb, mongoose
 
 Finally, have @file{mongoose} call its @code{connect} method to connect
 to the MongoDB database.
 
 @<Connect Mongoose@>=
-mongoose.connect(keys.mongoURI)
+ 
+/********************
+ * MongoDB
+ ********************/
+mongoose.Promise = Promise;
+mongoose.connect(keys.mongoURI, {
+  @<Use Mongoose Options@>
+})
+@
+
+@subsubheading Mongoose Connection Options
+
+The Mongoose connection method takes an object of options; need to use
+at least one option, @code{useMongoClient: true}.
+
+@<Use Mongoose Options@>=
+@<Use MongoClient@>
+@
+
+@<Use MongoClient@>=
+useMongoClient: true,
 @
 
 @node Mongoose Model Classes
@@ -2947,9 +3004,11 @@ be null if there is no User already stored in the database.
    .then( (existingUser) => {
      if (existingUser) {
        // have a record
+       console.log(`found an existing user: ${existingUser}`);
        @<Mongoose Done@>
      } else {
        // create a new record
+       console.log(`creating a new user for ${profile.id}`);
        @<Mongoose New User Save@>
        .then(user => done(null, user));
      }
@@ -2966,7 +3025,7 @@ of its parameters.  @xref{Done}. When we have finished creating our User
 in our database, or have found a User in the database, we call this
 @code{done} function to inform Passport that we are @samp{done} with
 what we have to do and it can proceed with the authentication flow.
-Done takes two parameters, as follows:
+Done takes two parameters, as follows: @anchor{done function}
 
 @defun done @var{error} @var{USER_RECORD}
 This function communicates with Passport that the callback has completed
@@ -2999,7 +3058,7 @@ Serialize User is already a function in Passport; we provide it with a
 function as its parameter.  Our function takes two arguments:
 @code{user} (our User Instance) and @code{done}.  @samp{done} takes two
 parameters: an error, and an @samp{id} (MongoDB's id code, not the
-Google id).
+Google id).  @xref{done function}
 
 @<Serialize User@>=
 passport.serializeUser(
@@ -3019,74 +3078,182 @@ passport.serializeUser(
 @cindex deserializeUser
 @cindex findById
 
+@dfn{Deserialize User} means to take a @samp{user.id} and turn that into
+an actual @samp{user model}.  @command{passport.deserializeUser} takes a
+callback that we define:
+
 @<Deserialize User@>=
 passport.deserializeUser(
-  (id, done) => {
-    User.findById().then (
-      user => {
-        done(null, user);
-      });
-});
+  @<Deserialize User Callback@>
+);
+@
+
+@subsubheading Deserialize User Callback
+
+Our callback will take two parameters: @var{USER_ID} and @var{done}.  We
+will use the @var{USER_ID} to obtain a Mongoose Model Instance
+@var{user}.  We do that by using the Mongoose method
+@code{User.findById()}.
+
+@<Deserialize User Callback@>=
+(id, done) => {
+  @<Mongoose findById Method@>
+}
+@
+
+@subsubheading Mongoose findById method
+
+@samp{findById} works be receiving an @code{id} and then searching every
+document for a record that contains that @code{id}.  Anytime we access
+our database, it is done through an @strong{asynchronous} action and so
+returns a @strong{promise} that is @strong{resolved} after a @var{user}
+with the given @var{id} is found.  After the @var{user} is found, we
+will call @code{done} with that @var{user}.  @code{done} always takes
+two parameters: an @code{error} object and the @var{user} that we found.
+
+@<Mongoose findById Method@>=
+User.findById(id)
+  .then (user => {
+    done(null, user);
+  });
 @
 
 @(passport.js@)=
 @<Deserialize User@>
 @
 
-@node Enable Cookies
-@section Enable Cookies
+@subsubheading Cookies
+
+While we have just defined @code{serializeUser} and
+@code{deserializeUser}, we still have to tell @code{Passport} that we
+want it to manage our authentication using cookies.  This is only one
+way in @code{Passport} can do this job, and so we must instruct it to do
+so.  
+
+@node cookie-session
+@subsection Enable Cookies with @file{cookie-session}
 @cindex cookies, enable
+@cindex cookie-session, package
+@cindex package cookie-session
 
-Express does not know how to manage @samp{cookies}, and so it must
-receive a helper package, @file{cookie-session}.  Express must also be
-told to use @file{cookie-session}.
+Express does not know that we want it to manage authentication of users
+by using @samp{cookies}, nor even how to do that, and so it must receive
+a helper package, @file{cookie-session}.
 
-@subheading Load and Import Cookie-Session
+@node Import cookie-session
+@subsubsection Load and Import Cookie-Session and Passport
+@cindex require cookie-session
+@cindex cookie-session, require
+@cindex import cookie-session
+
+@subsubheading Install cookie-session
+
+The first step is to install @file{cookie-session} as a requirement of
+our project:
 
 @<Makefile NPM_INSTALLS@>=
 NPM_INSTALLS += cookie-session
 @
 
+@subsubheading Require cookie-session
+
+and then import this package into our @file{index.js} file.
+
 @<Import Cookie-Sessions@>=
 const cookieSession = require('cookie-session');
 @
+
+@subsubheading Require passport
+
+In addition to importing@file{cookie-session}, we also need to import
+the @file{passport} package into @file{index.js} as well.
 
 @<Index3JS Requirements@>=
 @<Import Cookie-Sessions@>
 @<Import Passport@>
 @
 
-@subheading App Use Cookie-Sessions
+@node Use cookie-session
+@subsubsection App Use Cookie-Sessions
+@cindex use cookie-session
+@cindex cookie-session, use
 
-Express must be told to @code{use} CookieSessions.  It must also be told
-how to encrypt the cookie, and so first we add an attribute to our
-@file{keys.js} object to help Express do the encryption:
-@samp{cookieKey}, which is a random string of characters.
+We have named our @file{Express} server @code{app}.  @code{app} has a
+@code{use} method which will receive the @file{cookie-session} code that
+we just imported.  We will discuss the @code{use} method of
+@file{Express} in a later section.
+
+@<App Use Hook@>=
+ 
+/*-------------------
+ * CookieSession    
+ *-------------------*/
+app.use(
+  @<App Use cookieSession@>
+);
+@
+
+@subsubheading Use cookieSession
+
+@file{cookie-session} itself takes two parameters: a @code{maxAge} in
+milliseconds, and an array of @code{keys} that are used to encrypt the
+cookie.
+
+@<App Use cookieSession@>=
+cookieSession({
+  @<cookieSession maxAge Parameter@>
+  @<cookieSession keys Parameter@>
+})
+@
+
+@subsubheading maxAge of 30 days
+
+Let's set @code{maxAge} to 30 days (in milliseconds):
+
+@<cookieSession maxAge Parameter@>=
+maxAge: 30 * 24 * 60 * 60 * 1000,
+@
+
+@subsubheading cookieKey
+
+Nex, we add an attribute to our @file{keys.js} object to help Express do
+the encryption: @samp{cookieKey}, which is a random string of
+characters.  Whenever we send out this cookie, it will always be
+encrypted.  We place a random string of characters into our
+@file{keys.js} @file{config} file so that it is not saved as part of our
+public code, but kept secret, and the cookie-session code will read this
+random string as part of the exported @file{keys} object.
 
 @<CookieKey@>=
   cookieKey: 'dkdfnvasiiennvkldaldkeislsldf',
 @
 
+Place this @code{cookieKey} into @file{keys.js}:
+
 @<Keys_JS Internals@>=
 @<CookieKey@>
 @
 
-The @samp{use} method is told to @samp{use} @code{cookieSession}, which
-takes two parameters: a @code{maxAge} (in milliseconds) and a
-@code{keys}, which is a random string of characters used to encrypt the
-cookie data.
+The @code{cookie-session} parameter reads this @code{cookieKey} from the
+@file{keys.js} object.  @file{cookie-session} takes an array of random
+strings, and randomly picks one each time as an extra measure of
+security. 
 
-@<App Use Hook@>=
-app.use(
-  cookieSession({
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    keys: [keys.cookieKey]
-  })
-);
+@<cookieSession keys Parameter@>=
+keys: [keys.cookieKey]
 @
 
-Now tell the server to @code{use} Passport by @code{initalize}ing it and
-using cookie @code{session}s.
+@node Passport Use Cookies
+@subsubsection Passport Use Cookies
+@cindex use cookies
+
+The last step is tell @file{Passport} that it should make use of
+@samp{cookies} to handle authentication.  First, @command{initialize}
+@file{Passport}, and then tell @file{Passport} to use
+@file{cookie-session}.
+
+These last two commands essentially complete authentication for our
+app.  
 
 @<App Use Hook@>=
 app.use(passport.initialize());
@@ -3096,6 +3263,58 @@ app.use(passport.session());
 @node Testing Authentication
 @section Testing Authentication
 @cindex authentication, testing
+
+In the last section, we finished wiring up the @samp{authentication
+flow} by enabling cookies (telling @file{app} to @code{use} the
+@file{cookie-session} library) and then telling @file{Passport} to use
+cookies to @samp{manage} our authentication (@code{use
+}@code{initialize} and @code{session}).  We are now able to
+@samp{authenticate}, but what does this mean for our application?
+
+@subheading Authentication Flow Diagram
+
+@table @b
+@item Request Comes In
+
+@item Cookie-Session
+Extracts cookie data
+
+@item Passport
+Pulls User_Id out of cookie data
+
+@item Deserialize User
+Function to turn User_Id into a User
+
+@item Request (@code{req})
+User Model Instance added to Request Object as @code{req.user}
+
+@item Route Handler
+Request is sent to the Route Handler
+
+@end table
+
+To test this process, we will add a new route handler whose sole job is
+to inspect the @code{req.user} property.  If we can get ahold of this
+property, then our authentication must be working properly.
+
+@node Route Handler for req user
+@subsection Route Handler for @code{req.user}
+@cindex route handler, req.user
+@cindex req.user route handler
+
+Add a third route handler to the @file{authRoutes.js} file, underneath
+the two handlers dealing with Google's authentication.  This handler
+will simply return the @code{req.user} property.
+
+@<Current User Route Handler@>=
+app.get('/api/current_user', (req, res) => {
+  res.send(req.user);
+})
+@
+
+@<AuthRoutes Route Handler Hook@>=
+@<Current User Route Handler@>
+@
 
 @node Logging Out Users
 @section Logging Out Users
