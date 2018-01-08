@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-08T03:50:26
-@c VERSION: VERSION 0.2.2
+@c DATE:    2018-01-08T05:50:26
+@c VERSION: VERSION 0.2.3
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.2.2
+@set EDITION 0.2.3
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -3271,6 +3271,7 @@ cookies to @samp{manage} our authentication (@code{use
 }@code{initialize} and @code{session}).  We are now able to
 @samp{authenticate}, but what does this mean for our application?
 
+@anchor{Middleware Diagram}
 @subheading Authentication Flow Diagram
 
 @table @b
@@ -3321,9 +3322,118 @@ app.get('/api/current_user', (req, res) => {
 @cindex logging out, users
 @cindex users, logging out
 
+One final bit of code is required to allow a User to log out of the
+application.  Add a route handler inside @file{authRoutes.js} called
+@code{/api/logout} that logs out the User.  Passport adds a method to
+the @code{req} object called @samp{logout}.  When this method is
+executed, Passport @samp{kills} the @samp{user_id} that is inside the
+cookie.  To send a message to the User that that person is actually
+logged out, send a message that includes the @samp{user}, which should
+be undefined at that point (nothing will be logged to the browser).
+Also, hitting @kbd{/api/current_user} should produce a totally blank
+browser screen also.
+
+@<AuthRoutes Route Handler Hook@>=
+app.get('/api/logout', (req, res) => {
+  req.logout();
+  res.send(req.user);
+});
+@
+
 @node Deeper Dive
 @section A Deeper Dive
 @cindex deeper
+
+This is an optional discussion about some of the topics that were glazed
+over in the discussions above.
+
+@node App Use
+@subsection App Use
+@cindex app.use
+@cindex middleware
+
+There are three separate @code{app.use} calls in the code above, each
+call receiving some object.
+@xref{Use cookie-session}  @xref{Passport Use Cookies}
+
+These calls are wiring up @dfn{middleware} inside of our application.
+Middlewares are small functions that can be used to modify incoming
+requests to our app before they are sent off to route handlers.  Refer
+to the diagram at @ref{Middleware Diagram}.  Each of the middle objects
+is a middleware that is receiving the @samp{request} and making some
+minor adjustment to it.
+
+Middlewares are all about doing some preprocessing of the incoming
+request before sending it off to the route handlers.  These middlewares
+can also be wired up so that they handle just the type of requests that
+you want to handle, rather than every request.
+
+@node How Express Works
+@subsubsection How Express Works
+@cindex express, how it works
+
+@table @b{}
+@item Request from Browser
+Somebody makes a @code{request} from a browser
+
+@item Express creates App
+@code{express()} @result{} @code{app} @*
+@code{request} goes to our @samp{app}, which has been created by @file{express}
+
+@item middleware #1
+Middleware maniputes @code{request}
+
+@item middleware #2
+Middleware manipulates @code{request}
+
+@item Route Handlers
+A route handler processes @code{request}
+
+@itemize
+@item get
+@item post
+@item delete
+@item put
+@end itemize
+
+@item response
+App sends completed @code{response} to whomever made the @code{request}
+
+@end table
+
+@node Cookie-Session Middleware
+@subsection Cookie-Session Middleware
+@cindex cookie-session, middleware
+@cindex middleware cookie-session
+@cindex request session
+
+What is @code{cookie-session} doing?
+
+In the route handler @code{/api/current_user}, change the response to
+@kbd{res.send(req.session)} to obtain the @samp{request session} object.
+The @code{cookie-session} middleware extracts the @samp{user_id} out of
+the cookie it receives from the browser, and assigns it to the
+@code{req.session} object.  The @code{req.session} object looks like
+@code{passport: @{user: "595f @dots{}"@}}.  @code{req.session} contains the
+data that Passport is attempting to store inside the cookie.  When
+Passport receives the @code{request} from @code{cookie-session}, it is
+looking at the data inside the @code{req.session} object.  Passport then
+pulls out the data from @code{req.session} and sends it to
+@code{deserializeUser}.
+
+@subsubheading Express Session
+@cindex express session, middleware
+
+Express documenation relating to cookies will recommend two different
+libraries: @code{cookie-session} and @code{express-session}.  Both
+libraries essentially accomplish the same thing, but go about it in
+totally different ways.  @code{Express session} works by storing a
+@samp{reference} to a session inside the cookie, i.e., a
+@code{session_id} rather than a @code{user_id}.  The data is stored in a
+database external to the cookie.  The advantage of this method is that
+you can store a lot more data than you can store inside a cookie.  The
+disadvantage is that it is more complicated and requires more
+libraries.  
 
 @node Environments
 @chapter Dev vs Prod Environments
