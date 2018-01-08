@@ -1,26 +1,30 @@
 # About
 
-Notes and implementations of a full stack project from the Udemy course
-"Node with React --- Fullstack Web Development version 4"
+This is a literate programming project based upon the Udemy course by
+Stephen Grider called "Node With React --- Fullstack Web Development
+version 4".
 
-This project is implemented as a Literate program using _Texiweb Jr_.
+The entire full stack project plus all notes and documentation plus a
+master Makefile are wrapped up inside the one source file
+_nodeWithReact.twjr_.
 
-## How To Extract and Implement
+# Install the Project
 
-To implement the project, you must have _Texiweb Jr_ installed, and the
-latest _Texinfo_ program, currently version 6.5.
+To extract the Makefile, execute _bootstrap_.
 
-Download the source, `nodeWithReact.twjr`.
+To implement the project, run _make_ with no target; this will run the
+default target, which is to extract all files, create the directory
+structure, install all Node dependencies, start the server, and open
+the browser to the root.
 
-To extract the files, including a Makefile, type: `jrtangle nodeWithReact.twjr`
+The Makefile has a ton of targets that can be run as necessary.  For
+example, to start and stop the server, you can type _make
+start-server_ and _make stop-server_.  To open the browser, you can
+type _make open-browser_.  To clean the top directory, type _make
+clean_.  To clean all files except the Node dependencies and the
+_package.json_, type _make very-clean_.  To remove all files except 
+the source, Makefile, Readme, and bootstrap, type _make dist-clean_.
 
-The extract the documentation, type `make info`.
-
-To install the application and run the servers and open the browser to the root
-page, `type make`.
-
-The Makefile has a ton of targets that can be called, including `make
-install-files` to reinstall the source files, but not the node_modules
-if those have already been installed and don't need to be
-re-installed.  You can also start and stop the express server by
-typing `make start-server` and `make stop-server`.
+If you make a change to a file, you can type _make install-files_, and
+the project should reboot with the changes installed, since _nodemon_ 
+should be running, assuming you started with _make_.

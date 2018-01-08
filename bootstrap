@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+# bootstrap
+# usage: ./bootstrap
+# Extracts the Makefile from nodeWithReact.twjr
+# To extract the application after running bootstrap,
+#   make
+
+jrtangle nodeWithReact.twjr
+make dist-clean

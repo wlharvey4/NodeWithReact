@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-08T05:50:26
-@c VERSION: VERSION 0.2.3
+@c DATE:    2018-01-08T07:53:47
+@c VERSION: VERSION 0.3.0
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.2.3
+@set EDITION 0.3.0
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.2.3
- * DATE:   2018-01-08T05:50:26
+ * VER:    v0.3.0
+ * DATE:   2018-01-08T07:54:09
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -950,19 +950,20 @@ INDEX.JS_ALL := index0.js
 ${INDEX.JS_ALL} : | ${ROOT}
 @
 
-@node Run IndexJS
-@subsection Run @file{index.js}
-@cindex index.js, run
+@node Makefile Start Server
+@subsection Makefile Start Server
+@cindex server, start
+@cindex start-server
+@cindex run hook
 
-@<Makefile Run Hooks@>=
+@<Makefile Run Hook@>=
  
 ####################
 # RUN HOOKS        #
 ####################
-.Phony : server-start
-server-start :
+.Phony : start-server
+start-server :
 	cd ${ROOT} && npm run dev
-#	cd ${ROOT} && node ${INDEX.JS} &
 @
 
 @node Route Handlers
@@ -1194,7 +1195,7 @@ ${ROOT}/.gitignore : | ${ROOT}
 # Necessary when install-files is run but .gitignore exists in ROOT
 .Phony : rm-gitignore
 rm-gitignore: 
-	[ -f gitignore ] && rm gitignore
+	-[ -f gitignore ] && rm gitignore
 @
 
 @<Makefile Move Prereqs@>=
@@ -3502,7 +3503,7 @@ libraries.
 @<Makefile Move Targets@>
 @<Makefile Link Target@>
 @<Makefile NPM Targets@>
-@<Makefile Run Hooks@>
+@<Makefile Run Hook@>
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
 @<Makefile Git Targets@>
@@ -3576,7 +3577,7 @@ all : install-files server-browser
 install-files : meta-move-link npm git-init
 
 .Phony : server-browser
-server-browser : server-start browser-open
+server-browser : start-server open-browser
 
 .Phony : meta-move-link
 meta-move-link : make-meta move-and-link
@@ -3637,7 +3638,7 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 
 @<Makefile Clean@>=
 .Phony : clean
-clean : server-stop
+clean : stop-server
 	-rm -f *.{texi,aux,cp,log,toc,js} *~
 @<Makefile Clean Hook@>
 @
@@ -3768,25 +3769,28 @@ npm : ${NPM}
 @<Makefile NPM Hooks@>
 @
 
-@<Makefile Run Hooks@>=
+@node Makefile Run Hook
+@appendixsubsubsec Makefile Run Hook
+
+@<Makefile Run Hook@>=
 @
 
 @node Makefile Open Browser
-@appendixsubsec Makefile Open Browswer
+@appendixsubsubsec Makefile Open Browswer
 
 @<Makefile Open Browser@>=
-.Phony : browser-open
-browser-open :
+.Phony : open-browser
+open-browser :
 	open -a Safari "http://localhost:5000"
 
 @
 
-@node Makefile Server Stop
-@appendixsubsec Makefile Server Stop
+@node Makefile Stop Server
+@appendixsubsec Makefile Stop Server
 
 @<Makefile Server Stop@>=
-.Phony : server-stop
-server-stop :
+.Phony : stop-server
+stop-server :
 	PS=$$(ps -o pid -o comm | grep node | sed -e 's/[^[:digit:]]//g'); \
 	[ $${#PS} -ne 0 ] && \
 	{ kill $${PS}; echo server process $${PS} stopped; } || \
