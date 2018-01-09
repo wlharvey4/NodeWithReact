@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-08T07:53:47
-@c VERSION: VERSION 0.3.0
+@c DATE:    2018-01-09T05:17:32
+@c VERSION: VERSION 0.3.1
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.3.0
+@set EDITION 0.3.1
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.3.0
- * DATE:   2018-01-08T07:54:09
+ * VER:    v0.3.1
+ * DATE:   2018-01-09T05:18:02
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -1285,24 +1285,29 @@ Type at the command-line:
 
 @code{heroku create}
 
-Heroku will process the command and produce two links.
+Heroku will process the command, create a new application (with name),
+and produce two links, the app's deployment URL and Git repo URL.
 
 @enumerate
+@cindex heroku app name
+@item
+New app's name: @samp{intense-reaches-63131}
+
 @item
 @cindex heroku app url
 The new app's URL,
-e.g. @indicateurl{https://agile-bayou-65260.herokuapp.com/}
+e.g. @indicateurl{https://intense-reaches-63131.herokuapp.com/}
 
 @item
 @cindex deployment target
 Our @dfn{deployment target}, a Git repo that we can push our local
 server to,
-e.g. @indicateurl{https://git.heroku.com/agile-bayou-65260.git}; when
-Heroku receives our pushed app's repo, it will deploy it.
+e.g. @indicateurl{https://git.heroku.com/intense-reaches-63131.git};
+when Heroku receives our pushed app's repo, it will deploy it.
 
 @item
 Add @file{remote} Heroku branch to Git:@* @code{git remote add heroku
-https://git.heroku.com/agile-bayou-65260.git}
+https://git.heroku.com/intense-reaches-63131.git}
 @end enumerate
 
 @subheading Deploy App to Heroku
@@ -1727,7 +1732,7 @@ Inside the folder @file{config}, create a file and name it
 @file{keys.js}
 
 @<Makefile Filename Definitions Hook@>=
-KEYS := keys.js
+KEYS := keys1.js
 @
 
 @<Makefile Create Files Targets@>=
@@ -1766,7 +1771,7 @@ never commit the file @file{keys.js} to Git by adding its name to the
 @subheading @file{keys.js} @code{module.exports} Object
 @findex keys.js
 
-@(keys.js@)=
+@(keys1.js@)=
 module.exports = {
   @<Keys_JS Internals@>
 }
@@ -3441,6 +3446,410 @@ libraries.
 @cindex environemnts, dev vs prod
 @cindex dev environment
 @cindex prod environment
+
+It is time to deploy the application to Heroku again.  We will need to
+store production secret keys on Heroku, rather than putting that data on
+a local machine.  @xref{Securing API Keys}.  That is, we will need two
+separate sets of keys, one entitled @code{Dev} and another entitled
+@code{Prod}.  When the @code{Prod} keys are stored remotely, they become
+safer from discovery through user error.  @code{Dev} keys are not as
+important since they are just used for development and should not refer
+to sensitive data.
+
+This is also important in order to keep the @code{Prod} database
+prestine, i.e., we won't use it to develop our application.
+
+@node Dev v. Prod Keys
+@section Dev vs Prod Keys
+@cindex dev vs prod environments
+
+@table @b
+@item Dev
+@itemize
+@item
+MongoDB
+@item
+Google API
+@item
+CookieKey
+@end itemize
+
+@item Prod
+@itemize
+@item
+MongoDB
+@item
+Google API
+@item
+CookieKey
+@end itemize
+@end table
+
+@subheading @code{Dev} vs @code{Prod}
+
+@verbatim
+      index.js
+        \/
+   config/keys.js
+        \/
+ Prod   or      Dev
+  \/            \/
+use env     config/dev.js
+variables
+
+@end verbatim
+
+We will have to set up separate databases, Google APIs, and Cookie Keys
+for each.
+
+@node Production Resources
+@section Generating Production Resources
+@cindex production resources, generating
+
+In this section we will
+@itemize
+@item
+create a new Mongo database, 
+@item
+a new Google API account, and 
+@item
+set both up in our project.  
+@end itemize
+
+We have already gone through these steps for the @code{Dev} side, so
+this is just a review.
+
+@node Prod Database
+@subsection Prod Database on Heroku
+@cindex prod database, creation
+@cindex Heroku database
+
+@enumerate
+@item
+mLab website @url{https://mlab.com}, main dashboard showing all MongoDB
+Deployments; @file{emaily-dev} should be in the list.
+
+@item
+Press the @kbd{+ Create new} button to create a new database
+
+@item
+Select @kbd{AWS Sandbox} and @kbd{US East} region
+
+@item
+Set @kbd{Database Name} to @kbd{lolh-emaily-prod}
+
+@item
+Submit the order
+
+@item
+Create a Database User that can access that database
+
+@enumerate a
+@item
+Click on the new database @kbd{lolh-emaily-prod}
+
+@item
+Click on the @kbd{Users} button
+
+@item
+Click on @kbd{Add database user} button
+
+@item
+Add database credentials
+
+@itemize
+@item
+Database username
+
+@item
+Database password
+@end itemize
+@end enumerate
+@end enumerate
+
+@node Prod Google API
+@subsection Prod Google API Creation
+@cindex prod google api
+@cindex isolation
+@cindex api, google+
+@cindex google+ api
+@cindex api credentials
+@cindex authorized api
+@cindex authorized javascript origins
+@cindex authorized redirect uri
+
+@enumerate
+@item
+Go to @url{https://console.developers.google.com}; the @samp{emaily-dev}
+project should be visible by default; must create a completely separate
+project to completely isolate these things.
+
+@item
+Click @samp{emaily-dev} drop-down button and create a new project with
+the @kbd{+} button;
+
+@item
+Enter a project name: @kbd{emaily-prod}; once the project has been
+created, select it from the project drop-down arrow;
+
+@item
+Enable the API: @kbd{ENABLE APIS AND SERVICES}; search for @kbd{google+}
+api; click @kbd{ENABLE}
+
+@item
+Generate API credentials
+
+@enumerate a
+@item
+click @kbd{Credentials} button;
+
+@item
+choose @kbd{OAuth client id}
+
+@item
+@kbd{Create credentials}
+
+@item
+@kbd{Configure consent screen}; take some time to fill out this consent
+screen appropriate.
+
+@itemize
+@item
+Product name: @kbd{Emaily}
+
+@item
+Click @kbd{Save}
+@end itemize
+
+@item
+Select type of application: @kbd{Web application}
+
+@item
+Can leave @samp{Name} as is
+
+@item
+Restrictions; requires production credentials, not Localhost; these URIs
+will be dependent upon the Heroku mLab database that we just created.
+
+@itemize
+@item
+Authorized JavaScript origins
+
+@item
+Authorized redirect URIs
+@end itemize
+@end enumerate
+@end enumerate
+
+See next section for how to fill in the redirect URIs.
+
+@node Determining Environment
+@subsection Determining Environment
+@cindex environment, determining
+@cindex credentials
+@cindex api credentials
+
+To determine our domain address from our Heroku deployment:
+
+@enumerate
+@item
+Go to terminal and kill any running servers
+
+@item
+Type @kbd{heroku open --app <name>} at the command line
+
+Alternatively, type @kbd{heroku domains} at the command line
+
+@item
+Select the address and fill in @kbd{Authorized redirect URIs} with @*
+@url{https://intense-reaches-63131.herokuapp.com/auth/google/callback}
+
+@item
+Fill in @kbd{Authorized JavaScript origins} with @*
+@url{https://intense-reaches-63131.herokuapp.com}
+
+@item
+Our new credentials will be displayed in a pop up and can be downloaded
+as a JSON file 
+
+@table @b
+@item Client ID
+@dots{}
+
+@item Client Secret
+@dots{}
+
+@end table
+@end enumerate
+
+@node Create dev.js
+@subsubsection Create dev.js
+
+Create a new file, @file{dev.js} inside @file{config} dir:
+
+@subsubheading Filename dev.js
+
+@<Makefile Filename Definitions Hook@>=
+DEV := dev.js
+@
+
+@subsubheading dev.js Location
+
+@<Makefile Create Files Targets@>=
+${DEV} : | ${CONFIG_DIR}
+@
+
+@subsubheading dev.js Contents
+
+@<Dev_JS Header@>=
+/*
+ * FILENAME: dev.js
+ * CREATED:  2018-01-09T04:02:13
+ * MODIFIED: 2018-01-09T04:02:22
+ * VERSION:  0.1.0
+ * ABOUT:    holds development configuration data; data should not need
+	     to be protected
+ * NOTE:     DON'T COMMIT THIS FILE
+ *********************************************************************************/
+@
+
+Move everything currently in @file{keys.js} into @file{dev.js}.
+
+@(dev.js@)=
+@<Dev_JS Header@>
+
+module.exports = {
+  @<Keys_JS Internals@>
+}
+@
+
+@subsubheading Move dev.js
+
+@<Makefile Move Hook@>=
+.Phony : move-dev-to-config
+move-dev-to-config : ${DEV}
+	mv -f ${DEV} ${CONFIG_DIR}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-dev-to-config
+@
+
+@node Refactor keys.js
+@subsubsection Refactor @file{keys.js}
+@cindex refactor keys.js
+@cindex NODE_ENV env variable
+@cindex node environment variable NODE_ENV
+
+The file @file{keys.js} will be reconfigured to make the decision as to
+which set of configuration variables should be loaded, @samp{dev} or
+@samp{prod}.  It will do this by referencing an environment variable set
+up by Node, called @var{node_env}.  We have already referenced one other
+Node environment variable, @var{port}.  @xref{Preparing for Deployment}.
+
+@<Makefile Filename Definitions Hook@>=
+KEYS += keys2.js
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${CONFIG_DIR}/keys2.js ${CONFIG_DIR}/keys.js
+@
+
+@<Keys2_JS Header@>=
+/*
+ * FILENAME: keys2.js
+ * CREATED:  2018-01-09T04:12:31
+ * MODIFIED: 2018-01-09T04:12:37
+ * VERSION:  0.1.0
+ * ABOUT:    Determines which config to use: dev or prod
+ * NOTE:     This file should be committed
+ *********************************************************************************/
+@
+
+@(keys2.js@)=
+@<Keys2_JS Header@>
+
+if (process.env.NODE_ENV === 'production') {
+  @<Return Prod Config Keys@>
+} else {
+  @<Return Dev Config Keys@>
+}
+@
+
+@node Create prod
+@subsubsection Create prod.js
+
+@<Makefile Filename Definitions Hook@>=
+PROD := prod.js
+@
+
+@<Makefile Create Files Targets@>=
+${PROD} : | ${CONFIG_DIR}
+@
+
+@<Makefile Move Hook@>=
+.Phony : move-prod
+move-prod : | ${CONFIG_DIR}
+	mv -f ${PROD} ${CONFIG_DIR}
+@
+
+@<Makefile Move Prereqs@>=
+MOVE_PREREQS += move-prod
+@
+
+@<Prod_JS Header@>=
+/*
+ * FILENAME: prod.js
+ * CREATED:  2018-01-09T04:34:16
+ * MODIFIED: 2018-01-09T04:34:22
+ * VERSION:  0.1.0
+ * ABOUT:    Holds production configuration data obtained from
+             environment variables
+ * NOTES:    COMMIT THIS FILE
+ *********************************************************************************/
+@
+
+@(prod.js@)=
+@<Prod_JS Header@>
+
+module.exports = {
+  @<Prod_JS Internals@>
+};
+@
+
+@<Prod_JS Internals@>=
+googleClientID: process.env.GOOGLE_CLIENT_ID,
+googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+mongoURI: process.env.MONGO_URI,
+cookieKey: process.env.COOKIE_KEY,
+@
+
+@node Version Control Scheme
+@subsubsection Version Control Scheme
+@cindex version control scheme
+
+@subsubheading NODE_ENV === production
+
+@<Return Prod Config Keys@>=
+module.exports = require('./prod');
+@
+
+@subsubheading NODE_ENV !== production
+
+Export the development configuration keys.
+
+@<Return Dev Config Keys@>=
+module.exports = require('./dev');
+@
+
+@node Heroku Env Variables
+@section Heroku Env Variables
+@cindex Heroku env variables
+@cindex env variables, Heroku
+
+@node Heroku Proxy Issues
+@section Fixing Heroku Proxy Issues
+@cindex proxy issues, Heroku, fixing
 
 @node Client
 @chapter Moving to the Client Side
