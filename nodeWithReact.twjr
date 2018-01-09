@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-09T05:17:32
-@c VERSION: VERSION 0.3.1
+@c DATE:    2018-01-09T08:08:15
+@c VERSION: VERSION 0.3.2
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.3.1
+@set EDITION 0.3.2
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.3.1
- * DATE:   2018-01-09T05:18:02
+ * VER:    v0.3.2
+ * DATE:   2018-01-09T08:08:30
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -1228,11 +1228,11 @@ we have to do is commit our codebase to Git.
 
 @subsubheading Create Local Repository and Add Code
 
-@<Makefile Git Targets@>=
+@<Makefile Git Targets Hook@>=
 .Phony : git-init
-git-init : ${ROOT}/.git move-gitignore rm-gitignore
+git-init : ${GIT} move-gitignore rm-gitignore
 
-${ROOT}/.git : | ${ROOT}
+${GIT} : | ${ROOT}
 	cd ${ROOT} && \
 	git init && \
 	git add . && \
@@ -1737,7 +1737,6 @@ KEYS := keys1.js
 
 @<Makefile Create Files Targets@>=
 ${KEYS} : | ${CONFIG_DIR}
-
 @
 
 @<Makefile Move Hook@>=
@@ -1748,6 +1747,10 @@ move-keys-to-config : ${KEYS}
 
 @<Makefile Move Prereqs@>=
 MOVE_PREREQS += move-keys-to-config
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${CONFIG_DIR}/keys1.js ${CONFIG_DIR}/keys.js
 @
 
 @item
@@ -1835,10 +1838,14 @@ This code reads from the @file{keys.js} file.
 
 @<Google Strategy Object@>=
 {
-  clientID: keys.googleClientID,
-  clientSecret: keys.googleClientSecret,
-  callbackURL: keys.googleCallbackURL
+  @<Google Strategy Object Definitions@>
 }
+@
+
+@<Google Strategy Object Definitions@>=
+clientID: keys.googleClientID,
+clientSecret: keys.googleClientSecret,
+callbackURL: keys.googleCallbackURL,
 @
 
 @subsubheading Google Strategy Callback URL
@@ -3644,7 +3651,7 @@ Authorized redirect URIs
 See next section for how to fill in the redirect URIs.
 
 @node Determining Environment
-@subsection Determining Environment
+@section Determining Environment
 @cindex environment, determining
 @cindex credentials
 @cindex api credentials
@@ -3682,26 +3689,30 @@ as a JSON file
 @end table
 @end enumerate
 
+@node Refactor Config
+@subsection Refactor Config
+
+In order to load the correct set of configuration data, we need to
+create three separate files from which to choose:
+
+@itemize
+@item
+@file{dev.js}: to hold development configuration
+
+@item
+@file{prod.js}: to hold production configuration
+
+@item
+@file{keys.js}: file which chooses
+@end itemize
+
 @node Create dev.js
 @subsubsection Create dev.js
+@cindex development config
 
 Create a new file, @file{dev.js} inside @file{config} dir:
 
-@subsubheading Filename dev.js
-
-@<Makefile Filename Definitions Hook@>=
-DEV := dev.js
-@
-
-@subsubheading dev.js Location
-
-@<Makefile Create Files Targets@>=
-${DEV} : | ${CONFIG_DIR}
-@
-
-@subsubheading dev.js Contents
-
-@<Dev_JS Header@>=
+@(dev.js@)=
 /*
  * FILENAME: dev.js
  * CREATED:  2018-01-09T04:02:13
@@ -3711,19 +3722,27 @@ ${DEV} : | ${CONFIG_DIR}
 	     to be protected
  * NOTE:     DON'T COMMIT THIS FILE
  *********************************************************************************/
+
 @
 
 Move everything currently in @file{keys.js} into @file{dev.js}.
 
 @(dev.js@)=
-@<Dev_JS Header@>
-
 module.exports = {
   @<Keys_JS Internals@>
 }
 @
 
-@subsubheading Move dev.js
+@node dev Implementation
+@subsubsection dev.js Implementation
+
+@<Makefile Filename Definitions Hook@>=
+DEV := dev.js
+@
+
+@<Makefile Create Files Targets@>=
+${DEV} : | ${CONFIG_DIR}
+@
 
 @<Makefile Move Hook@>=
 .Phony : move-dev-to-config
@@ -3735,49 +3754,47 @@ move-dev-to-config : ${DEV}
 MOVE_PREREQS += move-dev-to-config
 @
 
-@node Refactor keys.js
-@subsubsection Refactor @file{keys.js}
-@cindex refactor keys.js
-@cindex NODE_ENV env variable
-@cindex node environment variable NODE_ENV
+@subsubheading Add dev.js to .gitignore
+@cindex gitignore
 
-The file @file{keys.js} will be reconfigured to make the decision as to
-which set of configuration variables should be loaded, @samp{dev} or
-@samp{prod}.  It will do this by referencing an environment variable set
-up by Node, called @var{node_env}.  We have already referenced one other
-Node environment variable, @var{port}.  @xref{Preparing for Deployment}.
-
-@<Makefile Filename Definitions Hook@>=
-KEYS += keys2.js
-@
-
-@<Makefile Link Target Hook@>=
-	ln -f ${CONFIG_DIR}/keys2.js ${CONFIG_DIR}/keys.js
-@
-
-@<Keys2_JS Header@>=
-/*
- * FILENAME: keys2.js
- * CREATED:  2018-01-09T04:12:31
- * MODIFIED: 2018-01-09T04:12:37
- * VERSION:  0.1.0
- * ABOUT:    Determines which config to use: dev or prod
- * NOTE:     This file should be committed
- *********************************************************************************/
-@
-
-@(keys2.js@)=
-@<Keys2_JS Header@>
-
-if (process.env.NODE_ENV === 'production') {
-  @<Return Prod Config Keys@>
-} else {
-  @<Return Dev Config Keys@>
-}
+@(gitignore@)=
+dev.js
 @
 
 @node Create prod
 @subsubsection Create prod.js
+
+@(prod.js@)=
+/*
+ * FILENAME: prod.js
+ * CREATED:  2018-01-09T04:34:16
+ * MODIFIED: 2018-01-09T04:34:22
+ * VERSION:  0.1.0
+ * ABOUT:    Holds production configuration data obtained from
+             environment variables
+ * NOTES:    COMMIT THIS FILE
+ *********************************************************************************/
+
+@
+
+@(prod.js@)=
+module.exports = {
+  @<Prod_JS Internals@>
+};
+@
+
+In a production environment, the configuration data will be obtained
+from Heroku's environment variables.
+
+@<Prod_JS Internals@>=
+googleClientID: process.env.GOOGLE_CLIENT_ID,
+googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+mongoURI: process.env.MONGO_URI,
+cookieKey: process.env.COOKIE_KEY,
+@
+
+@node prod Implementation
+@subsubsection prod.js Implementation
 
 @<Makefile Filename Definitions Hook@>=
 PROD := prod.js
@@ -3797,36 +3814,40 @@ move-prod : | ${CONFIG_DIR}
 MOVE_PREREQS += move-prod
 @
 
-@<Prod_JS Header@>=
+@node Refactor keys.js
+@subsubsection Refactor @file{keys.js}
+@cindex refactor keys.js
+@cindex NODE_ENV env variable
+@cindex node environment variable NODE_ENV
+
+The file @file{keys.js} will be reconfigured to make the decision as to
+which set of configuration variables should be loaded, @samp{dev} or
+@samp{prod}.  It will do this by referencing an environment variable set
+up by Node, called @var{node_env}.  We have already referenced one other
+Node environment variable, @var{port}.  @xref{Preparing for Deployment}.
+
+@(keys2.js@)=
 /*
- * FILENAME: prod.js
- * CREATED:  2018-01-09T04:34:16
- * MODIFIED: 2018-01-09T04:34:22
+ * FILENAME: keys2.js
+ * CREATED:  2018-01-09T04:12:31
+ * MODIFIED: 2018-01-09T04:12:37
  * VERSION:  0.1.0
- * ABOUT:    Holds production configuration data obtained from
-             environment variables
- * NOTES:    COMMIT THIS FILE
+ * ABOUT:    Determines which config to use: dev or prod
+ * NOTE:     This file should be committed
  *********************************************************************************/
+
 @
 
-@(prod.js@)=
-@<Prod_JS Header@>
+Check the environment variable @var{NODE_ENV} to determine which set of
+keys to export.
 
-module.exports = {
-  @<Prod_JS Internals@>
-};
+@(keys2.js@)=
+if (process.env.NODE_ENV === 'production') {
+  @<Return Prod Config Keys@>
+} else {
+  @<Return Dev Config Keys@>
+}
 @
-
-@<Prod_JS Internals@>=
-googleClientID: process.env.GOOGLE_CLIENT_ID,
-googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-mongoURI: process.env.MONGO_URI,
-cookieKey: process.env.COOKIE_KEY,
-@
-
-@node Version Control Scheme
-@subsubsection Version Control Scheme
-@cindex version control scheme
 
 @subsubheading NODE_ENV === production
 
@@ -3842,14 +3863,110 @@ Export the development configuration keys.
 module.exports = require('./dev');
 @
 
+@node keys2 Implementation
+@subsubsection keys2.js Implementation
+
+@<Makefile Filename Definitions Hook@>=
+KEYS += keys2.js
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${CONFIG_DIR}/keys2.js ${CONFIG_DIR}/keys.js
+@
+
 @node Heroku Env Variables
-@section Heroku Env Variables
+@subsection Heroku Env Variables
 @cindex Heroku env variables
 @cindex env variables, Heroku
 
+Here we will set up Heroku's environment variables for our production
+environment.
+
+@enumerate
+@item
+Navigate to @url{https://heroku.com}; if you are already signed in, they
+you will go straight to the @samp{dashboard}; otherwise, sign in.
+
+@item
+Pick our app
+
+@item
+Click on @kbd{Settings} tab
+
+@item
+Find @kbd{Config Variables} and click on @kbd{Reveal Config Vars}; you
+will be given an interface to set up all configuration variables for
+this application.
+
+@item
+Add all environment variables
+
+@table @i{}
+@item GOOGLE_CLIENT_ID
+@dots{}
+
+@item GOOGLE_CLIENT_SECRET
+@dots{}
+
+@item COOKIE_KEY
+Random string of numbers and characters
+
+@item MONGO_URI
+mongodb://<dbuser>:<dbpassword>@@ds247587.mlab.com:47587/lolh-emaily-prod
+@end table
+
+@item
+Hide Config Vars
+@end enumerate
+
+@node Deploying Application
+@section Deploying Application to Heroku
+@cindex deploy
+@cindex Heroku
+
+@xref{Subsequent Deployment} for a review of the process.
+
+@enumerate
+@item
+Commit codebase with git
+
+@example
+git add .
+git commit -m "finished auth flow"
+@end example
+
+@<Makefile Git Targets Hook@>=
+.Phony : git-subsequent-commit
+git-subsequent-commit : | ${GIT}
+	cd ${ROOT} && \
+	git add . && \
+	git commit -m "finished auth flow"
+@
+
+@item
+Deploy app with Git
+@example
+git push heroku master
+heroku open
+@end example
+
+@end enumerate
+
+
 @node Heroku Proxy Issues
-@section Fixing Heroku Proxy Issues
+@subsection Fixing Heroku Proxy Issues
 @cindex proxy issues, Heroku, fixing
+
+Need to add a configuration variable to our Google Strategy to tell it
+to trust proxies (which will allow Google Strategy to prefix our
+callback url with @samp{https} instead of @samp{http}, which breaks the
+Google API authentication.
+
+Add an object definition of @code{proxy: true}:
+
+@<Google Strategy Object Definitions@>=
+proxy: true,
+@
 
 @node Client
 @chapter Moving to the Client Side
@@ -3962,6 +4079,7 @@ HTML_DIR := ${PREFIX}/${ROOT}/html
 TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
+GIT := ${ROOT}/.git
 @<Makefile Filename Definitions Hook@>
 
 @
@@ -4208,13 +4326,28 @@ stop-server :
 
 @
 
+@node Makefile Git Targets
+@appendixsubsec Makefile Git Targets
+ 
 @<Makefile Git Targets@>=
+ 
+####################
+# GIT TARGETS      #
+####################
+.Phony : git
+git : ${GIT_PREREQS}
+
+@<Makefile Git Targets Hook@>
 @
 
 @node Make Echo Variables
 @appendixsec Make Echo Variables
 
 @<Makefile Echo Variables@>=
+ 
+####################
+# ECHO             #
+####################
 echo-all : echo-index echo-index-all echo-move-prereqs echo-npm-installs
 echo-index :
 	echo INDEX.JS: ${INDEX.JS}
