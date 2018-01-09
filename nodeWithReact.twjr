@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-09T08:08:15
-@c VERSION: VERSION 0.3.2
+@c DATE:    2018-01-09T12:59:39
+@c VERSION: VERSION 0.4.0
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.3.2
+@set EDITION 0.4.0
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.3.2
- * DATE:   2018-01-09T08:08:30
+ * VER:    v0.4.0
+ * DATE:   2018-01-09T12:59:55
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -1236,7 +1236,8 @@ ${GIT} : | ${ROOT}
 	cd ${ROOT} && \
 	git init && \
 	git add . && \
-	git commit -m "Initial commit"
+	git commit -m "Initial commit" && \
+	git remote add heroku https://git.heroku.com/${APP}.git
 @
 
 @example
@@ -1351,10 +1352,17 @@ Push updated codebase to Heroku
 @example
 git push heroku master
 @end example
-
 @end enumerate
 
 Heroku will take the changes and redeploy.
+
+@<Makefile Git Targets Hook@>=
+.Phony : deploy-to-heroku
+deploy-to-heroku : git-subsequent-commit
+	cd ${ROOT} && \
+	git push heroku master && \
+	heroku open
+@
 
 @node Authentication
 @chapter Authentication with Google OAuth
@@ -3761,7 +3769,7 @@ MOVE_PREREQS += move-dev-to-config
 dev.js
 @
 
-@node Create prod
+@node Create prod.js
 @subsubsection Create prod.js
 
 @(prod.js@)=
@@ -3789,6 +3797,7 @@ from Heroku's environment variables.
 @<Prod_JS Internals@>=
 googleClientID: process.env.GOOGLE_CLIENT_ID,
 googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+googleCallbackURL: process.env.GOOGLE_CALLBACK_URL,
 mongoURI: process.env.MONGO_URI,
 cookieKey: process.env.COOKIE_KEY,
 @
@@ -3939,8 +3948,9 @@ git commit -m "finished auth flow"
 .Phony : git-subsequent-commit
 git-subsequent-commit : | ${GIT}
 	cd ${ROOT} && \
-	git add . && \
-	git commit -m "finished auth flow"
+	[ -n "$$(git status --porcelain)" ] && \
+	{ git add .; git commit -m "subsequent commit"; } || \
+	echo nothing to commit
 @
 
 @item
@@ -3949,9 +3959,7 @@ Deploy app with Git
 git push heroku master
 heroku open
 @end example
-
 @end enumerate
-
 
 @node Heroku Proxy Issues
 @subsection Fixing Heroku Proxy Issues
@@ -4080,6 +4088,7 @@ TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
 GIT := ${ROOT}/.git
+APP := ${EMAILY_APP}
 @<Makefile Filename Definitions Hook@>
 
 @
@@ -4334,9 +4343,7 @@ stop-server :
 ####################
 # GIT TARGETS      #
 ####################
-.Phony : git
-git : ${GIT_PREREQS}
-
+ 
 @<Makefile Git Targets Hook@>
 @
 
@@ -4348,7 +4355,7 @@ git : ${GIT_PREREQS}
 ####################
 # ECHO             #
 ####################
-echo-all : echo-index echo-index-all echo-move-prereqs echo-npm-installs
+echo-all : echo-index echo-index-all echo-move-prereqs echo-npm-installs echo-app
 echo-index :
 	echo INDEX.JS: ${INDEX.JS}
 echo-index-all :
@@ -4357,6 +4364,9 @@ echo-move-prereqs :
 	echo MOVE_PREREQS: ${MOVE_PREREQS}
 echo-npm-installs :
 	echo NPM_INSTALLS: ${NPM_INSTALLS}
+
+echo-app :
+	echo APP: ${APP} 
 @
 
 @node Code Chunk Summaries
