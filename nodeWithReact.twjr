@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-09T12:59:39
-@c VERSION: VERSION 0.4.0
+@c DATE:    2018-01-10T12:04:29
+@c VERSION: VERSION 0.4.1
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.0
+@set EDITION 0.4.1
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.0
- * DATE:   2018-01-09T12:59:55
+ * VER:    v0.4.1
+ * DATE:   2018-01-10T12:04:41
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -1089,7 +1089,7 @@ we can use a default port assignment, such as 5000, if we are deploying
 locally. 
 
 @<IndexJS Port Assignment@>=
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || process.env.DEV_0_PORT;
 @
 
 @item Specify Node Environment
@@ -4054,6 +4054,7 @@ proxy: true,
 ####################
 @<Makefile Directory Definitions@>
 @<Makefile Filename Definitions@>
+@<Makefile Dev Port Assignment@>
 @<Makefile Move Prereqs@>
 @<Makefile NPM@>
 @
@@ -4091,6 +4092,10 @@ GIT := ${ROOT}/.git
 APP := ${EMAILY_APP}
 @<Makefile Filename Definitions Hook@>
 
+@
+
+@<Makefile Dev Port Assignment@>=
+DEV_PORT := ${DEV_0_PORT}
 @
 
 @node Move Prereqs
@@ -4317,7 +4322,7 @@ npm : ${NPM}
 @<Makefile Open Browser@>=
 .Phony : open-browser
 open-browser :
-	open -a Safari "http://localhost:5000"
+	open -a Safari "http://localhost:${DEV_PORT}"
 
 @
 
