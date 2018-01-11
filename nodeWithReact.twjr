@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-11T07:51:26
-@c VERSION: VERSION 0.4.3
+@c DATE:    2018-01-11T08:57:24
+@c VERSION: VERSION 0.4.4
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.3
+@set EDITION 0.4.4
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.3
- * DATE:   2018-01-11T07:51:39
+ * VER:    v0.4.4
+ * DATE:   2018-01-11T08:57:38
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4153,6 +4153,58 @@ start-client-server :
 @section Routing Stumbling Blocks
 @cindex routing stumbling blocks
 @cindex stumbling blocks, routing
+
+If we wanted to call our back-end server from the client, we would need
+to place an anchor tag inside of the @file{App.js} main file in the
+@file{client}, and then make an @code{href} with a complete path rather
+than a relative path.  However, that would be a mistake because the
+production route would be different, and so we would have to change it
+before deploying the production app.  We need to find a way to make the
+anchor work regardless of which version we were working on, development
+or production.
+
+To make this work, our anchor tag would like like:
+
+@code{<a href="/auth/google">Sign In With Google</a>}
+
+As is obvious, the @code{href} is a relative path.
+
+Now, place the following code inside the client @file{package.json}
+file:
+
+@example
+"proxy": @{
+  "/auth/google": @{
+    "target": "http://localhost:DEV_PORT"
+  @}
+@}
+@end example
+
+@node Proxy in Client
+@subsection Proxy in Client
+@cindex proxy in client
+
+@(util1.sed@)=
+/private/i\
+"proxy": {\
+\ \ "/auth/google": {\
+\ \ \ \ "target": "http://localhost:8000"\
+\ \ }\
+}
+@
+
+@<Makefile NPM Run Hook@>=
+.Phony : modify-client-package
+modify-client-package : create-react-app
+	[ -f util1.sed ] && \
+	{ ! grep -q proxy ${CLIENT}/package.json && \
+	sed -i '' -f util1.sed ${CLIENT}/package.json || : && \
+	rm util1.sed; } || :
+@
+
+@<Makefile NPM@>=
+NPM = modify-client-package
+@
 
 @node Create React App Proxy
 @section The Beauty of Create React App's Proxy
