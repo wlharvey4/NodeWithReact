@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-10T12:04:29
-@c VERSION: VERSION 0.4.1
+@c DATE:    2018-01-10T19:15:42
+@c VERSION: VERSION 0.4.2
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.1
+@set EDITION 0.4.2
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -260,8 +260,8 @@ Acknowledgments here...
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.1
- * DATE:   2018-01-10T12:04:41
+ * VER:    v0.4.2
+ * DATE:   2018-01-10T19:15:58
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -711,7 +711,7 @@ Initialize new Node Project: @code{npm init --yes}
 PACKAGE.JSON := ${ROOT}/package.json
 @
 
-@<Makefile NPM Hooks@>=
+@<Makefile NPM Hook@>=
 .Phony : npm-init
 npm-init : ${PACKAGE.JSON}
 ${PACKAGE.JSON} : | ${ROOT}
@@ -725,7 +725,7 @@ NPM = npm-init
 @item
 Install @file{express}
 
-@<Makefile NPM Hooks@>=
+@<Makefile NPM Hook@>=
  
 .Phony : npm-install
 npm-install : ${PACKAGE.JSON}
@@ -1151,8 +1151,8 @@ it has done its work.  The script is called by @file{make} after
 @(util.sed@)=
 /scripts/i\
 \ \ "engines": {\
-\ \ \ \ "node": "8.1.1",\
-\ \ \ \ "npm": "5.0.3"\
+\ \ \ \ "node": ">=8.1.1",\
+\ \ \ \ "npm": ">=5.0.3"\
 \ \ },
 @
 
@@ -1167,11 +1167,14 @@ it has done its work.  The script is called by @file{make} after
 @subsubsection Makefile Sed Utility Additions
 @cindex npm-package-modify
 
-@<Makefile NPM Hooks@>=
+@<Makefile NPM Hook@>=
  
 .Phony : npm-package-modify
 npm-package-modify : npm-install
-	-sed -i '' -f util.sed ${ROOT}/package.json && rm util.sed
+	[ -f util.sed ] && \
+	{ ! grep -q engines ${ROOT}/package.json && \
+	sed -i '' -f util.sed ${ROOT}/package.json || : && \
+	rm util.sed; } || :
 @
 
 @<Makefile NPM@>=
@@ -3980,6 +3983,84 @@ proxy: true,
 @chapter Moving to the Client Side
 @cindex client side
 
+We have not done anything with React yet.  All work has been done on the
+back-end server.  The setup of the front end with the back end will be
+easy, but is very complicated underneath.  This course will teach what
+is going on behind the scenes, but it will be difficult.
+
+@node Create React App
+@section Create React App
+@cindex create-react-app
+
+@url{https://github.com/facebookincubator/create-react-app,
+Create-React-App}
+
+The Create-React-App tool will be installed as a module and then used to
+create a new React project.  This page contains great documentation.
+
+To install globally:
+
+@code{$ sudo npm install -g create-react-app}
+
+Now, create a project @strong{inside} of our @file{server} directory.
+
+@code{$ create-react-app client}
+
+@node Install Create-React-App
+@subsection Install Create-React_App
+
+@<Makefile NPM Hook@>=
+.Phony : npm-create-react-app
+npm-create-react-app : ${ROOT}/node_modules/.bin/create-react-app npm-package-modify
+
+${ROOT}/node_modules/.bin/create-react-app : 
+	cd ${ROOT} && npm install --save-dev create-react-app
+@
+
+@<Makefile NPM@>=
+NPM = npm-create-react-app
+@
+
+@node Create Front End Project
+@subsection Create Front End Project
+
+@<Makefile Directory Definitions Hook@>=
+CLIENT := ${ROOT}/client
+@
+
+@<Makefile NPM Hook@>=
+.Phony : create-react-app
+create-react-app : npm-create-react-app ${CLIENT}
+
+${CLIENT} : 
+	cd ${ROOT} && ./node_modules/.bin/create-react-app client
+@
+
+@<Makefile NPM@>=
+NPM = create-react-app
+@
+
+@node Front End Server
+@section A Separate Front End Server
+@cindex front end server
+
+@node Running Client and Server
+@section Running the Client and Server
+@cindex running client and server
+
+@node Routing
+@section Routing Stumbling Blocks
+@cindex routing stumbling blocks
+@cindex stumbling blocks, routing
+
+@node Create React App Proxy
+@section The Beauty of Create React App's Proxy
+@cindex create-react-app proxy
+
+@node Architecture
+@section Why This Architecture
+@cindex architecture
+
 @node Developing Client
 @chapter Developing the Client Side
 @cindex client, developing
@@ -4307,7 +4388,7 @@ link-indexjs :
 .Phony : npm
 npm : ${NPM}
 
-@<Makefile NPM Hooks@>
+@<Makefile NPM Hook@>
 @
 
 @node Makefile Run Hook
