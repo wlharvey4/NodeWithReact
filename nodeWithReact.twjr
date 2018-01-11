@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-10T19:15:42
-@c VERSION: VERSION 0.4.2
+@c DATE:    2018-01-11T07:51:26
+@c VERSION: VERSION 0.4.3
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.2
+@set EDITION 0.4.3
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -256,12 +256,26 @@ Acknowledgments here...
 @node Introduction
 @unnumbered Introduction
 
+@set APP Emaily
+
+This tutorial is creating a fullstack Node Express React Redux Mongo
+application called @file{@value{APP}} and deploying it to Heroku.  The
+entry-point will be a file called @file{index.js} contained in the root
+directory.
+
+@url{https://www.udemy.com/node-with-react-fullstack-web-development/learn/v4/content,
+Course Website}
+
+@<Makefile App Definition@>=
+APP := EMAILY_APP
+@
+
 @<App Header@> =
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.2
- * DATE:   2018-01-10T19:15:58
+ * VER:    v0.4.3
+ * DATE:   2018-01-11T07:51:39
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -271,10 +285,6 @@ Acknowledgments here...
  * TODO:   
  *************************************************************/
 @
-
-Build and deploy fullstack web apps with NodeJS, React, Redux, Express, and MongoDB.
-
-Course website: @url{https://www.udemy.com/node-with-react-fullstack-web-development/learn/v4/content}
 
 @node About
 @unnumberedsec About This Course
@@ -711,7 +721,7 @@ Initialize new Node Project: @code{npm init --yes}
 PACKAGE.JSON := ${ROOT}/package.json
 @
 
-@<Makefile NPM Hook@>=
+@<Makefile NPM Run Hook@>=
 .Phony : npm-init
 npm-init : ${PACKAGE.JSON}
 ${PACKAGE.JSON} : | ${ROOT}
@@ -725,11 +735,12 @@ NPM = npm-init
 @item
 Install @file{express}
 
-@<Makefile NPM Hook@>=
+@<Makefile NPM Run Hook@>=
  
 .Phony : npm-install
-npm-install : ${PACKAGE.JSON}
-	-[ ! -d ${ROOT}/node_modules ] && cd ${ROOT} && npm install ${NPM_INSTALLS}
+npm-install : npm-init ${ROOT}/node_modules
+${ROOT}/node_modules :
+	cd ${ROOT} && npm install --save ${NPM_INSTALLS}
 @
 
 @<Makefile NPM@>=
@@ -823,6 +834,7 @@ route those requests to different route handlers.  The route handlers
 will be associated with the @file{express} @var{app} that we create here.
 
 @(index0.js@)=
+@<App Header@>
 @<Index0JS Requirements@>
 @<Index0JS Constant Definitions@>
 @<Create App@>
@@ -835,8 +847,6 @@ will be associated with the @file{express} @var{app} that we create here.
 
 @<Index0JS Requirements@>=
  
-@<App Header@>
-
 /*********************
   REQUIREMENTS
  *********************/
@@ -956,11 +966,7 @@ ${INDEX.JS_ALL} : | ${ROOT}
 @cindex start-server
 @cindex run hook
 
-@<Makefile Run Hook@>=
- 
-####################
-# RUN HOOKS        #
-####################
+@<Makefile NPM Run Hook@>=
 .Phony : start-server
 start-server :
 	cd ${ROOT} && npm run dev
@@ -1167,7 +1173,7 @@ it has done its work.  The script is called by @file{make} after
 @subsubsection Makefile Sed Utility Additions
 @cindex npm-package-modify
 
-@<Makefile NPM Hook@>=
+@<Makefile NPM Run Hook@>=
  
 .Phony : npm-package-modify
 npm-package-modify : npm-install
@@ -1595,6 +1601,7 @@ passport.use(
 @cindex index.js refactored for passport
 
 @(index1.js@)=
+@<App Header@>
 @<Index1JS Requirements@>
 @<Index0JS Constant Definitions@>
 @<Create App@>
@@ -2036,6 +2043,7 @@ Create a new @file{index.js} file with the modified GoogleStrategy
 callback:  
 
 @(index2.js@)=
+@<App Header@>
 @<Index1JS Requirements@>
 @<Index0JS Constant Definitions@>
 @<Create App@>
@@ -2133,7 +2141,7 @@ current @file{util.sed} script created earlier (but first append a comma
 and newline to the end of the prior script to allow this to work):
 
 @(util.sed@)=
-\ \ \ \ "dev": "nodemon index.js &"
+\ \ \ \ "dev": "nodemon index.js &",\
 @
 
 @node MongoDB
@@ -2352,6 +2360,7 @@ To allow code down the line to hook into our app, we will give it a
 @samp{Use Hook} right after it is created.
 
 @(index3.js@)=
+@<App Header@>
 @<Index3JS Requirements@>
 @<Server Port Assignment@>
 @<Create App@>
@@ -4002,16 +4011,21 @@ To install globally:
 
 @code{$ sudo npm install -g create-react-app}
 
-Now, create a project @strong{inside} of our @file{server} directory.
+To install as a dependency:
 
+@code{$ npm install --save-dev create-react-app}
+
+Now, create a React project @strong{inside} of our @file{server} directory.
+
+@code{$ cd server}
 @code{$ create-react-app client}
 
 @node Install Create-React-App
 @subsection Install Create-React_App
 
-@<Makefile NPM Hook@>=
+@<Makefile NPM Run Hook@>=
 .Phony : npm-create-react-app
-npm-create-react-app : ${ROOT}/node_modules/.bin/create-react-app npm-package-modify
+npm-create-react-app : npm-package-modify ${ROOT}/node_modules/.bin/create-react-app
 
 ${ROOT}/node_modules/.bin/create-react-app : 
 	cd ${ROOT} && npm install --save-dev create-react-app
@@ -4028,7 +4042,7 @@ NPM = npm-create-react-app
 CLIENT := ${ROOT}/client
 @
 
-@<Makefile NPM Hook@>=
+@<Makefile NPM Run Hook@>=
 .Phony : create-react-app
 create-react-app : npm-create-react-app ${CLIENT}
 
@@ -4044,9 +4058,96 @@ NPM = create-react-app
 @section A Separate Front End Server
 @cindex front end server
 
+The @file{client} package that @file{create-react-app} installed has its
+own built-in server.  To start this server, run this command from within
+the @code{client} directory.
+
+@command{npm start}
+
+To make a simple edit, go to the
+
+@code{client/src/App.js} file, and change @samp{Welcome to React} to
+@samp{Hi There}.  The browser will automatically refresh and update.
+
+@node Start Client Server
+@subsection Start the Client Server
+@cindex start client server
+@cindex client server, start
+
+@<Makefile NPM Run Hook@>=
+ 
+.Phony : start-client
+start-client :
+	cd ${CLIENT} && npm start
+@
+
+@node 2-Server Architecture
+@subsection 2-Server Architecture
+@cindex 2 server architecture
+
+@itemize
+@item
+Browser
+
+@itemize
+@item
+React Server ==> json stuff
+
+@itemize
+@item
+Button.js (component)
+
+@item
+App.js (component)
+
+@item
+Header.js (component)
+@end itemize
+
+@item
+Express Server ==> json stuff
+
+@itemize
+@item
+MongoDB
+@end itemize
+@end itemize
+@end itemize
+
 @node Running Client and Server
 @section Running the Client and Server
 @cindex running client and server
+
+How do we get the server and client server running at the same time?
+One option is to open two terminal windows, start one server in one and
+the other server in the other.  Another option is to utilize the package
+@file{concurrently} that allows us to run two separate commands
+concurrently.
+
+There are now two separate @file{package.json} files: one for the
+server, and one for the client.  Go to the server @file{package.json}.
+Add two additional scripts, one to start the @file{client} server, and
+one to start both the client and the server concurrently.
+
+@node Add Concurrent Scripts
+@subsection Add Concurrent Scripts
+@cindex concurrently
+
+@(util.sed@)=
+\ \ \ \ "client": "npm run start --prefix client",\
+\ \ \ \ "client-server": "concurrently \\"npm run dev\\" \\"npm run client\\" &"
+
+@
+
+@<Makefile NPM_INSTALLS@>=
+NPM_INSTALLS += concurrently
+@
+
+@<Makefile NPM Run Hook@>=
+.Phony : start-client-server
+start-client-server :
+	cd ${ROOT} && npm run client-server
+@
 
 @node Routing
 @section Routing Stumbling Blocks
@@ -4117,8 +4218,8 @@ NPM = create-react-app
 @<Makefile Create Files Targets@>
 @<Makefile Move Targets@>
 @<Makefile Link Target@>
-@<Makefile NPM Targets@>
-@<Makefile Run Hook@>
+@<Makefile NPM Installs@>
+@<Makefile NPM Run@>
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
 @<Makefile Git Targets@>
@@ -4133,6 +4234,7 @@ NPM = create-react-app
 ####################
 # CONSTANT DEF'S
 ####################
+@<Makefile App Definition@>
 @<Makefile Directory Definitions@>
 @<Makefile Filename Definitions@>
 @<Makefile Dev Port Assignment@>
@@ -4170,7 +4272,6 @@ TWJR_FILENAME := ${FILENAME}.twjr
 TEXI_FILENAME := ${FILENAME}.texi
 INFO_FILENAME := ${FILENAME}.info
 GIT := ${ROOT}/.git
-APP := ${EMAILY_APP}
 @<Makefile Filename Definitions Hook@>
 
 @
@@ -4193,13 +4294,19 @@ MOVE_PREREQS ?= NOT_DEFINED
 @<Makefile Default Targets@>=
  
 .Phony : all
-all : install-files server-browser
+all : install-files client-server-browser
 
 .Phony : install-files
 install-files : meta-move-link npm git-init
 
 .Phony : server-browser
 server-browser : start-server open-browser
+
+.Phony : client-server-browser
+client-server-browser : client-server open-browser
+
+.Phony : client-server
+client-server : start-client-server
 
 .Phony : meta-move-link
 meta-move-link : make-meta move-and-link
@@ -4277,10 +4384,11 @@ very-clean : clean
 	-rm -rf *.{info,js,html} ${HTML_DIR}
 	-find -d ${ROOT} \
 		-not \( \
+		  -name package\* -or \
 		  -path \*/node_modules\* -or \
 		  -path \*/.git\* -or \
-		  -path ${ROOT} -or \
-		  -name package\* \
+                  -path \*client\* -or \
+		  -path ${ROOT} \
 		\) -exec rm -r {} \;
 
 @
@@ -4377,24 +4485,27 @@ link-indexjs :
 @<Makefile Link Target Hook@>
 @
 
-@node Makefile NPM Targets
-@appendixsubsec Makefile NPM Targets
+@node Makefile NPM Installs
+@appendixsubsec Makefile NPM Installs
 
-@<Makefile NPM Targets@>=
+@<Makefile NPM Installs@>=
  
 ####################
-# NPM TARGETS      #
+# NPM INSTALLS      #
 ####################
 .Phony : npm
 npm : ${NPM}
-
-@<Makefile NPM Hook@>
 @
 
-@node Makefile Run Hook
-@appendixsubsubsec Makefile Run Hook
+@node Makefile NPM Run Hook
+@appendixsubsubsec Makefile NPM Run Hook
 
-@<Makefile Run Hook@>=
+@<Makefile NPM Run@>=
+ 
+####################
+# RUN HOOK         #
+####################
+@<Makefile NPM Run Hook@>
 @
 
 @node Makefile Open Browser
@@ -4408,7 +4519,7 @@ open-browser :
 @
 
 @node Makefile Stop Server
-@appendixsubsec Makefile Stop Server
+@appendixsubsubsec Makefile Stop Server
 
 @<Makefile Server Stop@>=
 .Phony : stop-server
@@ -4417,7 +4528,6 @@ stop-server :
 	[ $${#PS} -ne 0 ] && \
 	{ kill $${PS}; echo server process $${PS} stopped; } || \
 	echo no node process to kill
-#	PS=$$(ps | grep 'node index.js$$' | cut -d ' ' -f 1); [ $${#PS} -ne 0 ] && kill $${PS} || echo no index.js process to kill
 
 @
 
