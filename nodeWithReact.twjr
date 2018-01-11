@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-11T09:43:29
-@c VERSION: VERSION 0.4.5
+@c DATE:    2018-01-11T12:03:46
+@c VERSION: VERSION 0.4.6
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.5
+@set EDITION 0.4.6
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.5
- * DATE:   2018-01-11T09:43:43
+ * VER:    v0.4.6
+ * DATE:   2018-01-11T12:04:06
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -2307,6 +2307,7 @@ MOVE_PREREQS += move-authRoutes
 
 @node passport_js
 @subsubsection @file{passport.js}
+@cindex passport1.js
 @cindex passport.js
 
 @file{passport.js} file holds all of the @file{passport} logic to
@@ -2315,7 +2316,7 @@ personal information.  This file needs to import @file{passport},
 @file{GoogleStrategy}, and the secret key information.  Then, it
 @code{use}'s the @file{GoogleStrategy}.
 
-@(passport.js@)=
+@(passport1.js@)=
 @<Passport Requirements@>
 @<Passport Use GoogleStrategy2@>
 @
@@ -2338,11 +2339,15 @@ directory.
 @<Makefile Move Hook@>=
 .Phony : move-passport
 move-passport : | ${SERVICES}
-	mv -f passport.js ${SERVICES}
+	mv -f passport*.js ${SERVICES}
 @
 
 @<Makefile Move Prereqs@>=
 MOVE_PREREQS += move-passport
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${SERVICES}/passport1.js ${SERVICES}/passport.js
 @
 
 @node index3_js
@@ -3101,7 +3106,7 @@ passport.serializeUser(
 );
 @
 
-@(passport.js@)=
+@(passport1.js@)=
 @<Serialize User@>
 @
 
@@ -3151,7 +3156,7 @@ User.findById(id)
   });
 @
 
-@(passport.js@)=
+@(passport1.js@)=
 @<Deserialize User@>
 @
 
@@ -4236,11 +4241,118 @@ the @file{build} directory and into the bundle, and produce it.
 @section Why This Architecture
 @cindex architecture
 
-
+[Optional discussion skipped]
 
 @node Developing Client
 @chapter Developing the Client Side
 @cindex client, developing
+
+@node Async Await Syntax
+@section Async/Await Syntax
+@cindex async/await
+
+@url{https://rallycoding.herokuapp.com/api/music_albums}
+
+@(fetch.js@)=
+// write a function to retrieve a blob of json
+// make an ajax request.  Use the 'fetch' function
+// https://rallycoding.herokuapp.com/api/music_albums
+
+// PROMISES
+function fetchAlbums() {
+  fetch('https://rallycoding.herokuapp.com/api/music_albums')
+    .then(res => res.json())
+    .then(json => console.log(json));
+}
+
+fetchAlbums();
+
+// ASYNC/AWAIT
+async function async_fetchAlbums() {
+  const res = await fetch('https://rallycoding.herokuapp.com/api/music_albums');
+  const json = await res.json();
+
+  console.log(json);
+}
+
+async_fetchAlbums();
+
+// ASYNC/AWAIT ES6
+const fetchAlbums_async = async () => {
+  const res = await fetch('https://rallycoding.herokuapp.com/api/music_albums');
+  const json = await res.json();
+
+  console.log(json);
+}
+
+fetchAlbums_async();
+
+@
+
+@node Refactoring with Async Await
+@section Refactoring with Async/Await
+@cindex refactor, async/await
+@cindex async/await refactor
+
+The GoogleStrategy callback function in @file{passport.js} pulls data
+out of a Mongo database; doing this means we have to use promises.  We
+will refactor this code to use @code{async/await} syntax instead.
+
+@enumerate
+@item
+Place @code{async} in front of a function that contains a promise
+
+@item
+Place @code{await} in front of a call that returns a promise
+
+@item
+Turn the call into a variable that the @code{then} accepted
+
+@item
+Turn the then into a function
+@end enumerate
+
+@<Google Strategy Callback Function Using AsyncAwait@>=
+async (accessToken, refreshToken, profile, done) => {
+  const existingUser = await User.findOne({ googleId: profile.id });
+  if (existingUser) {
+    done(null, existingUser);
+  } else {
+    const user  = await new User({ googleId: profile.id }).save();
+    done(null, user);
+  }
+}
+@
+
+@node Refactored Passport.js
+@subsection Refactored @file{passport.js}
+@cindex passport.js using async/await
+
+@<Google Strategy Options Using AsyncAwait@>=
+@<Google Strategy Object@>,
+@<Google Strategy Callback Function Using AsyncAwait@>
+@
+
+
+@<Passport Use GoogleStrategy Using AsyncAwait@>=
+@<Passport Header@>
+passport.use(
+  new GoogleStrategy(
+    @<Google Strategy Options Using AsyncAwait@>
+  )
+);
+@
+
+@(passport2.js@)=
+@<Passport Requirements@>
+@<Passport Use GoogleStrategy Using AsyncAwait@>
+@<Serialize User@>
+@<Deserialize User@>
+@
+
+@<Makefile Link Target Hook@>=
+	ln -f ${SERVICES}/passport2.js ${SERVICES}/passport.js
+@
 
 @node Payments
 @chapter Handling Payments
