@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-11T08:57:24
-@c VERSION: VERSION 0.4.4
+@c DATE:    2018-01-11T09:43:29
+@c VERSION: VERSION 0.4.5
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.4
+@set EDITION 0.4.5
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.4
- * DATE:   2018-01-11T08:57:38
+ * VER:    v0.4.5
+ * DATE:   2018-01-11T09:43:43
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4185,11 +4185,15 @@ file:
 @cindex proxy in client
 
 @(util1.sed@)=
-/private/i\
-"proxy": {\
-\ \ "/auth/google": {\
-\ \ \ \ "target": "http://localhost:8000"\
-\ \ }\
+/private/{
+P;
+i\
+\ \ "proxy": {\
+\ \ \ \ "/auth/google": {\
+\ \ \ \ \ \ "target": "http://localhost:8000"\
+\ \ \ \ \ \}\
+\ \ \ \},
+
 }
 @
 
@@ -4210,9 +4214,29 @@ NPM = modify-client-package
 @section The Beauty of Create React App's Proxy
 @cindex create-react-app proxy
 
+Our goal is to use relative links in the client server, but have the
+links correctly forward when the app is deployed in a production
+environment.  We added a @samp{proxy} to the client's
+@file{package.json} file to redirect anyone trying to access a link with
+@code{/auth/google} to @code{http://localhost:8000}.  There is no need
+to include a route with target host.
+
+The client server created by Create-React-App includes a proxy inside
+that we can access through the @file{package.json} @samp{proxy}
+command.  In development mode, any link going to @code{/auth/google}
+will automatically be redirected to our express server.
+
+In a production environment, this React server will not exist; instead,
+@file{WebPack} will create a production bundle that gets placed into the
+@file{build} directory.  Only our back-end server will be running, and
+whenever anyone asks for an asset, our production server will reach into
+the @file{build} directory and into the bundle, and produce it.
+
 @node Architecture
 @section Why This Architecture
 @cindex architecture
+
+
 
 @node Developing Client
 @chapter Developing the Client Side
