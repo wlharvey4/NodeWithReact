@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-11T12:03:46
-@c VERSION: VERSION 0.4.6
+@c DATE:    2018-01-12T06:07:46
+@c VERSION: VERSION 0.4.7
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.6
+@set EDITION 0.4.7
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.6
- * DATE:   2018-01-11T12:04:06
+ * VER:    v0.4.7
+ * DATE:   2018-01-12T06:08:13
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4316,12 +4316,12 @@ Turn the then into a function
 async (accessToken, refreshToken, profile, done) => {
   const existingUser = await User.findOne({ googleId: profile.id });
   if (existingUser) {
-    done(null, existingUser);
-  } else {
-    const user  = await new User({ googleId: profile.id }).save();
-    done(null, user);
+    return done(null, existingUser);
   }
-}
+
+  const user  = await new User({ googleId: profile.id }).save();
+  done(null, user);
+  }
 @
 
 @node Refactored Passport.js
@@ -4352,6 +4352,351 @@ passport.use(
 
 @<Makefile Link Target Hook@>=
 	ln -f ${SERVICES}/passport2.js ${SERVICES}/passport.js
+@
+
+@node Front End Tech
+@section Front End Tech
+@cindex front end tech
+
+@subheading Review of Engineering Tasks
+
+@itemize
+@item
+Back End
+
+@itemize
+@item
+Server Setup
+
+@item
+Authentication Flow
+
+@item
+Add Survey API's on Server
+@end itemize
+
+@item
+Front End
+
+@itemize
+@item
+Client Setup
+
+@item
+Auth on Client
+
+@item
+Add Survey Stuff on Client
+@end itemize
+@end itemize
+
+@subheading Front End Mockup
+
+Need to use React and React Router for different pages; use Redux for
+data and persisting data.
+
+@itemize
+@item
+Main page
+
+@itemize
+
+@item
+Header
+
+@itemize
+@item
+Emaily
+
+@item
+Login
+
+@item
+Signup
+@end itemize
+
+@item
+Landing
+@itemize
+@item
+Welcome Script
+@end itemize
+@end itemize
+
+@item
+emaily.com/surveys page
+
+@itemize
+@item
+Header
+
+@item
+Dashboard
+
+@item
+Survey List
+
+@item
+Survey List Item
+@end itemize
+
+@item
+emaily.com/surveys/new
+
+@itemize
+@item
+Survey Form
+
+@item
+Survey Field
+@end itemize
+@end itemize
+
+@node Client React Setup
+@section Client React Setup
+@cindex react setup, client
+
+First thing, delete all the files inside @file{src} directory (but leave
+@file{registerServiceWorker.js}.  No boilerplate to be used in this
+project other than @file{create-react-app}.  @xref{Delete Files in
+Client-Src}.
+
+Next, add the two @dfn{root} files the files that are the entry-point
+for the front end.  These are defined below.
+
+@subheading Root Files
+
+@subsubheading @file{index.js} (Redux)
+
+@file{index.js} will be the first root file, or base root file (the
+actual entry point).  This file will contain the initial boot-up logic
+for the React and Redux sides of the application.  This file will hold
+the @samp{data layer control}, or Redux, code.  @xref{Install Root
+Files}.
+
+@subsubheading @file{App.js} (React Router)
+
+@file{App.js} (a component) will be just under @file{index.js} and will
+be the @samp{rendering layer control} code, or React.  This file will
+control which components are rendered on-screen.
+
+@subsubheading App Structure
+@cindex structure
+
+@itemize
+@item
+@file{index}
+
+@itemize
+@item
+@file{App}
+
+@itemize
+@item
+Landing
+
+@item
+Header
+
+@item
+Dashboard
+
+@itemize
+
+@item
+SurveyList
+
+@itemize
+@item
+Unknown
+
+@end itemize
+
+@end itemize
+
+@item
+SurveyNew
+
+@itemize
+
+@item
+Survey Field
+@end itemize
+
+@end itemize
+
+@end itemize
+
+@end itemize
+
+@node Delete Files in Client-Src
+@subsection Delete Files in Client-Src
+@cindex client dependencies
+
+Delete all of the files inside @file{src}:
+
+@<Makefile Directory Definitions Hook@>=
+CLIENT-SRC := ${CLIENT}/src
+@
+
+@<Makefile Front End Setup Hook@>=
+.Phony : delete-files-in-src
+delete-files-in-src :
+	find ${CLIENT-SRC} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = delete-files-in-src
+@
+
+@node Install Root Files
+@subsection Install Root Files
+@cindex client root files
+
+Make sure you are in the client folder and then install some
+dependencies:
+
+@itemize
+@item
+redux
+
+@item
+react-redux
+
+@item
+react-router-dom
+@end itemize
+
+@<Makefile Front End Setup Hook@>=
+ 
+.Phony : install-front-end-dependencies
+install-front-end-dependencies : delete-files-in-src
+	grep -q 'react' ${CLIENT}/package.json && : || { \
+	cd ${CLIENT} && \
+	npm i redux react-redux react-router-dom; }
+
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = install-front-end-dependencies
+@
+
+@node Create index0.js
+@subsection Create @file{index0.js}
+
+Create @file{index.js} inside @file{client/src}.  This will be the
+primary location for setting up the Redux side of things in the
+application.  The root component (App) will also be rendered from within
+this file.  This file will not contain a lot of React configuration.
+
+@<Front End Dependencies In IndexJS@>=
+/* Front End Dependencies */
+import React from 'react';
+import ReactDom from 'react-dom';
+@
+
+@<ReactDOM Render@>=
+
+/* RENDER */
+ReactDom.render(@<Render App@>);
+@
+
+@(client-index0.js@)=
+@<Front End Dependencies In IndexJS@>
+
+@<ReactDOM Render@>
+@
+
+@<Makefile Front End Setup Hook@>=
+
+.Phony : create-index0.js
+create-index0.js : install-front-end-dependencies
+	for file in client-index*; do mv -v $$file ${CLIENT-SRC}/$${file#client-}; done
+	ln -f ${CLIENT-SRC}/index0.js ${CLIENT-SRC}/index.js
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = create-index0.js
+@
+
+@node Create App.js
+@subsection Create App.js
+
+First, create a @file{components} directory inside @file{client/src} to
+hold all of the components that will be created, and then create inside
+of this @file{components} directory a file called @file{App.js}.
+
+@<Makefile Directory Definitions Hook@>=
+COMPONENTS := ${CLIENT-SRC}/components
+@
+
+@<Makefile Front End Setup Hook@>=
+ 
+.Phony : create-components-dir
+create-components-dir : create-index0.js
+	mkdir -p ${COMPONENTS}
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = create-components-dir
+@
+
+@<App Requirements@>=
+import React from 'react';
+@
+
+@<App Content 0@>=
+<div>
+  Hi There!
+</div>
+@
+
+@<App Main Begin@>=
+const App = () => {
+  return (
+@
+
+@<App Main End@>=
+  );
+}
+
+@<App Export@>
+@
+
+@<App Export@>=
+export default App
+@
+
+@<App 0@>=
+@<App Main Begin@>
+    @<App Content 0@>
+@<App Main End@>
+@
+
+@(client-App0.js@)=
+@<App Requirements@>
+
+@<App 0@>
+@
+
+@<Front End Dependencies In IndexJS@>=
+import App from './components/App';
+@
+
+@<Makefile Front End Setup Hook@>=
+ 
+.Phony : move-app-into-components
+move-app-into-components : create-components-dir
+	for file in client-App*; do mv -v $$file ${COMPONENTS}/$${file#client-}; done
+	ln -f ${COMPONENTS}/App0.js ${COMPONENTS}/App.js
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = move-app-into-components
+@
+
+@<Render App@>=
+<App />, document.querySelector('#root')
 @
 
 @node Payments
@@ -4410,6 +4755,7 @@ passport.use(
 @<Makefile NPM Run@>
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
+@<Makefile Front End Setup@>
 @<Makefile Git Targets@>
 @<Makefile Echo Variables@>
 @
@@ -4482,7 +4828,7 @@ MOVE_PREREQS ?= NOT_DEFINED
 @<Makefile Default Targets@>=
  
 .Phony : all
-all : install-files client-server-browser
+all : install-files client-server-browser all-front-end
 
 .Phony : install-files
 install-files : meta-move-link npm git-init
@@ -4717,6 +5063,23 @@ stop-server :
 	{ kill $${PS}; echo server process $${PS} stopped; } || \
 	echo no node process to kill
 
+@
+
+@<Makefile Front End Setup@>=
+####################
+# FRONT END SETUP  #
+####################
+
+@<Makefile FRONT_END@>
+
+.Phony : all-front-end
+all-front-end : ${FRONT_END}
+
+@<Makefile Front End Setup Hook@>
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END ?= EMPTY
 @
 
 @node Makefile Git Targets
