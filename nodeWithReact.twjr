@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-12T06:07:46
-@c VERSION: VERSION 0.4.7
+@c DATE:    2018-01-13T12:29:48
+@c VERSION: VERSION 0.4.8
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.7
+@set EDITION 0.4.8
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.7
- * DATE:   2018-01-12T06:08:13
+ * VER:    v0.4.8
+ * DATE:   2018-01-13T12:30:02
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -3176,9 +3176,10 @@ so.
 
 Express does not know that we want it to manage authentication of users
 by using @samp{cookies}, nor even how to do that, and so it must receive
-a helper package, @file{cookie-session}.
+a helper package, @file{cookie-session}.  This enables @dfn{sessions} in
+our app, or the ability to persist data between browser requests.
 
-@node Import cookie-session
+@Node Import cookie-session
 @subsubsection Load and Import Cookie-Session and Passport
 @cindex require cookie-session
 @cindex cookie-session, require
@@ -3217,9 +3218,9 @@ the @file{passport} package into @file{index.js} as well.
 @cindex cookie-session, use
 
 We have named our @file{Express} server @code{app}.  @code{app} has a
-@code{use} method which will receive the @file{cookie-session} code that
-we just imported.  We will discuss the @code{use} method of
-@file{Express} in a later section.
+@code{use} method (middleware) which will receive the
+@file{cookie-session} code that we just imported.  We will discuss the
+@code{use} method of @file{Express} in a later section.
 
 @<App Use Hook@>=
  
@@ -3291,7 +3292,8 @@ The last step is tell @file{Passport} that it should make use of
 @file{cookie-session}.
 
 These last two commands essentially complete authentication for our
-app.  
+app.  It is important that the method @samp{app.use(passport.session())}
+be placed @strong{after} the @samp{app.use(cookieSession)} statement.
 
 @<App Use Hook@>=
 app.use(passport.initialize());
