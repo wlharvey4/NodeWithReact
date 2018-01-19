@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-13T12:29:48
-@c VERSION: VERSION 0.4.8
+@c DATE:    2018-01-19T05:46:27
+@c VERSION: VERSION 0.4.9
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.8
+@set EDITION 0.4.9
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.8
- * DATE:   2018-01-13T12:30:02
+ * VER:    v0.4.9
+ * DATE:   2018-01-19T05:46:54
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -3179,7 +3179,7 @@ by using @samp{cookies}, nor even how to do that, and so it must receive
 a helper package, @file{cookie-session}.  This enables @dfn{sessions} in
 our app, or the ability to persist data between browser requests.
 
-@Node Import cookie-session
+@node Import cookie-session
 @subsubsection Load and Import Cookie-Session and Passport
 @cindex require cookie-session
 @cindex cookie-session, require
@@ -4085,7 +4085,7 @@ To make a simple edit, go to the
  
 .Phony : start-client
 start-client :
-	cd ${CLIENT} && npm start
+	cd ${CLIENT} && npm start &
 @
 
 @node 2-Server Architecture
@@ -4359,6 +4359,10 @@ passport.use(
 @node Front End Tech
 @section Front End Tech
 @cindex front end tech
+@cindex authentication flow
+@cindex API
+@cindex React
+@cindex React Router
 
 @subheading Review of Engineering Tasks
 
@@ -4392,14 +4396,31 @@ Add Survey Stuff on Client
 @end itemize
 @end itemize
 
-@subheading Front End Mockup
+@subheading Front End Mockup and Design
+@cindex data persistence
 
-Need to use React and React Router for different pages; use Redux for
-data and persisting data.
+Take this opportunity to do some front-end design work and create a
+mock-up of what the user will see as he or she navigates through the
+application.  
 
 @itemize
 @item
-Main page
+React --- rendering
+
+@item
+Router --- routing
+
+@item
+Redux --- data
+@end itemize
+
+
+Need to use React and React Router to send the user to different pages;
+use Redux for resources (data) and persisting data.
+
+@itemize
+@item
+Main page @indicateurl{emaily.com/} --- Root route
 
 @itemize
 
@@ -4426,20 +4447,20 @@ Welcome Script
 @end itemize
 
 @item
-emaily.com/surveys page
+@indicateurl{emaily.com/surveys page}
 
 @itemize
 @item
-Header
+Header (still see)
 
 @item
-Dashboard
+Dashboard component
 
 @item
-Survey List
+Survey List component
 
 @item
-Survey List Item
+Survey List Item component
 @end itemize
 
 @item
@@ -4447,7 +4468,7 @@ emaily.com/surveys/new
 
 @itemize
 @item
-Survey Form
+Survey Form @indicateurl{emaily.com/surveys/new}
 
 @item
 Survey Field
@@ -4457,48 +4478,75 @@ Survey Field
 @node Client React Setup
 @section Client React Setup
 @cindex react setup, client
+@cindex root files
+@cindex base root file
+@cindex boot-up logic
+@cindex data layer
+@cindex rendering layer
+
+Make sure you are in the @file{client} directory at this point (not the
+@file{server} directory).
 
 First thing, delete all the files inside @file{src} directory (but leave
 @file{registerServiceWorker.js}.  No boilerplate to be used in this
 project other than @file{create-react-app}.  @xref{Delete Files in
 Client-Src}.
 
-Next, add the two @dfn{root} files the files that are the entry-point
-for the front end.  These are defined below.
+Next, add the two @dfn{root} files --- the files that are the
+entry-point for the front end.  These are defined below.
 
-@subheading Root Files
+@subheading Two Root Files
 
 @subsubheading @file{index.js} (Redux)
+@cindex Redux
+
+@display
+@dfn{Data layer control} (@command{Redux})
+@end display
 
 @file{index.js} will be the first root file, or base root file (the
 actual entry point).  This file will contain the initial boot-up logic
 for the React and Redux sides of the application.  This file will hold
-the @samp{data layer control}, or Redux, code.  @xref{Install Root
+the @samp{data control layer}, or Redux, code.  @xref{Install Root
 Files}.
 
-@subsubheading @file{App.js} (React Router)
+@subsubheading @file{App.js} (React & React Router)
+@cindex React
+@cindex React-Router
+
+@display
+@dfn{Rendering layer control} (@command{React / React Router})
+@end display
 
 @file{App.js} (a component) will be just under @file{index.js} and will
-be the @samp{rendering layer control} code, or React.  This file will
-control which components are rendered on-screen.
+be considered the @samp{rendering layer control} code, and will be
+concerned with @command{React} and @command{React Router}.
 
-@subsubheading App Structure
+Controls which components will be rendered on the screen when.
+
+@subheading App Structure
 @cindex structure
 
 @itemize
 @item
-@file{index}
+@file{index.js}
+
+Data control layer; Root file (entry point); boot-up logic for React and
+Redux
 
 @itemize
 @item
-@file{App}
+@file{App.js}
+
+Just under Root @file{index.js}; Rendering control layer --- controls
+which components are rendered on-screen
 
 @itemize
-@item
-Landing
-
 @item
 Header
+
+@item
+Landing page
 
 @item
 Dashboard
@@ -4541,7 +4589,7 @@ Delete all of the files inside @file{src}:
 CLIENT-SRC := ${CLIENT}/src
 @
 
-@<Makefile Front End Setup Hook@>=
+@<Makefile Client-Side Setup Hook@>=
 .Phony : delete-files-in-src
 delete-files-in-src :
 	find ${CLIENT-SRC} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
@@ -4556,23 +4604,23 @@ FRONT_END = delete-files-in-src
 @cindex client root files
 
 Make sure you are in the client folder and then install some
-dependencies:
+dependencies using @command{npm install}:
 
 @itemize
 @item
-redux
+@file{redux}
 
 @item
-react-redux
+@file{react-redux}
 
 @item
-react-router-dom
+@file{react-router-dom}
 @end itemize
 
-@<Makefile Front End Setup Hook@>=
+@<Makefile Client-Side Setup Hook@>=
  
-.Phony : install-front-end-dependencies
-install-front-end-dependencies : delete-files-in-src
+.Phony : install-client-side-dependencies
+install-client-side-dependencies : delete-files-in-src
 	grep -q 'react' ${CLIENT}/package.json && : || { \
 	cd ${CLIENT} && \
 	npm i redux react-redux react-router-dom; }
@@ -4580,39 +4628,110 @@ install-front-end-dependencies : delete-files-in-src
 @
 
 @<Makefile FRONT_END@>=
-FRONT_END = install-front-end-dependencies
+FRONT_END = install-client-side-dependencies
 @
 
 @node Create index0.js
 @subsection Create @file{index0.js}
+@cindex Redux setup
+@cindex root component, render
+@cindex react-dom
 
 Create @file{index.js} inside @file{client/src}.  This will be the
-primary location for setting up the Redux side of things in the
-application.  The root component (App) will also be rendered from within
-this file.  This file will not contain a lot of React configuration.
+primary location for setting up the @file{Redux} side of things in the
+application.
 
-@<Front End Dependencies In IndexJS@>=
+This file will render the root component (@file{App.js}).  However, this
+file will not contain a lot of @file{React} configuration.
+
+@subsubheading @file{index.js} Dependencies
+
+Import
+
+@itemize
+@item
+React
+@item
+React-Dom
+@end itemize
+
+@<Client-Side Index.js Dependencies@>=
 /* Front End Dependencies */
 import React from 'react';
 import ReactDom from 'react-dom';
 @
 
+@subsubheading ReactDom Render Call
+
+Place the @command{ReactDom render} call at the bottom of the file.
+This will render @file{App.js}, the root file in the render control
+layer.
+
+@defun reactDOM.render (component location)
+Takes two arguments: @var{component}, the component to render, and
+@var{location}, where in the DOM to render the componet
+@end defun
+
 @<ReactDOM Render@>=
 
-/* RENDER */
+/* REACT-DOM RENDER */
 ReactDom.render(@<Render App@>);
 @
 
+@node index0.js Implementation
+@subsubsection index0.js Implementation
+
+@<Client-Side Index.js Header@>=
+/*
+ * FILE:     client/src/index.js
+ * VERSION:  0.0.1
+ * CREATED:  2018-01-18T19:49:27
+ * MODIFIED: 2018-01-18T19:49:34
+ * ABOUT:    Client-side root entry point; sets up Redux; renders App
+ * NOTES:
+ * TODO:
+ *********************************************************************/
+
+@
+
+@subsubheading index0.js Definition
+@cindex component instance
+
 @(client-index0.js@)=
-@<Front End Dependencies In IndexJS@>
+@<Client-Side Index.js Header@>
+@<Client-Side Index.js Dependencies@>
+
+@<Index0.js Body Hook@>
 
 @<ReactDOM Render@>
 @
 
-@<Makefile Front End Setup Hook@>=
+@subsubheading ReactDOM Rendero
+
+Show the @file{App} component; be sure to use the JSX tags inside the
+@code{render} method because @code{ReactDOM} expects a component
+@dfn{instance} which we create by using the JSX tags.  We must also
+provide a reference to an existing DOM node inside of the HTML
+document (@file{public/index.html}): @code{<div id="root"></div>}.  This
+is the point where we will render the @file{React} application.
+
+@<Render App@>=
+<App />, document.querySelector('#root')
+@
+
+@<Index0.js Body Hook@>=
+@
+
+@<ReactDOM Render@>=
+@
+
+@node Makefile Client-Side Setup Hook
+@subsubsection Makefile Client-Side Setup Hook
+
+@<Makefile Client-Side Setup Hook@>=
 
 .Phony : create-index0.js
-create-index0.js : install-front-end-dependencies
+create-index0.js : install-client-side-dependencies
 	for file in client-index*; do mv -v $$file ${CLIENT-SRC}/$${file#client-}; done
 	ln -f ${CLIENT-SRC}/index0.js ${CLIENT-SRC}/index.js
 @
@@ -4621,18 +4740,98 @@ create-index0.js : install-front-end-dependencies
 FRONT_END = create-index0.js
 @
 
+@node Installing Root Modules
+@section Installing Root Modules
+@cindex root modules
+
+In the last section we started putting together some of the core
+elements of the client side of the application.  All boiler plate
+created by @file{create-react-app} was deleted.  Then we created a new
+root app entry file, @file{index.js}.
+
+@strong{NOTE:} @file{create-react-app} assumes that there is an
+@file{index.js} file inside of the @file{src} directory, which is the
+root file of the application.
+
+This section will continue by creating the application's root component,
+@file{App.js}, which will be rendered by the @code{reactDOM.render}
+method in @file{index.js}.  Then we will do some of the @file{Redux}
+setup and then the @file{React-Router} setup as well.
+
 @node Create App.js
 @subsection Create App.js
+@cindex components directory
 
 First, create a @file{components} directory inside @file{client/src} to
 hold all of the components that will be created, and then create inside
 of this @file{components} directory a file called @file{App.js}.
+@xref{App.js Setup}.
+
+@subsubheading @file{App.js} Import Requirements
+
+@file{App.js} starts with import requirements, specifically
+@file{React}.
+
+@<App Requirements@>=
+import React from 'react';
+@
+
+@subsubheading Create a Simple Functional Component
+
+@file{App.js} will be a simple functional component, returning a piece
+of HTML, in this case a simple @samp{<div>} to make sure our code is
+working at this point.
+
+@<App Function 0@>=
+@<App Function Begin@>
+    @<App Dummy Content@>
+@<App Function End@>
+@
+
+Create the function:
+
+@<App Function Begin@>=
+const App = () => {
+  return (
+@
+
+Create some dummy content:
+
+@<App Dummy Content@>=
+<div>
+  Hi There!
+</div>
+@
+
+End the function:
+
+@<App Function End@>=
+  );
+}
+@
+
+Export the function:
+
+@<App Export@>=
+export default App
+@
+
+@subsubheading Import App Into @file{index.js}
+
+@<Client-Side Index.js Dependencies@>=
+import App from './components/App';
+@
+
+@node App.js Setup
+@subsubsection App.js Setup
+
+@subsubheading Components Directory
 
 @<Makefile Directory Definitions Hook@>=
 COMPONENTS := ${CLIENT-SRC}/components
 @
 
-@<Makefile Front End Setup Hook@>=
+@<Makefile Client-Side Setup Hook@>=
  
 .Phony : create-components-dir
 create-components-dir : create-index0.js
@@ -4642,50 +4841,7 @@ create-components-dir : create-index0.js
 @<Makefile FRONT_END@>=
 FRONT_END = create-components-dir
 @
-
-@<App Requirements@>=
-import React from 'react';
-@
-
-@<App Content 0@>=
-<div>
-  Hi There!
-</div>
-@
-
-@<App Main Begin@>=
-const App = () => {
-  return (
-@
-
-@<App Main End@>=
-  );
-}
-
-@<App Export@>
-@
-
-@<App Export@>=
-export default App
-@
-
-@<App 0@>=
-@<App Main Begin@>
-    @<App Content 0@>
-@<App Main End@>
-@
-
-@(client-App0.js@)=
-@<App Requirements@>
-
-@<App 0@>
-@
-
-@<Front End Dependencies In IndexJS@>=
-import App from './components/App';
-@
-
-@<Makefile Front End Setup Hook@>=
+@<Makefile Client-Side Setup Hook@>=
  
 .Phony : move-app-into-components
 move-app-into-components : create-components-dir
@@ -4697,8 +4853,29 @@ move-app-into-components : create-components-dir
 FRONT_END = move-app-into-components
 @
 
-@<Render App@>=
-<App />, document.querySelector('#root')
+@node App.js Implementation
+@subsubsection App.js Implementation
+
+@<App Header@>=
+/*
+ * FILE:     App.js
+ * VERSION:  0.0.1
+ * CREATED:  2018-01-19T05:14:41
+ * MODIFIED: 2018-01-19T05:14:59
+ * ABOUT:    Root React Component
+ * NOTES:
+ * TODO:
+ *********************************************************************/
+
+@
+
+@(client-App0.js@)=
+@<App Header@>
+@<App Requirements@>
+
+@<App Function 0@>
+
+@<App Export@>
 @
 
 @node Payments
@@ -4757,7 +4934,7 @@ FRONT_END = move-app-into-components
 @<Makefile NPM Run@>
 @<Makefile Open Browser@>
 @<Makefile Server Stop@>
-@<Makefile Front End Setup@>
+@<Makefile Client-Side Setup@>
 @<Makefile Git Targets@>
 @<Makefile Echo Variables@>
 @
@@ -5067,7 +5244,7 @@ stop-server :
 
 @
 
-@<Makefile Front End Setup@>=
+@<Makefile Client-Side Setup@>=
 ####################
 # FRONT END SETUP  #
 ####################
@@ -5077,7 +5254,7 @@ stop-server :
 .Phony : all-front-end
 all-front-end : ${FRONT_END}
 
-@<Makefile Front End Setup Hook@>
+@<Makefile Client-Side Setup Hook@>
 @
 
 @<Makefile FRONT_END@>=
