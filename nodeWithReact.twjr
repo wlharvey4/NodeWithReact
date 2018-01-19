@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-19T05:46:27
-@c VERSION: VERSION 0.4.9
+@c DATE:    2018-01-19T09:16:38
+@c VERSION: VERSION 0.4.10
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.9
+@set EDITION 0.4.10
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.9
- * DATE:   2018-01-19T05:46:54
+ * VER:    v0.4.10
+ * DATE:   2018-01-19T09:16:58
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4684,9 +4684,9 @@ ReactDom.render(@<Render App@>);
 @<Client-Side Index.js Header@>=
 /*
  * FILE:     client/src/index.js
- * VERSION:  0.0.1
+ * VERSION:  0.0.2
  * CREATED:  2018-01-18T19:49:27
- * MODIFIED: 2018-01-18T19:49:34
+ * MODIFIED: 2018-01-19T09:17:42
  * ABOUT:    Client-side root entry point; sets up Redux; renders App
  * NOTES:
  * TODO:
@@ -4876,6 +4876,173 @@ FRONT_END = move-app-into-components
 @<App Function 0@>
 
 @<App Export@>
+@
+
+@node Redux Review and Setup
+@subsection Redux Review and Setup
+@cindex redux review
+@cindex redux setup
+
+At this point we have an @file{index.js} file which will be holding some
+basic @file{Redux} setup, and we have an @file{App.js} file, which will
+eventually hold some @file{React-Router} code.
+
+We will continue inside the @file{index.js} file and setup the
+@file{Redux} side of the application.  This section will discuss not
+only @file{Redux} setup, but also some of the different libraries that
+we will be using, specically the @file{React-Redux} library, the one
+that we just installed.  This section will discuss how to wire up
+@file{Redux} from scratch and add it to the @file{index.js} file.
+
+@node React Redux React-Redux Diagrams
+@subsubsection React, Redux, React-Redux Diagrams
+@cindex React
+@cindex Redux
+@cindex React-Redux
+@cindex state
+
+At this point we have installed @file{React}, @file{Redux}, and
+@file{React-Redux}.  @file{Redux} is all about holding the state, or
+data, for the application.
+
+@subsubheading Redux Review
+@anchor{Redux Review}
+@cindex redux store
+@cindex store, redux
+@cindex combineReducers
+@cindex authReducer
+@cindex serveysReducer
+
+The @file{Redux} @code{store} holds all of the application's state.  To
+determine or change state, we call an @code{action creator}, which
+dispatches an @code{action}, the @code{action} is sent to all of the
+different @code{reducers} in the application, the different
+@code{reducers} are combined together with the @code{combineReducers}
+call, and the state is updated in the @code{store}.
+
+@itemize
+@item
+@code{React Components}: a component calls an @dots{}
+
+@item
+@code{Action Creater}: returns an @dots{}
+
+@item
+@code{Action}: sent to all @dots{}
+
+@item
+@code{reducers}: update state in the @dots{}
+
+@item
+@code{store}: all state sent back to React components, which causes them
+to re-render, and display some amount of new content.
+@end itemize
+
+@subsubheading The Reducers
+
+We expect to have two separate reducers inside of our application (or
+two separate pieces of state).  One, the @code{authReducer}, will be in
+charge of deciding whether a user is logged in.  The second, the
+@code{surveysReducer}, will be responsible for recording a list of all
+the surveys and fetching a list of all the surveys that the user has
+created over time.
+
+@itemize
+@item
+Redux Store
+
+@item
+combineReducers
+
+@itemize
+@item
+@code{authReducer}: records whether or not the user is logged in
+
+@item
+@code{surveysReducer}: records a list of all surveys user has created
+@end itemize
+
+@end itemize
+
+@subsubheading Redux in relation to Application
+@anchor{Redux re React}
+@cindex Provider
+@cindex provider
+
+@itemize
+@item
+@file{Provider}
+
+@file{Provider} is a component that makes the @code{store} accessible to
+every component in the app.
+
+@itemize
+@item
+store
+@end itemize
+
+@item
+App
+
+@item
+Dashboard
+
+@item
+SurveyList
+
+@code{SurveyList} can access the @code{store} thanks to the
+@file{Provider} tag
+
+@item
+SurveyListItem
+
+@end itemize
+
+@node Root Level Redux
+@subsubsection Root Level Setup of Redux
+@cindex root level redux
+@cindex redux, root level
+@cindex provider tag, about
+
+@ref{Redux Review}.  We've got this @code{store} that contains all of
+the application's state, and somehow it connects up with the
+@file{React} side of our application so we can update the state that
+exists inside of it.  How does @file{Redux} connect to @file{React} in
+actuality?  @ref{Redux re React}.
+
+@itemize
+@item
+We create @file{Redux} @code{store} inside of @file{index.js}.
+
+@item
+@code{Provider} tag: a @file{React} component provided by the
+@file{React-Redux} library, a library whose sole purpose is to make it
+easy to connect @file{React} and @file{Redux}.  The @code{Provider} tag
+is the @dfn{bonding layer} between @file{React} and @file{Redux}.
+
+@item
+Pass the @code{store} to the @code{Provider} tag
+
+@item
+The @code{Provider} tag wraps up every other component within itself,
+and thus every other component has access to the @code{store}.  The
+entire purpose of the @code{store} is to give every component the
+ability to access data inside of the application no matter how deeply
+nested the component is.
+
+@end itemize
+
+@node Setup Redux in Index.js
+@subsection Setup Redux in @file{Index.js}
+@cindex provider tag
+
+Now, back in @file{index.js}, import the @code{Provider} tag, import
+some helpers from @file{Redux}, and continue setting up the @file{Redux}
+side of the application.
+
+@<Client-Side Index.js Dependencies@>=
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
 @
 
 @node Payments
