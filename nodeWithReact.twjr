@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-23T06:02:26
-@c VERSION: VERSION 0.4.12
+@c DATE:    2018-01-23T09:37:02
+@c VERSION: VERSION 0.4.13
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.12
+@set EDITION 0.4.13
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.12
- * DATE:   2018-01-23T06:02:38
+ * VER:    v0.4.13
+ * DATE:   2018-01-23T09:37:17
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4658,12 +4658,12 @@ React-Dom
 @<Client-Side Index.js Dependencies@>=
 /* Front End Dependencies */
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 @
 
-@subsubheading ReactDom Render Call
+@subsubheading ReactDOM Render Call
 
-Place the @command{ReactDom render} call at the bottom of the file.
+Place the @command{ReactDOM render} call at the bottom of the file.
 This will render @file{App.js}, the root file in the render control
 layer.
 
@@ -4675,7 +4675,7 @@ Takes two arguments: @var{component}, the component to render, and
 @<ReactDOM Render0@>=
 
 /* REACT-DOM RENDER */
-ReactDom.render(@<Render App@>, @<Render Location@>);
+ReactDOM.render(@<Render App@>, @<Render Location@>);
 @
 
 @node index0.js Implementation
@@ -4700,7 +4700,7 @@ ReactDom.render(@<Render App@>, @<Render Location@>);
 @(client-index0.js@)=
 @<Client-Side Index.js Header@>
 @<Client-Side Index.js Dependencies@>
-@<Client-Side Local Dependencies@>
+@<Client-Side Index.js Local Dependencies@>
 
 @<Client-Side Index0.js Body Hook@>
 
@@ -4829,7 +4829,7 @@ export default App
 
 @subsubheading Import App Into @file{index.js}
 
-@<Client-Side Local Dependencies@>=
+@<Client-Side Index.js Local Dependencies@>=
 import App from './components/App';
 @
 
@@ -5108,10 +5108,6 @@ function that returns an empty array). @anchor{Dummy Reducer}
 () => []
 @
 
-@<Store Reducers@>=
-@<Dummy Reducer@>
-@
-
 @item
 initial state
 
@@ -5138,8 +5134,8 @@ applyMiddleware()
 @subsubheading createStore with Arguments
 @cindex createStore arguments
 
-@<Create Instance of Redux Store@>=
-const store = createStore(@<Store Reducers@>, @<Store Initial State@>,
+@<Create Instance of Redux Store With Dummy Reducer@>=
+const store = createStore(@<Dummy Reducer@>, @<Store Initial State@>,
 @<Store Middleware@>);
 @
 
@@ -5155,14 +5151,18 @@ everything that the App renders, that some new state is available, and
 @file{React} will update thos components with the new state.
 
 @<Provider Tag@>=
-<Provider store={store}>(@<Render App@>, @<Render Location@>) </Provider>
+<Provider store={store}>@<Render App@></Provider>
+@
+
+@<ReactDOM Render@>=
+ReactDOM.render(@<Provider Tag@>, @<Render Location@>);
 @
 
 @node createStore Implementation
 @subsubsection createStore Implementation
 
 @<Client-Side Index0.js Body Hook@>=
-@<Create Instance of Redux Store@>
+@<Create Instance of Redux Store With Dummy Reducer@>
 @
 
 @node index1.js Definition
@@ -5174,7 +5174,7 @@ everything that the App renders, that some new state is available, and
 
 @<Client-Side Index0.js Body Hook@>
 
-@<Provider Tag@>
+@<ReactDOM Render@>
 @
 
 @node The Auth Reducer
@@ -5199,7 +5199,21 @@ Right now, we will create the @samp{authReducer}, pass it to the
 @samp{combineReducers} call, and then pass it to the @file{Redux}
 @samp{store}.
 
-@subheading Create Reducers Folder
+Create the @file{reducers} folder: @ref{Create Reducers Folder}
+
+Create @file{authReducer.js} and @file{index.js} inside: @ref{Create
+authReducer.js and index.js}.
+
+The reason for naming so many files @file{index.js} is that, by design,
+any time a folder is imported, the file name @file{index.js} inside that
+folder will also get imported implicitly.
+
+Create an @samp{authReducer}, @pxref{Add Reducer to authReducer} and send it through the
+@samp{combineReducers} function, @pxref{Finishing Reducer Setup}.
+
+@node Create Reducers Folder
+@subsection Create Reducers Folder
+@cindex reducers folder, create
 
 First, create a new folder to hold all of the reducers in the
 application.  This folder will go inside the @file{client/src}
@@ -5222,7 +5236,9 @@ create-reducers-dir : move-app-into-components
 	FRONT_END = create-reducers-dir
 @
 
-@subheading Create authReducer.js and index.js Inside Reducers
+@node Create authReducer.js and index.js
+@subsection Create authReducer.js and index.js Inside Reducers
+@cindex authReducer, create
 
 @(reducer-authReducer0.js@)=
 /*
@@ -5248,6 +5264,109 @@ create-reducers-dir : move-app-into-components
  * TODOS   :
  ***********************************************************************/
  
+@
+
+@node Add Reducer to authReducer
+@subsection Add Reducer to authReducer
+
+Add a single reducer to @file{authReducer.js} and export it.  At this
+point, we have no state, so make the default value for state be an empty
+object.  Also, at this point, we have no actions, so just switch on the
+default type.  The default switch just returns @samp{state} unchanged.
+
+@(reducer-authReducer0.js@)=
+export default function(state = {}, action) {
+  switch (action.type) {
+    default:
+      return state;
+  }
+}
+@
+
+@node Finishing Reducer Setup
+@subsection Finishing Reducer Setup
+
+Switch to the @file{index.js} file inside @file{reducers} directory.
+Import the @file{authReducer}, combine it with a @samp{combineReducers}
+call, and then export it.
+
+@(reducer-index0.js@)=
+@<Reducer Index Node Imports@>
+@<Reducer Index Local Imports@>
+@<Reducer Index CombineReducers Call@>
+@
+
+@node Reducer Index Node Imports
+@subsubsection Reducer Index Imports
+
+@<Reducer Index Node Imports@>=
+import { combineReducers } from 'redux';
+@
+
+@<Reducer Index Local Imports@>=
+import authReducer from './authReducer';
+@
+
+@node combineReducers Call
+@subsubsection combineReducers Call
+
+The choice of a @samp{key} in @samp{combineReducers} is important; it
+makes sense in this case to make @samp{authReducer}'s key simply
+@samp{auth}.  This needs to be imported into the root @file{index.js} file.
+
+@<Reducer Index CombineReducers Call@>=
+export default combineReducers({
+  auth: authReducer
+});
+@
+
+@<Client-Side Index.js Local Dependencies@>=
+import reducers from './reducers';
+@
+
+@node Create client-index2.js
+@subsubsection Create client-index2.js
+
+Import @samp{reducers} from @file{client/src/reducers} (remember, since
+the reducers are inside a file name @file{index.js}, simply importing
+from the enclosing directory pulls in everything inside the
+@file{index.js} file), and then create a @samp{store} using the
+@samp{reducers} variable.
+
+
+@<Client-Side Index.js Header 2@>=
+/*
+ * FILE:     client/src/index.js
+ * VERSION:  0.3.0
+ * CREATED:  2018-01-23T08:56:42
+ * MODIFIED: 2018-01-23T08:56:47
+ * ABOUT:    Client-side root entry point; sets up Redux; renders App
+ * NOTES:
+ * TODO:
+ *********************************************************************/
+
+@
+
+@(client-index2.js@)=
+@<Client-Side Index.js Header 2@>
+@<Client-Side Index.js Dependencies@>
+@<Client-Side Index.js Local Dependencies@>
+
+@<Client-Side Index2.js Body Hook@>
+
+@<ReactDOM Render@>
+@
+
+@<Client-Side Index2.js Body Hook@>=
+@<Create Instance of Redux Store@>
+@
+
+@<Create Instance of Redux Store@>=
+const store = createStore(reducers, @<Store Initial State@>, @<Store Middleware@>);
+@
+
+@<Makefile Client-Side Setup Hook@>=
+	ln -f ${CLIENT_SOURCE_DIR}/index2.js ${CLIENT_SOURCE_DIR}/index.js
 @
 
 @node Payments
