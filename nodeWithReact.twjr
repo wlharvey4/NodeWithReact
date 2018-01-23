@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-23T04:32:25
-@c VERSION: VERSION 0.4.11
+@c DATE:    2018-01-23T06:02:26
+@c VERSION: VERSION 0.4.12
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.11
+@set EDITION 0.4.12
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.11
- * DATE:   2018-01-23T04:32:44
+ * VER:    v0.4.12
+ * DATE:   2018-01-23T06:02:38
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4956,6 +4956,8 @@ to re-render, and display some amount of new content.
 @end itemize
 
 @subsubheading The Reducers
+@cindex reducers, two
+@anchor{Two Reducers}
 
 We expect to have two separate reducers inside of our application (or
 two separate pieces of state).  One, the @code{authReducer}, will be in
@@ -5085,6 +5087,11 @@ import { createStore, applyMiddleware } from 'redux';
 @
 
 @subsubheading Create an Instance of the Redux Store using @code{createStore}
+@cindex redux store
+
+@defun createStore (@var{reducers}, @var{initial-state}, @var{middlewares})
+Creates a @samp{store} of state that is available to every component
+@end defun
 
 @code{createStore} takes three arguments, as follows:
 
@@ -5095,7 +5102,7 @@ Reducers
 The first argument to @command{createStore} is a reference to all of the
 @samp{reducers} we have in the application.  Since we have not set up
 any reducers just yet, this will get a single dummy reducer (an arrow
-function that returns an empty array).
+function that returns an empty array). @anchor{Dummy Reducer}
 
 @<Dummy Reducer@>=
 () => []
@@ -5129,6 +5136,7 @@ applyMiddleware()
 @end enumerate
 
 @subsubheading createStore with Arguments
+@cindex createStore arguments
 
 @<Create Instance of Redux Store@>=
 const store = createStore(@<Store Reducers@>, @<Store Initial State@>,
@@ -5136,9 +5144,15 @@ const store = createStore(@<Store Reducers@>, @<Store Initial State@>,
 @
 
 @subsubheading Wrap Provider Tag Around App Component
+@cindex Provider tag
+@cindex wrap Provider tag around App
 
 The @code{Provider} tag (component) is wrapped around the @file{App}
-(but not the location).
+(but not the location).  This tag is a @file{React} component that knows
+how read changes from the @file{Redux} store.  Anytime the state
+changes, the @file{Provider} will inform all of its children components,
+everything that the App renders, that some new state is available, and
+@file{React} will update thos components with the new state.
 
 @<Provider Tag@>=
 <Provider store={store}>(@<Render App@>, @<Render Location@>) </Provider>
@@ -5161,6 +5175,79 @@ The @code{Provider} tag (component) is wrapped around the @file{App}
 @<Client-Side Index0.js Body Hook@>
 
 @<Provider Tag@>
+@
+
+@node The Auth Reducer
+@section The Auth Reducer
+@cindex auth reducer
+
+In the last section, we created a @file{Redux} @samp{store} in the
+@file{index.js} file and wired up the @samp{store} to our component
+hierarcher through the @file{Provider} tag provided by the
+@file{React-Redux} library.
+
+We will now begin creating @samp{reducers} by creating one reducer that
+will be used inside of the @file{Redux} store, replacing the dummy
+reducer that set up to get the store installed and working.  @xref{Dummy
+Reducer}.
+
+We will have two distinct reducers, the @samp{authReducer} and the
+@samp{surveysReducer}.  @xref{Two Reducers}.  Over time, other reducers
+might be added, but for right now these will get us started.
+
+Right now, we will create the @samp{authReducer}, pass it to the
+@samp{combineReducers} call, and then pass it to the @file{Redux}
+@samp{store}.
+
+@subheading Create Reducers Folder
+
+First, create a new folder to hold all of the reducers in the
+application.  This folder will go inside the @file{client/src}
+directory, and will be called @file{reducers}.
+
+@<Makefile Directory Definitions Hook@>=
+REDUCERS_DIR := ${CLIENT_SOURCE_DIR}/reducers
+@
+
+@<Makefile Client-Side Setup Hook@>=
+.Phony : create-reducers-dir
+create-reducers-dir : move-app-into-components
+	mkdir -p ${REDUCERS_DIR}
+	for file in reducer-*.js; do mv -v $$file ${REDUCERS_DIR}/$${file#reducer-}; done
+	ln -f ${REDUCERS_DIR}/authReducer0.js ${REDUCERS_DIR}/authReducer.js
+	ln -f ${REDUCERS_DIR}/index0.js ${REDUCERS_DIR}/index.js
+@
+
+@<Makefile FRONT_END@>=
+	FRONT_END = create-reducers-dir
+@
+
+@subheading Create authReducer.js and index.js Inside Reducers
+
+@(reducer-authReducer0.js@)=
+/*
+ * FILENAME: client/src/reducers/authReducer.js
+ * VERSION : 0.0.1
+ * CREATED : 2018-01-23T05:32:14
+ * MODIFIED: 2018-01-23T05:32:21
+ * ABOUT   : authorization status
+ * NOTES   :
+ * TODO    :
+ **********************************************************************/
+ 
+@
+
+@(reducer-index0.js@)=
+/*
+ * FILENAME: client/src/reducers/index.js
+ * VERSION : 0.0.1
+ * CREATED : 2018-01-23T05:35:00
+ * MODIFIED: 2018-01-23T05:35:06
+ * ABOUT   :
+ * NOTES   :
+ * TODOS   :
+ ***********************************************************************/
+ 
 @
 
 @node Payments
