@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-19T09:16:38
-@c VERSION: VERSION 0.4.10
+@c DATE:    2018-01-23T04:32:25
+@c VERSION: VERSION 0.4.11
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.10
+@set EDITION 0.4.11
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.10
- * DATE:   2018-01-19T09:16:58
+ * VER:    v0.4.11
+ * DATE:   2018-01-23T04:32:44
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -2817,7 +2817,7 @@ at least one option, @code{useMongoClient: true}.
 @
 
 @<Use MongoClient@>=
-useMongoClient: true,
+/*useMongoClient: true,*/
 @
 
 @node Mongoose Model Classes
@@ -4046,14 +4046,14 @@ NPM = npm-create-react-app
 @subsection Create Front End Project
 
 @<Makefile Directory Definitions Hook@>=
-CLIENT := ${ROOT}/client
+CLIENT_DIR := ${ROOT}/client
 @
 
 @<Makefile NPM Run Hook@>=
 .Phony : create-react-app
-create-react-app : npm-create-react-app ${CLIENT}
+create-react-app : npm-create-react-app ${CLIENT_DIR}
 
-${CLIENT} : 
+${CLIENT_DIR} : 
 	cd ${ROOT} && ./node_modules/.bin/create-react-app client
 @
 
@@ -4085,7 +4085,7 @@ To make a simple edit, go to the
  
 .Phony : start-client
 start-client :
-	cd ${CLIENT} && npm start &
+	cd ${CLIENT_DIR} && npm start &
 @
 
 @node 2-Server Architecture
@@ -4208,8 +4208,8 @@ i\
 .Phony : modify-client-package
 modify-client-package : create-react-app
 	[ -f util1.sed ] && \
-	{ ! grep -q proxy ${CLIENT}/package.json && \
-	sed -i '' -f util1.sed ${CLIENT}/package.json || : && \
+	{ ! grep -q proxy ${CLIENT_DIR}/package.json && \
+	sed -i '' -f util1.sed ${CLIENT_DIR}/package.json || : && \
 	rm util1.sed; } || :
 @
 
@@ -4586,13 +4586,13 @@ Survey Field
 Delete all of the files inside @file{src}:
 
 @<Makefile Directory Definitions Hook@>=
-CLIENT-SRC := ${CLIENT}/src
+CLIENT_SOURCE_DIR := ${CLIENT_DIR}/src
 @
 
 @<Makefile Client-Side Setup Hook@>=
 .Phony : delete-files-in-src
 delete-files-in-src :
-	find ${CLIENT-SRC} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
+	-find ${CLIENT_SOURCE_DIR} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
 @
 
 @<Makefile FRONT_END@>=
@@ -4621,8 +4621,8 @@ dependencies using @command{npm install}:
  
 .Phony : install-client-side-dependencies
 install-client-side-dependencies : delete-files-in-src
-	grep -q 'react' ${CLIENT}/package.json && : || { \
-	cd ${CLIENT} && \
+	grep -q 'redux' ${CLIENT_DIR}/package.json && : || { \
+	cd ${CLIENT_DIR} && \
 	npm i redux react-redux react-router-dom; }
 
 @
@@ -4672,10 +4672,10 @@ Takes two arguments: @var{component}, the component to render, and
 @var{location}, where in the DOM to render the componet
 @end defun
 
-@<ReactDOM Render@>=
+@<ReactDOM Render0@>=
 
 /* REACT-DOM RENDER */
-ReactDom.render(@<Render App@>);
+ReactDom.render(@<Render App@>, @<Render Location@>);
 @
 
 @node index0.js Implementation
@@ -4684,9 +4684,9 @@ ReactDom.render(@<Render App@>);
 @<Client-Side Index.js Header@>=
 /*
  * FILE:     client/src/index.js
- * VERSION:  0.0.2
+ * VERSION:  0.2.0
  * CREATED:  2018-01-18T19:49:27
- * MODIFIED: 2018-01-19T09:17:42
+ * MODIFIED: 2018-01-22T19:17:28
  * ABOUT:    Client-side root entry point; sets up Redux; renders App
  * NOTES:
  * TODO:
@@ -4700,13 +4700,14 @@ ReactDom.render(@<Render App@>);
 @(client-index0.js@)=
 @<Client-Side Index.js Header@>
 @<Client-Side Index.js Dependencies@>
+@<Client-Side Local Dependencies@>
 
-@<Index0.js Body Hook@>
+@<Client-Side Index0.js Body Hook@>
 
-@<ReactDOM Render@>
+@<ReactDOM Render0@>
 @
 
-@subsubheading ReactDOM Rendero
+@subsubheading ReactDOM Render
 
 Show the @file{App} component; be sure to use the JSX tags inside the
 @code{render} method because @code{ReactDOM} expects a component
@@ -4716,13 +4717,14 @@ document (@file{public/index.html}): @code{<div id="root"></div>}.  This
 is the point where we will render the @file{React} application.
 
 @<Render App@>=
-<App />, document.querySelector('#root')
+<App />
 @
 
-@<Index0.js Body Hook@>=
+@<Render Location@>=
+document.querySelector('#root')
 @
 
-@<ReactDOM Render@>=
+@<Client-Side Index0.js Body Hook@>=
 @
 
 @node Makefile Client-Side Setup Hook
@@ -4732,8 +4734,8 @@ is the point where we will render the @file{React} application.
 
 .Phony : create-index0.js
 create-index0.js : install-client-side-dependencies
-	for file in client-index*; do mv -v $$file ${CLIENT-SRC}/$${file#client-}; done
-	ln -f ${CLIENT-SRC}/index0.js ${CLIENT-SRC}/index.js
+	for file in client-index*; do mv -v $$file ${CLIENT_SOURCE_DIR}/$${file#client-}; done
+	ln -f ${CLIENT_SOURCE_DIR}/index0.js ${CLIENT_SOURCE_DIR}/index.js
 @
 
 @<Makefile FRONT_END@>=
@@ -4762,6 +4764,18 @@ setup and then the @file{React-Router} setup as well.
 @subsection Create App.js
 @cindex components directory
 
+@subsubheading App.js Overview
+
+@(client-App0.js@)=
+@<App Header0@>
+@<App Node Requirements@>
+@<App Local Requirements@>
+@<App Body 0@>
+@<App Export@>
+@
+
+@subsubheading Creating App.js Inside @file{src/} Directory
+
 First, create a @file{components} directory inside @file{client/src} to
 hold all of the components that will be created, and then create inside
 of this @file{components} directory a file called @file{App.js}.
@@ -4772,27 +4786,31 @@ of this @file{components} directory a file called @file{App.js}.
 @file{App.js} starts with import requirements, specifically
 @file{React}.
 
-@<App Requirements@>=
+@<App Node Requirements@>=
+/* NODE REQUIREMENTS */
 import React from 'react';
+@
+
+@<App Local Requirements@>=
+
+/* LOCAL REQUIREMENTS */
 @
 
 @subsubheading Create a Simple Functional Component
 
 @file{App.js} will be a simple functional component, returning a piece
 of HTML, in this case a simple @samp{<div>} to make sure our code is
-working at this point.
+working.  We will give it some real data a little later.  This will be
+attached to the body of the application.
+
+@<App Body 0@>=
+@<App Function 0@>
+@
 
 @<App Function 0@>=
 @<App Function Begin@>
     @<App Dummy Content@>
 @<App Function End@>
-@
-
-Create the function:
-
-@<App Function Begin@>=
-const App = () => {
-  return (
 @
 
 Create some dummy content:
@@ -4803,14 +4821,7 @@ Create some dummy content:
 </div>
 @
 
-End the function:
-
-@<App Function End@>=
-  );
-}
-@
-
-Export the function:
+@subsubheading Export the function
 
 @<App Export@>=
 export default App
@@ -4818,8 +4829,23 @@ export default App
 
 @subsubheading Import App Into @file{index.js}
 
-@<Client-Side Index.js Dependencies@>=
+@<Client-Side Local Dependencies@>=
 import App from './components/App';
+@
+
+@node App Main Function Definition
+@subsubsection App Main Function Definition
+
+Create the function:
+
+@<App Function Begin@>=
+const App = () => {
+  return (
+@
+
+@<App Function End@>=
+  );
+}
 @
 
 @node App.js Setup
@@ -4828,7 +4854,7 @@ import App from './components/App';
 @subsubheading Components Directory
 
 @<Makefile Directory Definitions Hook@>=
-COMPONENTS := ${CLIENT-SRC}/components
+COMPONENTS := ${CLIENT_SOURCE_DIR}/components
 @
 
 @<Makefile Client-Side Setup Hook@>=
@@ -4853,29 +4879,20 @@ move-app-into-components : create-components-dir
 FRONT_END = move-app-into-components
 @
 
-@node App.js Implementation
-@subsubsection App.js Implementation
+@node App0.js Header and Requirements
+@subsubsection App0.js Header and Requirements
 
-@<App Header@>=
+@<App Header0@>=
 /*
- * FILE:     App.js
- * VERSION:  0.0.1
+ * FILE:     App0.js
+ * VERSION:  0.1.0
  * CREATED:  2018-01-19T05:14:41
- * MODIFIED: 2018-01-19T05:14:59
+ * MODIFIED: 2018-01-22T19:18:17
  * ABOUT:    Root React Component
  * NOTES:
  * TODO:
  *********************************************************************/
 
-@
-
-@(client-App0.js@)=
-@<App Header@>
-@<App Requirements@>
-
-@<App Function 0@>
-
-@<App Export@>
 @
 
 @node Redux Review and Setup
@@ -4890,7 +4907,7 @@ eventually hold some @file{React-Router} code.
 We will continue inside the @file{index.js} file and setup the
 @file{Redux} side of the application.  This section will discuss not
 only @file{Redux} setup, but also some of the different libraries that
-we will be using, specically the @file{React-Redux} library, the one
+we will be using, specifically the @file{React-Redux} library, the one
 that we just installed.  This section will discuss how to wire up
 @file{Redux} from scratch and add it to the @file{index.js} file.
 
@@ -5036,13 +5053,114 @@ nested the component is.
 @subsection Setup Redux in @file{Index.js}
 @cindex provider tag
 
+@itemize
+@item
+New imports
+@itemize
+@item
+Provider from 'react-redux'
+
+@item
+createStore from 'redux'
+
+Creates a new instance of a Redux store.
+
+@item
+applyMiddleware from 'redux'
+@end itemize
+@end itemize
+
 Now, back in @file{index.js}, import the @code{Provider} tag, import
 some helpers from @file{Redux}, and continue setting up the @file{Redux}
-side of the application.
+side of the application.  After importing these items, create an
+instance of the store using @code{createStore}, then wrap the
+@file{Provider} tag around the @file{App} component so that it can
+inherit the store.
+
+@subsubheading Redux Requirements
 
 @<Client-Side Index.js Dependencies@>=
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
+@
+
+@subsubheading Create an Instance of the Redux Store using @code{createStore}
+
+@code{createStore} takes three arguments, as follows:
+
+@enumerate
+@item
+Reducers
+
+The first argument to @command{createStore} is a reference to all of the
+@samp{reducers} we have in the application.  Since we have not set up
+any reducers just yet, this will get a single dummy reducer (an arrow
+function that returns an empty array).
+
+@<Dummy Reducer@>=
+() => []
+@
+
+@<Store Reducers@>=
+@<Dummy Reducer@>
+@
+
+@item
+initial state
+
+The second argument is the initial state of the application.  In this
+application, this can be an empty object.
+
+@<Store Initial State@>=
+{}
+@
+
+@item
+middleware
+
+The third argument is a reference to the @samp{applyMiddleware} helper
+function (invokded).  At this point we don't have any middleware to
+apply, but shortly we will add @samp{reduxThunk}.
+
+@<Store Middleware@>=
+applyMiddleware()
+@
+
+@end enumerate
+
+@subsubheading createStore with Arguments
+
+@<Create Instance of Redux Store@>=
+const store = createStore(@<Store Reducers@>, @<Store Initial State@>,
+@<Store Middleware@>);
+@
+
+@subsubheading Wrap Provider Tag Around App Component
+
+The @code{Provider} tag (component) is wrapped around the @file{App}
+(but not the location).
+
+@<Provider Tag@>=
+<Provider store={store}>(@<Render App@>, @<Render Location@>) </Provider>
+@
+
+@node createStore Implementation
+@subsubsection createStore Implementation
+
+@<Client-Side Index0.js Body Hook@>=
+@<Create Instance of Redux Store@>
+@
+
+@node index1.js Definition
+@subsubsection index1.js Definition
+
+@(client-index1.js@)=
+@<Client-Side Index.js Header@>
+@<Client-Side Index.js Dependencies@>
+
+@<Client-Side Index0.js Body Hook@>
+
+@<Provider Tag@>
 @
 
 @node Payments
@@ -5172,7 +5290,10 @@ MOVE_PREREQS ?= NOT_DEFINED
 @appendixsubsec Makefile Default Targets
 
 @<Makefile Default Targets@>=
- 
+
+####################
+# DEFAULT TARGETS
+####################
 .Phony : all
 all : install-files client-server-browser all-front-end
 
@@ -5237,6 +5358,10 @@ ${INFO_FILENAME} : ${TEXI_FILENAME}
 @appendixsubsec Makefile Clean Targets
 
 @<Makefile Clean Targets@>=
+
+####################
+# CLEAN TARGETS
+####################
 @<Makefile Clean@>
 @<Makefile Very Clean@>
 @<Makefile Dist Clean@>
@@ -5257,6 +5382,7 @@ clean : stop-server
 
 @node Makefile Very Clean
 @appendixsubsubsec Makefile Very Clean
+@cindex very-clean
 
 @<Makefile Very Clean@>=
 .Phony : very-clean
@@ -5266,9 +5392,9 @@ very-clean : clean
 		-not \( \
 		  -name package\* -or \
 		  -path \*/node_modules\* -or \
+                  -path \*public\* -or \
 		  -path \*/.git\* -or \
-                  -path \*client\* -or \
-		  -path ${ROOT} \
+                  -type d \
 		\) -exec rm -r {} \;
 
 @
@@ -5298,6 +5424,10 @@ dist-clean : very-clean
 @appendixsubsec Makefile Directory Creation Targets
 
 @<Makefile Directory Creation@>=
+
+####################
+# DIRECTORY CREATION
+####################
 .Phony : ${ROOT}
 ${ROOT} :
 	mkdir -p ${ROOT}
