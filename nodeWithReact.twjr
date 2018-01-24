@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-23T17:22:46
-@c VERSION: VERSION 0.4.14
+@c DATE:    2018-01-24T06:03:23
+@c VERSION: VERSION 0.4.15
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.14
+@set EDITION 0.4.15
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.14
- * DATE:   2018-01-23T17:22:58
+ * VER:    v0.4.15
+ * DATE:   2018-01-24T06:03:36
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -5288,7 +5288,9 @@ export default function(state = {}, action) {
 
 Switch to the @file{index.js} file inside @file{reducers} directory.
 Import the @file{authReducer}, combine it with a @samp{combineReducers}
-call, and then export it.
+call, and then export it.  Finally, back in @file{index.js}, import
+@file{reducers} and create a @samp{store} using the @code{createStore}
+method from @file{Redux}. @xref{Setup Redux in Index.js}.
 
 @(reducer-index0.js@)=
 @<Reducer Index Node Imports@>
@@ -5297,7 +5299,7 @@ call, and then export it.
 @
 
 @node Reducer Index Node Imports
-@subsubsection Reducer Index Imports
+@subsubsection Reducer Index Node and Local Imports
 
 @<Reducer Index Node Imports@>=
 import { combineReducers } from 'redux';
@@ -5331,8 +5333,13 @@ Import @samp{reducers} from @file{client/src/reducers} (remember, since
 the reducers are inside a file name @file{index.js}, simply importing
 from the enclosing directory pulls in everything inside the
 @file{index.js} file), and then create a @samp{store} using the
-@samp{reducers} variable.
+@samp{reducers} variable.  Also @ref{Setup Redux in Index.js}.
 
+@<Create Instance of Redux Store@>=
+ 
+/* Create Store with Reducers, Initial State, Middleware */
+const store = createStore(reducers, @<Store Initial State@>, @<Store Middleware@>);
+@
 
 @<Client-Side Index.js Header 2@>=
 /*
@@ -5359,39 +5366,119 @@ from the enclosing directory pulls in everything inside the
 @<Create Instance of Redux Store@>
 @
 
-@<Create Instance of Redux Store@>=
- 
-/* Create Store with Reducers, Initial State, Middleware */
-const store = createStore(reducers, @<Store Initial State@>, @<Store Middleware@>);
-@
-
 @<Makefile Client-Side Setup Hook@>=
 	ln -f ${CLIENT_SOURCE_DIR}/index2.js ${CLIENT_SOURCE_DIR}/index.js
 @
 
 @node Why Care About Auth
-@section Why We Care About Auth
+@subsection Why We Care About Auth
 @cindex auth
 
 How should the application react to a user's state of being logged in,
 or authenticated?  First, looking at the @samp{Header} of the landing
 page, it would be nice if it indicated whether a person needs to be
-logged in or not, by displaying @samp{Login with Google} if not, and a
+logged in or not, by displaying @samp{Login with Google} if not, show a
 different display if logged in.
 
 Second, some of the routes should not be displayed unless a user is
 logged in.  This is a job for @file{React-Router}.
 
-@node React-Router Setup
-@subsection React-Router Setup
+@node React-Router
+@section React-Router Setup
 @cindex react-router, setup
+
+In the last section (@pxref{Why Care About Auth}) we discussed why
+authentication is going to make a difference in how the application
+behaves.  We will now continue with the @file{React-Router} setup to get
+different components to display on the screen depending on what route a
+user is currently visiting.  After we get the routes set up, we will add
+different logic that toggles what a user is able to access inside of the
+application.  
+
+@node React-Router Setup
+@subsection React-Router Overview
 @cindex react-router-dom
+@cindex route, definition
+@cindex App.js, react-router
+
+Based upon which route a user is visiting, we want to show different
+content on the screen.  For example, if a user is at @file{emaily.com/},
+we want to show the @samp{Landing} page, some marketing stuff that tells
+the user exactly what this application is for.  When the user navigates
+to the route @file{emaily.com/surveys}, we will show different
+components on the screen, and the same for
+@file{emaily.com/surveys/new}.
+
+To do this, we will set up a couple of different @dfn{routes} inside of
+our application.  A @samp{route} is a pairing or rule between the
+address a person is looking at and the components that should be
+displayed on the screen at that time.
 
 Different content will be displayed based upon what route a user is on.
 The route triggers what content is displayed.  We will now set up
 @file{React-Router}.  All of the configuration relating to routing will
-go into the @file{App.js} file.  This file is responsible for the view
-layer.
+go into the @file{App.js} file.  @file{App.js} is responsible for the
+view layer, whereas @file{index.js} is responsible for the state layer
+(@file{Redux}).
+
+@node App1.js Setup
+@subsection App1.js Setup---Header and Outline
+@cindex react-router libraries
+@cindex react-router core library
+@cindex react-router-native
+
+First, import the @file{react-Router-dom} library and pull out two
+helper functions: @code{BrowserRouter} and @code{Route}.
+
+There are now three distinct @file{React-Router} libraries:
+
+@enumerate
+@item
+@file{react-router-dom}, used here; contains a set of
+@file{React-Router} helpers designed to allow you to navigate around the
+DOM, or at least in an environment that uses the browser DOM.  This is
+the library that is most often used by developers.
+
+@item
+@file{react-router-native} for use with @file{React-Native};
+
+@item
+@file{react-router} core library, containing core logic shared by the
+above two libraries; in actual use, developers almost never directly use
+this library.
+@end enumerate
+
+@subsubheading react-router-dom Library
+@cindex react-router-dom
+@cindex browserouter
+@cindex BrowserRouter
+@cindex route
+@cindex Route
+
+The @file{react-router-dom} library exports a couple of different
+helpers that we will import into this file in order to use.
+
+@enumerate
+@item BrowserRouter
+
+The brains of @file{React-Router}; tells @file{React-Router} how to
+behave; it looks at the current URL and then changes the set of
+components that are visible on the screen at any one time.
+
+@item Route
+
+Used to set a rule between a route a user might choose and the set of
+components that will be visible on the screen.
+@end enumerate
+
+@subsubheading App1.js Node Imports
+
+@<App Node Requirements@>=
+import { BrowserRouter, Route } from 'react-router-dom';
+@
+
+@node App1.js Outline
+@subsubsection App1.js Outline
 
 @(client-App1.js@)=
 @<App Header 1@>
@@ -5399,6 +5486,8 @@ layer.
 @<App Body 1@>
 @<App Export@>
 @
+
+@subsubheading App1.js Header
 
 @<App Header 1@>=
 /*
@@ -5413,53 +5502,39 @@ layer.
  
 @
 
-First, import the @file{React-Router-DOM} library and pull out two
-helper functions:
-
-@enumerate
-@item BrowserRouter
-
-The brains of @file{React-Router}
-
-@item Route
-
-Used to set a rule between a route a user might choose and the set of
-components that will be visible on the screen.
-@end enumerate
-
-We will set these up using dummy test components to get a feel for what
-is going on.  Create four dummy components called @samp{Header},
-@samp{Dashboard}, @samp{SurveyNew}, and @samp{Landing}.  We will use
-these components to get our application set up, then come back later and
-use real components for them.
-
-@node React-Router-DOM Import
-@subsubsection React-Router-DOM Import
-
-@<App Node Requirements@>=
-import { BrowserRouter, Route } from 'react-router-dom';
-@
-
 @node Dummy Components Setup
-@subsubsection Dummy Components Setup
+@subsection Dummy Components Setup
 @cindex dummy components setup
 
-These components will be simple functional components for testing.  If
-the routes are set up correctly, these components will render when a
-user goes to the corresponding route, and not otherwise.
+We will set the routes up using dummy components to get a feel for what
+is going on.  We will use these components to get our application set
+up, then come back later and use real components for them.  These
+components will be simple functional components for testing.  If the
+routes are set up correctly, these components will render when a user
+goes to the corresponding route, and not otherwise.
 
-@<App Body 1@>=
-@<App Dummy Components@>
-@
+Create four dummy functional components above the principal @file{App}
+component and call the dummy components:
 
-@<App Dummy Components@>=
- 
-/* Dummy Components */
-@<Dummy Header Component@>
-@<Dummy Dashboard Component@>
-@<Dummy SurveyNew Component@>
-@<Dummy Landing Component@>
-@
+@itemize
+@item
+@samp{Header},
+
+@item
+@samp{Dashboard},
+
+@item
+@samp{SurveyNew}, and
+
+@item
+@samp{Landing}
+@end itemize
+
+@subsubheading Individual Dummy Components
+
+The dummy components will be simple functional components named after
+the page being rendered, each returning @samp{h2} headers wrapped around
+the name of the page.
 
 @<Dummy Header Component@>=
 const Header = () => <h2>Header</h2>
@@ -5477,9 +5552,66 @@ const SurveyNew = () => <h2>SurveyNew</h2>
 const Landing = () => <h2>Landing</h2>
 @
 
-@node Set Up Dummy Routes
-@subsubsection Set Up Dummy Routes
+@node Dummy Components Implementation
+@subsubsection Dummy Components Implementation
+
+Place the components as the first items in the body.
+
+@<App Body 1@>=
+@<App Dummy Components@>
+@
+
+There will be four dummy components:
+
+@<App Dummy Components@>=
+ 
+/* Dummy Components */
+@<Dummy Header Component@>
+@<Dummy Dashboard Component@>
+@<Dummy SurveyNew Component@>
+@<Dummy Landing Component@>
+@
+
+@node Route Configuration
+@subsection Route Configuration Inside App
 @cindex dummy routes setup
+
+In the last section we did some initial setup with the
+@file{React-Router-DOM}; we imported two helper libraries
+@file{BrowserRouter} and @file{Route}; and we then created four dummy
+components.  Now let's see how to make use of @file{React-Router-DOM}
+inside of our App component.
+
+The first thing we need to do is remove the dummy text @samp{Hi There!}.
+Leave the enclosing @code{<div>} container because it will be used later
+to get some CSS working inside of the application.
+
+The @file{BrowserRouter} component (a @file{React} component) is placed
+inside the enclosing @code{<div>} container, as @samp{<BrowserRouter>}.
+It also needs a closing tag, @samp{</BrowserRouter>}.  It is important
+to understand that this component expects to have one and only one child
+component.
+
+Inside of @file{BrowserRouter} will go a collection of different
+@file{Route} components; each @file{Route} will specifiy a rule or
+relationship between a route (URL address) and a component to display.
+Because there will be more than one of these, they must be wrapped
+inside a single @samp{<div>} to satisfy @file{BrowserRouter}'s one-child
+rule.  
+
+@subsubheading Collection of Routes
+
+@<Collection of Routes@>=
+<div>
+  <Route exact={true} path='/' component={Landing} />
+  <Route exact={true} path='/header' component={Header} />
+  <Route exact={true} path='/surveys' component={Dashboard} />
+  <Route exact={true} path='/surveys/new' component={SurveyNew} />
+</div>
+@
+
+@node Routes Implementation
+@subsubsection Routes Implementation
 
 @<App Body 1@>=
 @<App Dummy Routes Function@>
@@ -5496,12 +5628,7 @@ const Landing = () => <h2>Landing</h2>
 @<App Dummy Routes@>=
 <div>
   <BrowserRouter>
-    <div>
-      <h2><Route exact={true} path='/' component={Landing} /></h2>
-      <h2><Route exact={true} path='/header' component={Header} /></h2>
-      <h2><Route exact={true} path='/surveys' component={Dashboard} /></h2>
-      <h2><Route exact={true} path='/surveys/new' component={SurveyNew} /></h2>
-    </div>
+    @<Collection of Routes@>
   </BrowserRouter>
 </div>
 @
@@ -5881,10 +6008,7 @@ open-browser :
 @<Makefile Server Stop@>=
 .Phony : stop-server
 stop-server :
-	PS=$$(ps -o pid -o comm | grep node | sed -e 's/[^[:digit:]]//g'); \
-	[ $${#PS} -ne 0 ] && \
-	{ kill $${PS}; echo server process $${PS} stopped; } || \
-	echo no node process to kill
+	ps | grep -E 'node|open' | grep -v grep | kill $$(cut -d ' ' -f 1)
 
 @
 
