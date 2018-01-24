@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-24T06:03:23
-@c VERSION: VERSION 0.4.15
+@c DATE:    2018-01-24T06:35:59
+@c VERSION: VERSION 0.4.16
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.15
+@set EDITION 0.4.16
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.15
- * DATE:   2018-01-24T06:03:36
+ * VER:    v0.4.16
+ * DATE:   2018-01-24T06:36:23
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -5599,14 +5599,28 @@ Because there will be more than one of these, they must be wrapped
 inside a single @samp{<div>} to satisfy @file{BrowserRouter}'s one-child
 rule.  
 
-@subsubheading Collection of Routes
+@node Route Components and Always Visible Components
+@subsection Route Components and Always Visible Components
+@cindex route components
+@cindex always visible components
+
+Notice the use and no use of @samp{exact} below.  Place the
+@samp{Header} component inside the @samp{<div>} to have it always
+displayed.  The components insider the @code{Route} components will only
+be displayed when the user is at the specified path.
+
+We also want to make sure that the contents of the @samp{Header}
+component changes based upon whether a user is logged in or not, but
+that is a completely separate consideration from displaying the
+component on every page.  The contents of @samp{Header} will be
+determined by a piece of data contained inside the @file{Redux} store.
 
 @<Collection of Routes@>=
 <div>
+  <Header />
   <Route exact={true} path='/' component={Landing} />
-  <Route exact={true} path='/header' component={Header} />
-  <Route exact={true} path='/surveys' component={Dashboard} />
-  <Route exact={true} path='/surveys/new' component={SurveyNew} />
+  <Route exact path='/surveys' component={Dashboard} />
+  <Route path='/surveys/new' component={SurveyNew} />
 </div>
 @
 
