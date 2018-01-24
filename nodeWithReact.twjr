@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-23T09:37:02
-@c VERSION: VERSION 0.4.13
+@c DATE:    2018-01-23T17:22:46
+@c VERSION: VERSION 0.4.14
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.13
+@set EDITION 0.4.14
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.13
- * DATE:   2018-01-23T09:37:17
+ * VER:    v0.4.14
+ * DATE:   2018-01-23T17:22:58
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4683,7 +4683,7 @@ ReactDOM.render(@<Render App@>, @<Render Location@>);
 
 @<Client-Side Index.js Header@>=
 /*
- * FILE:     client/src/index.js
+ * FILE:     client/src/index1.js
  * VERSION:  0.2.0
  * CREATED:  2018-01-18T19:49:27
  * MODIFIED: 2018-01-22T19:17:28
@@ -4701,9 +4701,7 @@ ReactDOM.render(@<Render App@>, @<Render Location@>);
 @<Client-Side Index.js Header@>
 @<Client-Side Index.js Dependencies@>
 @<Client-Side Index.js Local Dependencies@>
-
 @<Client-Side Index0.js Body Hook@>
-
 @<ReactDOM Render0@>
 @
 
@@ -4769,7 +4767,6 @@ setup and then the @file{React-Router} setup as well.
 @(client-App0.js@)=
 @<App Header0@>
 @<App Node Requirements@>
-@<App Local Requirements@>
 @<App Body 0@>
 @<App Export@>
 @
@@ -4791,11 +4788,6 @@ of this @file{components} directory a file called @file{App.js}.
 import React from 'react';
 @
 
-@<App Local Requirements@>=
-
-/* LOCAL REQUIREMENTS */
-@
-
 @subsubheading Create a Simple Functional Component
 
 @file{App.js} will be a simple functional component, returning a piece
@@ -4808,6 +4800,8 @@ attached to the body of the application.
 @
 
 @<App Function 0@>=
+ 
+/* Root Component to Render */
 @<App Function Begin@>
     @<App Dummy Content@>
 @<App Function End@>
@@ -4830,6 +4824,8 @@ export default App
 @subsubheading Import App Into @file{index.js}
 
 @<Client-Side Index.js Local Dependencies@>=
+ 
+/* Local Dependencies */
 import App from './components/App';
 @
 
@@ -4867,6 +4863,7 @@ create-components-dir : create-index0.js
 @<Makefile FRONT_END@>=
 FRONT_END = create-components-dir
 @
+
 @<Makefile Client-Side Setup Hook@>=
  
 .Phony : move-app-into-components
@@ -5155,6 +5152,8 @@ everything that the App renders, that some new state is available, and
 @
 
 @<ReactDOM Render@>=
+ 
+/* ReactDOM Render Function */
 ReactDOM.render(@<Provider Tag@>, @<Render Location@>);
 @
 
@@ -5162,6 +5161,8 @@ ReactDOM.render(@<Provider Tag@>, @<Render Location@>);
 @subsubsection createStore Implementation
 
 @<Client-Side Index0.js Body Hook@>=
+ 
+/* Create Redux Store with Dummer Reducer */
 @<Create Instance of Redux Store With Dummy Reducer@>
 @
 
@@ -5171,9 +5172,8 @@ ReactDOM.render(@<Provider Tag@>, @<Render Location@>);
 @(client-index1.js@)=
 @<Client-Side Index.js Header@>
 @<Client-Side Index.js Dependencies@>
-
+@<Client-Side Index.js Local Dependencies@>
 @<Client-Side Index0.js Body Hook@>
-
 @<ReactDOM Render@>
 @
 
@@ -5256,7 +5256,7 @@ create-reducers-dir : move-app-into-components
 @(reducer-index0.js@)=
 /*
  * FILENAME: client/src/reducers/index.js
- * VERSION : 0.0.1
+ * VERSION : 0.1.0
  * CREATED : 2018-01-23T05:35:00
  * MODIFIED: 2018-01-23T05:35:06
  * ABOUT   :
@@ -5336,7 +5336,7 @@ from the enclosing directory pulls in everything inside the
 
 @<Client-Side Index.js Header 2@>=
 /*
- * FILE:     client/src/index.js
+ * FILE:     client/src/index2.js
  * VERSION:  0.3.0
  * CREATED:  2018-01-23T08:56:42
  * MODIFIED: 2018-01-23T08:56:47
@@ -5351,9 +5351,7 @@ from the enclosing directory pulls in everything inside the
 @<Client-Side Index.js Header 2@>
 @<Client-Side Index.js Dependencies@>
 @<Client-Side Index.js Local Dependencies@>
-
 @<Client-Side Index2.js Body Hook@>
-
 @<ReactDOM Render@>
 @
 
@@ -5362,11 +5360,154 @@ from the enclosing directory pulls in everything inside the
 @
 
 @<Create Instance of Redux Store@>=
+ 
+/* Create Store with Reducers, Initial State, Middleware */
 const store = createStore(reducers, @<Store Initial State@>, @<Store Middleware@>);
 @
 
 @<Makefile Client-Side Setup Hook@>=
 	ln -f ${CLIENT_SOURCE_DIR}/index2.js ${CLIENT_SOURCE_DIR}/index.js
+@
+
+@node Why Care About Auth
+@section Why We Care About Auth
+@cindex auth
+
+How should the application react to a user's state of being logged in,
+or authenticated?  First, looking at the @samp{Header} of the landing
+page, it would be nice if it indicated whether a person needs to be
+logged in or not, by displaying @samp{Login with Google} if not, and a
+different display if logged in.
+
+Second, some of the routes should not be displayed unless a user is
+logged in.  This is a job for @file{React-Router}.
+
+@node React-Router Setup
+@subsection React-Router Setup
+@cindex react-router, setup
+@cindex react-router-dom
+
+Different content will be displayed based upon what route a user is on.
+The route triggers what content is displayed.  We will now set up
+@file{React-Router}.  All of the configuration relating to routing will
+go into the @file{App.js} file.  This file is responsible for the view
+layer.
+
+@(client-App1.js@)=
+@<App Header 1@>
+@<App Node Requirements@>
+@<App Body 1@>
+@<App Export@>
+@
+
+@<App Header 1@>=
+/*
+ * FILENAME: App1.js
+ * VERSION : 0.2.0
+ * CREATED : 2018-01-23T15:32:12
+ * MODIFIED: 2018-01-23T15:32:23
+ * ABOUT   : Root React component, with some dummy routes
+ * NOTES   :
+ * TODO    :
+ *******************************************************************************/
+ 
+@
+
+First, import the @file{React-Router-DOM} library and pull out two
+helper functions:
+
+@enumerate
+@item BrowserRouter
+
+The brains of @file{React-Router}
+
+@item Route
+
+Used to set a rule between a route a user might choose and the set of
+components that will be visible on the screen.
+@end enumerate
+
+We will set these up using dummy test components to get a feel for what
+is going on.  Create four dummy components called @samp{Header},
+@samp{Dashboard}, @samp{SurveyNew}, and @samp{Landing}.  We will use
+these components to get our application set up, then come back later and
+use real components for them.
+
+@node React-Router-DOM Import
+@subsubsection React-Router-DOM Import
+
+@<App Node Requirements@>=
+import { BrowserRouter, Route } from 'react-router-dom';
+@
+
+@node Dummy Components Setup
+@subsubsection Dummy Components Setup
+@cindex dummy components setup
+
+These components will be simple functional components for testing.  If
+the routes are set up correctly, these components will render when a
+user goes to the corresponding route, and not otherwise.
+
+@<App Body 1@>=
+@<App Dummy Components@>
+@
+
+@<App Dummy Components@>=
+ 
+/* Dummy Components */
+@<Dummy Header Component@>
+@<Dummy Dashboard Component@>
+@<Dummy SurveyNew Component@>
+@<Dummy Landing Component@>
+@
+
+@<Dummy Header Component@>=
+const Header = () => <h2>Header</h2>
+@
+
+@<Dummy Dashboard Component@>=
+const Dashboard = () => <h2>Dashboard</h2>
+@
+
+@<Dummy SurveyNew Component@>=
+const SurveyNew = () => <h2>SurveyNew</h2>
+@
+
+@<Dummy Landing Component@>=
+const Landing = () => <h2>Landing</h2>
+@
+
+@node Set Up Dummy Routes
+@subsubsection Set Up Dummy Routes
+@cindex dummy routes setup
+
+@<App Body 1@>=
+@<App Dummy Routes Function@>
+@
+
+@<App Dummy Routes Function@>=
+ 
+/* Dummy Routes To Be Rendered*/
+@<App Function Begin@>
+    @<App Dummy Routes@>
+@<App Function End@>
+@
+
+@<App Dummy Routes@>=
+<div>
+  <BrowserRouter>
+    <div>
+      <h2><Route exact={true} path='/' component={Landing} /></h2>
+      <h2><Route exact={true} path='/header' component={Header} /></h2>
+      <h2><Route exact={true} path='/surveys' component={Dashboard} /></h2>
+      <h2><Route exact={true} path='/surveys/new' component={SurveyNew} /></h2>
+    </div>
+  </BrowserRouter>
+</div>
+@
+
+@<Makefile Client-Side Setup Hook@>=
+	ln -f ${COMPONENTS}/App1.js ${COMPONENTS}/App.js
 @
 
 @node Payments
