@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-25T05:01:18
-@c VERSION: VERSION 0.4.18
+@c DATE:    2018-01-25T06:08:11
+@c VERSION: VERSION 0.4.19
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.18
+@set EDITION 0.4.19
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.18
- * DATE:   2018-01-25T05:01:33
+ * VER:    v0.4.19
+ * DATE:   2018-01-25T06:08:22
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -5731,7 +5731,13 @@ inside of it that help determine what should be rendered in the header
 based upon a user's logged-in status.  At this point, just create a
 simple @code{<div>} with some text inside.
 
-@<Components Header Main Class Component 0@>=
+@<Header Content 0@>=
+<div>
+  Header
+</div>
+@
+
+@<Components Header Main Class Component Begin@>=
  
 /**
  * HEADER MAIN CLASS COMPONENT
@@ -5739,12 +5745,18 @@ simple @code{<div>} with some text inside.
 class Header extends Component {
   render () {
     return (
-      <div>
-        Header
-      </div>
+@
+
+@<Components Header Main Class Component End@>=
     );
   }
 }
+@
+
+@<Components Header Main Class Component 0@>=
+@<Components Header Main Class Component Begin@>
+      @<Header Content 0@>
+@<Components Header Main Class Component End@>
 @
 
 @<Components Header Export@>=
@@ -5773,11 +5785,21 @@ export default Header;
 .Phony : move-into-components-dir
 move-into-components-dir : create-reducers-dir
 	for file in components-*; do mv $${file} ${COMPONENTS_DIR}/$${file#components-}; done
+@
+
+@<Makefile Client-Side Setup Hook@>=
+@<Makefile Link Components Header@>
+@
+
+@<Makefile Link Components Header@>=
+ 
+.Phony : link-components-header
+link-components-header : move-into-components-dir
 	ln -f ${COMPONENTS_DIR}/Header0.js ${COMPONENTS_DIR}/Header.js
 @
 
 @<Makefile FRONT_END@>=
-FRONT_END = move-into-components-dir
+FRONT_END = link-components-header
 @
 
 @node Import Header into App.js
@@ -5826,9 +5848,9 @@ import Header from './Header';
  
 @
 
-@node Materialize
+@node Materialize CSS
 @section Materialize CSS
-@cindex materialize css
+@cindex materialize-css
 @cindex css, materialize
 
 @subheading Materialize: A Modern responsive front-end framework based on Material Design
@@ -5861,7 +5883,7 @@ otherwise run @command{npm} @file{materialize-css}.
 @<Makefile Client-Side Setup Hook@>=
  
 .Phony : install-materialize-css
-install-materialize-css : move-into-components-dir
+install-materialize-css : link-components-header
 	[ -d ${ROOT} -a \
 	  -d ${CLIENT_DIR} -a \
 	  -d ${CLIENT_DIR}/node_modules -a \
@@ -5948,6 +5970,75 @@ is the root module for the client-side.
 
 @<Client-Side Index.js Dependencies@>=
 import 'materialize-css/dist/css/materialize.min.css'
+@
+
+@node Header Design
+@section Header Design
+@cindex header design
+
+We will use @file{materilize-css} to add a header-like component to our
+project.  In the @file{materialize-css} docs, look in the
+@code{components} section @expansion{} @code{navbar}.  You will see an
+example @samp{navbar} graphic, which is essentially what we want.
+Underneath the graphic is the code that we should use to obtain
+something that looks like the graphic.
+
+@subheading Add Navbar To Header Component
+
+Basically copy the sample code into the @file{Header.js} file after the
+@code{return} statement (replacing the current @code{<div>Header</div>}
+code.
+
+@<Header Navbar Code@>=
+<nav>
+  <div className="nav-wrapper">
+    <a className="left brand-logo">
+      Emaily
+    </a>
+    <ul className="right">
+      <li>
+        <a>Login With Google</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+@
+
+@node Add Navbar Implementation
+@subsection Add Navbar Implementation
+
+@<Components Header Main Class Component 1@>=
+@<Components Header Main Class Component Begin@>
+      @<Header Navbar Code@>
+@<Components Header Main Class Component End@>
+@
+
+@node Header1.js Implementation
+@subsection Header1.js Implementation
+
+@<Components Header Header 1@>=
+/*
+ * FILENAME: client/src/Components/Header1.js
+ * VERSION : 0.2.0
+ * CREATED : 2018-01-25T05:45:53
+ * MODIFIED: 2018-01-25T05:45:58
+ * ABOUT   : Component that renders the Header on every page; formatted by
+ *         : materialize-css as navbar
+ * NOTES   :
+ * TODO    :
+ ********************************************************************************/
+ 
+@
+
+@(components-Header1.js@)=
+@<Components Header Header 1@>
+@<Components Header Node Imports@>
+@<Components Header Main Class Component 1@>
+@<Components Header Export@>
+@
+
+@<Makefile Link Components Header@>=
+	ln -f ${COMPONENTS_DIR}/Header1.js ${COMPONENTS_DIR}/Header.js
 @
 
 @node Payments
