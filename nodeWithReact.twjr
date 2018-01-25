@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-24T06:35:59
-@c VERSION: VERSION 0.4.16
+@c DATE:    
+@c VERSION: VERSION 0.4.17
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.16
+@set EDITION 0.4.17
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.16
- * DATE:   2018-01-24T06:36:23
+ * VER:    v0.4.17
+ * DATE:   2018-01-24T17:38:56
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4590,6 +4590,7 @@ CLIENT_SOURCE_DIR := ${CLIENT_DIR}/src
 @
 
 @<Makefile Client-Side Setup Hook@>=
+ 
 .Phony : delete-files-in-src
 delete-files-in-src :
 	-find ${CLIENT_SOURCE_DIR} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
@@ -4764,14 +4765,14 @@ setup and then the @file{React-Router} setup as well.
 
 @subsubheading App.js Overview
 
-@(client-App0.js@)=
+@(components-App0.js@)=
 @<App Header0@>
 @<App Node Requirements@>
 @<App Body 0@>
 @<App Export@>
 @
 
-@subsubheading Creating App.js Inside @file{src/} Directory
+@subsubheading Creating App.js Inside @file{src/components} Directory
 
 First, create a @file{components} directory inside @file{client/src} to
 hold all of the components that will be created, and then create inside
@@ -4784,7 +4785,10 @@ of this @file{components} directory a file called @file{App.js}.
 @file{React}.
 
 @<App Node Requirements@>=
-/* NODE REQUIREMENTS */
+ 
+/**
+ * APP NODE IMPORTS
+ */
 import React from 'react';
 @
 
@@ -4818,6 +4822,7 @@ Create some dummy content:
 @subsubheading Export the function
 
 @<App Export@>=
+ 
 export default App
 @
 
@@ -4850,14 +4855,14 @@ const App = () => {
 @subsubheading Components Directory
 
 @<Makefile Directory Definitions Hook@>=
-COMPONENTS := ${CLIENT_SOURCE_DIR}/components
+COMPONENTS_DIR := ${CLIENT_SOURCE_DIR}/components
 @
 
 @<Makefile Client-Side Setup Hook@>=
  
 .Phony : create-components-dir
 create-components-dir : create-index0.js
-	mkdir -p ${COMPONENTS}
+	mkdir -p ${COMPONENTS_DIR}
 @
 
 @<Makefile FRONT_END@>=
@@ -4868,12 +4873,22 @@ FRONT_END = create-components-dir
  
 .Phony : move-app-into-components
 move-app-into-components : create-components-dir
-	for file in client-App*; do mv -v $$file ${COMPONENTS}/$${file#client-}; done
-	ln -f ${COMPONENTS}/App0.js ${COMPONENTS}/App.js
+	for file in components-App*; do mv -v $$file ${COMPONENTS_DIR}/$${file#components-}; done
+@
+
+@<Makefile Client-Side Setup Hook@>=
+@<Makefile Link App.js@>
+@
+
+@<Makefile Link App.js@>=
+ 
+.Phony : link-App.js
+link-App.js : move-app-into-components
+	ln -f ${COMPONENTS_DIR}/App0.js ${COMPONENTS_DIR}/App.js
 @
 
 @<Makefile FRONT_END@>=
-FRONT_END = move-app-into-components
+FRONT_END = link-App.js
 @
 
 @node App0.js Header and Requirements
@@ -5225,7 +5240,7 @@ REDUCERS_DIR := ${CLIENT_SOURCE_DIR}/reducers
 
 @<Makefile Client-Side Setup Hook@>=
 .Phony : create-reducers-dir
-create-reducers-dir : move-app-into-components
+create-reducers-dir : link-App.js
 	mkdir -p ${REDUCERS_DIR}
 	for file in reducer-*.js; do mv -v $$file ${REDUCERS_DIR}/$${file#reducer-}; done
 	ln -f ${REDUCERS_DIR}/authReducer0.js ${REDUCERS_DIR}/authReducer.js
@@ -5233,7 +5248,7 @@ create-reducers-dir : move-app-into-components
 @
 
 @<Makefile FRONT_END@>=
-	FRONT_END = create-reducers-dir
+FRONT_END = create-reducers-dir
 @
 
 @node Create authReducer.js and index.js
@@ -5480,7 +5495,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 @node App1.js Outline
 @subsubsection App1.js Outline
 
-@(client-App1.js@)=
+@(components-App1.js@)=
 @<App Header 1@>
 @<App Node Requirements@>
 @<App Body 1@>
@@ -5536,9 +5551,15 @@ The dummy components will be simple functional components named after
 the page being rendered, each returning @samp{h2} headers wrapped around
 the name of the page.
 
+The @code{Header} component is to be displayed on every page.  This
+component will be converted into a class component in a later section
+(@pxref{Header Component}).
+
 @<Dummy Header Component@>=
 const Header = () => <h2>Header</h2>
 @
+
+Each of these components will be associated with a @code{Route}.
 
 @<Dummy Dashboard Component@>=
 const Dashboard = () => <h2>Dashboard</h2>
@@ -5558,18 +5579,25 @@ const Landing = () => <h2>Landing</h2>
 Place the components as the first items in the body.
 
 @<App Body 1@>=
-@<App Dummy Components@>
+@<App Dummy Components With Header@>
 @
 
-There will be four dummy components:
+There will be four dummy components, one of which is a header that is to
+be displayed on every page, called @code{Header}.
 
 @<App Dummy Components@>=
  
-/* Dummy Components */
-@<Dummy Header Component@>
+/**
+ * Dummy Components
+ */
 @<Dummy Dashboard Component@>
 @<Dummy SurveyNew Component@>
 @<Dummy Landing Component@>
+@
+
+@<App Dummy Components With Header@>=
+@<App Dummy Components@>
+@<Dummy Header Component@>
 @
 
 @node Route Configuration
@@ -5626,14 +5654,17 @@ determined by a piece of data contained inside the @file{Redux} store.
 
 @node Routes Implementation
 @subsubsection Routes Implementation
+@cindex react-router implementation
 
 @<App Body 1@>=
-@<App Dummy Routes Function@>
+@<App Render Function 0@>
 @
 
-@<App Dummy Routes Function@>=
+@<App Render Function 0@>=
  
-/* Dummy Routes To Be Rendered*/
+/**
+ * Dummy Routes To Be Rendered
+ */
 @<App Function Begin@>
     @<App Dummy Routes@>
 @<App Function End@>
@@ -5647,8 +5678,154 @@ determined by a piece of data contained inside the @file{Redux} store.
 </div>
 @
 
+@<Makefile Link App.js@>=
+	ln -f ${COMPONENTS_DIR}/App1.js ${COMPONENTS_DIR}/App.js
+@
+
+@node Header Component
+@section Header Component Configuration
+@cindex header component configuration
+
+In the last section we finished up the initial configuration of
+@file{React-Router} inside the @file{App} component.  We've got
+different route configurations put together for each of our major
+routes.
+
+We will now focus on the individual configuration of the @code{Header}
+component.  @code{Header} will be split off into its own separate
+component (rather than being a dummy component inside of @file{App}).
+Then we will look at some styling considerations using CSS, then make
+sure that @code{Header} displays different content based upon the user's
+logged-in status.
+
+@subheading Header Class Component
+@cindex header component
+
+Create a new file inside the @file{components} directory called
+@file{Header.js}.  Inside of this file create a class-based component.
+Because this will be a @file{React} class-based component, @file{react}
+must be imported, and a helper function @code{Component} pulled out.
+After this new @code{Header} component has been created, it must be
+imported by the @file{App.js} file, replacing the dummy header with this
+code.
+
+@(components-Header0.js@)=
+@<Components Header Header 0@>
+@<Components Header Node Imports@>
+@<Components Header Main Class Component 0@>
+@<Components Header Export@>
+@
+
+@<Components Header Node Imports@>=
+ 
+/**
+ * HEADER NODE IMPORTS
+ */
+import React, { Component } from 'react';
+@
+
+@subheading Class-Based Component
+
+Then create a class-based component called @code{Header}.  This must be
+a class-based component because there will eventually be some functions
+inside of it that help determine what should be rendered in the header
+based upon a user's logged-in status.  At this point, just create a
+simple @code{<div>} with some text inside.
+
+@<Components Header Main Class Component 0@>=
+ 
+/**
+ * HEADER MAIN CLASS COMPONENT
+ */
+class Header extends Component {
+  render () {
+    return (
+      <div>
+        Header
+      </div>
+    );
+  }
+}
+@
+
+@<Components Header Export@>=
+ 
+export default Header;
+@
+
+@node Header0.js Implementation
+@subsection Header0.js Implementation
+@cindex header0.js implementation
+
+@<Components Header Header 0@>=
+/*
+ * FILENAME: client/src/Components/Header0.js
+ * VERSION : 0.1.0
+ * CREATED : 2018-01-24T07:28:44
+ * MODIFIED: 2018-01-24T07:28:51
+ * ABOUT   : Component that renders the Header on every page
+ * NOTES   :
+ * TODO    :
+ ********************************************************************************/
+@
+
 @<Makefile Client-Side Setup Hook@>=
-	ln -f ${COMPONENTS}/App1.js ${COMPONENTS}/App.js
+ 
+.Phony : move-routes-into-components-dir
+move-into-components-dir : create-reducers-dir
+	for file in components-*; do mv $${file} ${COMPONENTS_DIR}/$${file#components-}; done
+	ln -f ${COMPONENTS_DIR}/Header0.js ${COMPONENTS_DIR}/Header.js
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = move-into-components-dir
+
+@
+
+@node Import Header into App.js
+@subsection Import Header into App.js
+
+The only changes here are the local import of the @code{Header}
+component and taking the dummy header component out.
+
+@(components-App2.js@)=
+@<App Header 2@>
+@<App Node Requirements@>
+@<App Local Requirements@>
+@<App Body 2@>
+@<App Export@>
+@
+
+@<Makefile Link App.js@>=
+	ln -f ${COMPONENTS_DIR}/App2.js ${COMPONENTS_DIR}/App.js
+@
+
+@<App Local Requirements@>=
+ 
+/**
+ * APP LOCAL IMPORTS
+ */
+import Header from './Header';
+@
+
+@<App Body 2@>=
+@<App Dummy Components@>
+@<App Render Function 0@>
+@
+
+@subsubheading App2 Header
+
+@<App Header 2@>=
+/*
+ * FILENAME: App2.js
+ * VERSION : 0.3.0
+ * CREATED : 2018-01-24T09:41:11
+ * MODIFIED: 2018-01-24T09:41:17
+ * ABOUT   : Root React component, with some Header and dummy Routes
+ * NOTES   :
+ * TODO    :
+ *******************************************************************************/
+ 
 @
 
 @node Payments
@@ -5875,7 +6052,7 @@ clean : stop-server
 @<Makefile Very Clean@>=
 .Phony : very-clean
 very-clean : clean
-	-rm -rf *.{info,js,html} ${HTML_DIR}
+	-rm -rf *.{info*,js,html} ${HTML_DIR}
 	-find -d ${ROOT} \
 		-not \( \
 		  -name package\* -or \
@@ -6022,7 +6199,8 @@ open-browser :
 @<Makefile Server Stop@>=
 .Phony : stop-server
 stop-server :
-	ps | grep -E 'node|open' | grep -v grep | kill $$(cut -d ' ' -f 1)
+	PS=$$(ps | grep -E 'node|open' | grep -v grep | cut -d ' ' -f 1) && \
+	kill $$PS || :
 
 @
 
@@ -6034,7 +6212,7 @@ stop-server :
 @<Makefile FRONT_END@>
 
 .Phony : all-front-end
-all-front-end : ${FRONT_END}
+all-front-end : tangle ${FRONT_END}
 
 @<Makefile Client-Side Setup Hook@>
 @
