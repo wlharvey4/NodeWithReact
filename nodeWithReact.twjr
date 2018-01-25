@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    
-@c VERSION: VERSION 0.4.17
+@c DATE:    2018-01-25T05:01:18
+@c VERSION: VERSION 0.4.18
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.17
+@set EDITION 0.4.18
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.17
- * DATE:   2018-01-24T17:38:56
+ * VER:    v0.4.18
+ * DATE:   2018-01-25T05:01:33
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4625,7 +4625,6 @@ install-client-side-dependencies : delete-files-in-src
 	grep -q 'redux' ${CLIENT_DIR}/package.json && : || { \
 	cd ${CLIENT_DIR} && \
 	npm i redux react-redux react-router-dom; }
-
 @
 
 @<Makefile FRONT_END@>=
@@ -5771,7 +5770,7 @@ export default Header;
 
 @<Makefile Client-Side Setup Hook@>=
  
-.Phony : move-routes-into-components-dir
+.Phony : move-into-components-dir
 move-into-components-dir : create-reducers-dir
 	for file in components-*; do mv $${file} ${COMPONENTS_DIR}/$${file#components-}; done
 	ln -f ${COMPONENTS_DIR}/Header0.js ${COMPONENTS_DIR}/Header.js
@@ -5779,7 +5778,6 @@ move-into-components-dir : create-reducers-dir
 
 @<Makefile FRONT_END@>=
 FRONT_END = move-into-components-dir
-
 @
 
 @node Import Header into App.js
@@ -5826,6 +5824,130 @@ import Header from './Header';
  * TODO    :
  *******************************************************************************/
  
+@
+
+@node Materialize
+@section Materialize CSS
+@cindex materialize css
+@cindex css, materialize
+
+@subheading Materialize: A Modern responsive front-end framework based on Material Design
+
+@url{https://materializecss.com}
+
+@subheading Getting Started
+
+Two primary ways to hook this library up to our project:
+
+@enumerate
+@item
+CDN: add a link tag to our html file that will pull in the css file
+dynamically from a CDN
+
+@item
+NPM: install all CSS into our project using @file{NPM}; while a bit more
+challenging to implement, it is becoming more popular as a way to add
+CSS libraries.
+@end enumerate
+
+@node Install materialize-css
+@subsection Install @file{materialize-css} As A Module
+@cindex materialize-css, install
+
+Check if there exists a directory named @file{materialize-css} inside of
+the @file{server/client/node_modules} directory; if so, do nothing;
+otherwise run @command{npm} @file{materialize-css}.
+
+@<Makefile Client-Side Setup Hook@>=
+ 
+.Phony : install-materialize-css
+install-materialize-css : move-into-components-dir
+	[ -d ${ROOT} -a \
+	  -d ${CLIENT_DIR} -a \
+	  -d ${CLIENT_DIR}/node_modules -a \
+	  -d ${CLIENT_DIR}/node_modules/materialize-css \
+	] && : || \
+	{ cd ${CLIENT_DIR}; npm i materialize-css; }
+@
+
+@<Makefile FRONT_END@>=
+FRONT_END = install-materialize-css
+@
+
+@node How Webpack Processes CSS Files
+@subsection How Webpack Processes CSS Files
+@cindex materialize-css, hook up
+@cindex webpack
+@cindex module loader
+@cindex loader
+@cindex create-react-app
+
+This involves working with the @file{Webpack} module that was installed by
+@file{Create React App}.  @file{Webpack} is what is called a @dfn{module
+loader}.  We can feed a web of files to it, and @file{Webpack} will
+concatenate together all of the files and return one or a very few
+number of files; in other words, @file{Webpack} condenses a large number
+of small, individual files into one or several large files.
+
+@file{Webpack} is not limited to working with JavaScript files; it can
+also be given @dfn{laoders} that intruct @file{Webpack} how to handle
+other types of files as well.  @file{Webpack} as it comes from
+@file{Create-React-App} is configured to handle @samp{CSS}-type files.
+So if we import a @samp{CSS} file directly into a JavaScript file
+@file{Webpack} will process the @samp{CSS} file and output @samp{CSS}
+code rather than JavaScript code.
+
+Thus, we are able to @code{import} @samp{CSS} files @samp{into} a
+JavaScript file, and @file{Webpack} will process it correctly.
+
+@itemize
+@item
+Create-React-App: installs
+
+@itemize
+@item
+ Webpack: processes
+@end itemize
+
+@item
+@file{index.js}: imports
+
+@itemize
+@item
+@file{App.js}
+
+@item
+@file{materialize-css}
+
+@end itemize
+@end itemize
+
+@node Hook Up materialize-css
+@subsection Hook Up @file{materialize-css} To Project
+
+Look inside the @file{server/client/src/node_modules} directory and find
+the @file{materialize-css} folder; inside, find the @file{dist/css}
+folder.  Inside of this are two files:
+
+@itemize
+@item
+@file{materialize.css}
+
+@item
+@file{materialize.min.css} (the @dfn{minified} version of all the CSS)
+@end itemize
+
+Include the minified version, since we will not be referencing the raw
+CSS that is inside.  This is done by including an @code{import}
+statement that @command{require}s the @file{materialize.min.css} file.
+Thereafter, whenever the app runs, it will automatically include the CSS
+file.  This code is imported into the client-side @file{index.js} file.
+In fact, it does not matter where the file is imported as long as it is
+imported once.  @file{index.js} is a logical place to put it, since that
+is the root module for the client-side.
+
+@<Client-Side Index.js Dependencies@>=
+import 'materialize-css/dist/css/materialize.min.css'
 @
 
 @node Payments
