@@ -2,8 +2,8 @@
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-25T06:08:11
-@c VERSION: VERSION 0.4.19
+@c DATE:    2018-01-28T11:50:30
+@c VERSION: VERSION 0.4.20
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.19
+@set EDITION 0.4.20
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.19
- * DATE:   2018-01-25T06:08:22
+ * VER:    v0.4.20
+ * DATE:   2018-01-28T11:50:43
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4803,8 +4803,6 @@ attached to the body of the application.
 @
 
 @<App Function 0@>=
- 
-/* Root Component to Render */
 @<App Function Begin@>
     @<App Dummy Content@>
 @<App Function End@>
@@ -4839,6 +4837,10 @@ import App from './components/App';
 Create the function:
 
 @<App Function Begin@>=
+ 
+/**
+ * APP RENDER
+ */
 const App = () => {
   return (
 @
@@ -5587,7 +5589,7 @@ be displayed on every page, called @code{Header}.
 @<App Dummy Components@>=
  
 /**
- * Dummy Components
+ * DUMMY COMPONENTS
  */
 @<Dummy Dashboard Component@>
 @<Dummy SurveyNew Component@>
@@ -5662,18 +5664,31 @@ determined by a piece of data contained inside the @file{Redux} store.
 @<App Render Function 0@>=
  
 /**
- * Dummy Routes To Be Rendered
+ * DUMMY ROUTES TO BE RENDERED
  */
 @<App Function Begin@>
     @<App Dummy Routes@>
 @<App Function End@>
 @
 
+@subsubheading BrowserRouter
+
+Note that the Component @file{BrowserRouter} wraps up all of the Route
+components inside of the @file{App}’s return statement.  Later, the
+@file{BrowserRouter} will be wrapped into a @code{<div>} with a
+className of@code{container} in order to interact well with the CSS
+package that is loaded (@file{materialize-css}.  @xref{Current User
+API}.
+
+@<BrowserRouter@>=
+<BrowserRouter>
+  @<Collection of Routes@>
+</BrowserRouter>
+@
+
 @<App Dummy Routes@>=
 <div>
-  <BrowserRouter>
-    @<Collection of Routes@>
-  </BrowserRouter>
+  @<BrowserRouter@>
 </div>
 @
 
@@ -6039,6 +6054,70 @@ code.
 
 @<Makefile Link Components Header@>=
 	ln -f ${COMPONENTS_DIR}/Header1.js ${COMPONENTS_DIR}/Header.js
+@
+
+@node Current User API
+@section Current User API
+@cindex current user api
+
+In the last section (@pxref{Header Design}) we applied some styling to
+our Header component by hooking up the @file{Materialize-CSS} library
+and adding in some special markup to our Header component, that followed
+the documentation for making the @samp{Navbar}.  @file{Materialize-CSS}
+requires that there be (or rather assumes that there is) one root
+component for the project called @file{container}.  Let's add this in
+now.
+
+Go to @file{App.js}.  Give the top-level @code{<div>} element a
+@samp{className} of @kbd{container}.  Wrap this arround
+@file{BrowserRouter}.  @xref{App3.js Implementation}.
+
+@<App Container@>=
+<div className="container">
+  @<BrowserRouter@>
+</div>
+@
+
+@subheading Focus on Header
+
+There are at least three different ways in which it needs to be
+improved.  It looks good, but there’s a lot of functionality around it.
+First, the logo on the left-hand side is not clickable.  Clicking on it
+should take you back to some root route inside the application.  Second,
+the @samp{Login With Google} section is clickable, but not wired up
+yet.  And third, the goal of having the Header change content based upon
+whether a user is logged in has not been implemented at all yet.
+
+@node App3.js Implementation
+@subsection App3.js Implementation
+
+@subsubheading App3 Header
+
+@<App Header 3@>=
+/*
+ * FILENAME: App3.js
+ * VERSION : 0.4.0
+ * CREATED : 2018-01-28T11:10:36
+ * MODIFIED: 2018-01-28T11:10:40
+ * ABOUT   : Root React component, with some Header and dummy Routes
+ * NOTES   :
+ * TODO    :
+ *******************************************************************************/
+@
+
+@(components-App3.js@)=
+@<App Header 3@>
+@<App Node Requirements@>
+@<App Local Requirements@>
+@<App Dummy Components@>
+@<App Function Begin@>
+  @<App Container@>
+@<App Function End@>
+@<App Export@>
+@
+
+@<Makefile Link App.js@>=
+	ln -f ${COMPONENTS_DIR}/App3.js ${COMPONENTS_DIR}/App.js
 @
 
 @node Payments
