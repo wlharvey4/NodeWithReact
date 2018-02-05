@@ -1,9 +1,9 @@
-\input texinfo @c -*- texinfo -*-
+uo\input texinfo @c -*- texinfo -*-
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-01-28T11:50:30
-@c VERSION: VERSION 0.4.20
+@c DATE:    2018-02-04T20:11:21
+@c VERSION: VERSION 0.4.21
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -52,8 +52,8 @@
 @c ====================
 @c DOCUMENT CONSTANTS
 @c ====================
-@set UPDATE-MONTH JANUARY 2018
-@set EDITION 0.4.20
+@set UPDATE-MONTH FEBRUARY 2018
+@set EDITION 0.4.21
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.20
- * DATE:   2018-01-28T11:50:43
+ * VER:    v0.4.21
+ * DATE:   2018-02-04T20:11:44
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -6087,6 +6087,53 @@ should take you back to some root route inside the application.  Second,
 the @samp{Login With Google} section is clickable, but not wired up
 yet.  And third, the goal of having the Header change content based upon
 whether a user is logged in has not been implemented at all yet.
+
+The best place to get started is to make the header show the correct
+content when a user is logged in.  The other items will be addressed
+later.  The question is how we figure out if the user is logged in.  We
+put together something on the server-side a while ago that will help us
+with this task.  Look in the @file{server/routes/authRoutes.js} file for
+an @code{api} called @code{/api/current_user}.  If the person making the
+request is logged in, then the server will respond with the model of
+that person.  Whenever our application first boots up, we will make a
+request to this route, and if it responds back with the user model, that
+means that user must be logged in; but if it responds with undefined or
+null or some empty response, then that means that user is not logged
+into the application.
+
+We need to make sure that the instant our application starts to boot up,
+we make an api request to determine whether the user is signed in.
+
+@subsubheading How To Fetch Data Inside React/Redux Application
+@cindex action creator
+@cindex action
+@cindex api request
+@cindex dispatch
+@cindex auth reducer
+@cindex reducer
+@cindex state
+@cindex store, Redux
+
+Before diving in, let's consider how we fetch data from inside a React
+and Redux application.  Traditionally, we set up a component that calls
+an @samp{action creator}.  This @samp{action creator} will be
+responsible for making an api request.  When it gets an answer, it will
+@samp{dispatch} an @samp{action}.  That @samp{action} will be sent to
+all of our different reducers, of which one is our @samp{auth-reducer}.
+The @samp{auth-reducer} will watch for an action that says it is asking
+for whether a user is logged in or not.  The @samp{reducer} will return
+some value that specifies whether or not the user is signed in.  That
+will update the state inside the @samp{Redux store}, and the
+@samp{state} will be made available to all our our React components.
+
+@cindex AJAX request
+@cindex communication between client and server
+
+What we want to do is create an @samp{action creator} that will make an
+@samp{AJAX} request over to the route handler on the server.  This will
+be the first exposure to how we communicate between the client (React)
+and the server-side of our application.  Let's start working on our
+@samp{action creator}.
 
 @node App3.js Implementation
 @subsection App3.js Implementation
