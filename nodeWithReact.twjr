@@ -1,9 +1,9 @@
-uo\input texinfo @c -*- texinfo -*-
+\input texinfo @c -*- texinfo -*-
 
 @c ==============================================================
 @c NAME:    nodeWithReact.twjr
-@c DATE:    2018-02-04T20:11:21
-@c VERSION: VERSION 0.4.21
+@c DATE:    2018-02-19T04:47:57
+@c VERSION: VERSION 0.4.22
 @c DESC:    Udemy Node With React---Fullstack Web Development V4
 @c BY:      LOLH
 @c NOTES:   
@@ -53,7 +53,7 @@ uo\input texinfo @c -*- texinfo -*-
 @c DOCUMENT CONSTANTS
 @c ====================
 @set UPDATE-MONTH FEBRUARY 2018
-@set EDITION 0.4.21
+@set EDITION 0.4.22
 @set AUTHOR LOLH
 @set TITLE Notes for Node with React---Fullstack Web Development V4
 @set SHORTTITLE Node with React
@@ -274,8 +274,8 @@ APP := EMAILY_APP
 /*
  * FILE:   index.js
  *         --------
- * VER:    v0.4.21
- * DATE:   2018-02-04T20:11:44
+ * VER:    v0.4.22
+ * DATE:   2018-02-19T04:48:17
  * AUTHOR: LOLH
  * ABOUT:  Entry-point for app 'emaily';
  *         Initialize and start application services, such as
@@ -4592,7 +4592,7 @@ CLIENT_SOURCE_DIR := ${CLIENT_DIR}/src
 @<Makefile Client-Side Setup Hook@>=
  
 .Phony : delete-files-in-src
-delete-files-in-src :
+delete-files-in-src : tangle
 	-find ${CLIENT_SOURCE_DIR} -maxdepth 1 -not -name registerServiceWorker.js -type f -exec rm {} \;
 @
 
@@ -5240,6 +5240,7 @@ REDUCERS_DIR := ${CLIENT_SOURCE_DIR}/reducers
 @
 
 @<Makefile Client-Side Setup Hook@>=
+ 
 .Phony : create-reducers-dir
 create-reducers-dir : link-App.js
 	mkdir -p ${REDUCERS_DIR}
@@ -6135,6 +6136,26 @@ be the first exposure to how we communicate between the client (React)
 and the server-side of our application.  Let's start working on our
 @samp{action creator}.
 
+@node State Flow Diagram
+@subsection State Flow Diagram
+
+@table @b
+@item React Components
+React Component calls an Action Creator
+
+@item Action Creator
+An Action Creator returns an Action
+
+@item Action
+An Action is sent to the Reducers
+
+@item Reducers
+Reducers update state in the Store
+
+@item Store
+State is sent back to the Components, causing them to rerender
+@end table
+
 @node App3.js Implementation
 @subsection App3.js Implementation
 
@@ -6165,6 +6186,97 @@ and the server-side of our application.  Let's start working on our
 
 @<Makefile Link App.js@>=
 	ln -f ${COMPONENTS_DIR}/App3.js ${COMPONENTS_DIR}/App.js
+@
+
+@node Additional Proxy Rules
+@section Additional Proxy Rules
+@cindex proxy rules
+
+In the last section we decided that we would immediately figure out
+whether the Current User is logged in.  The server already has an API
+set up for telling us whether the Current User is logged in.
+Essentially, we need to make an AJAX request to our backend, and that
+will tell our React application whether or not the Current User is
+authenticated.  This process will require using four to five different
+libraries.
+
+@node React App Flow Diagram
+@subsection React App Flow Diagram
+
+@table @b
+@item React App Boots Up
+      When the app boots, up, we want
+
+@item App Component calls Action Creator
+      the app root component to call an action creator
+
+@item fetchUser
+      the action creator is responsible for making an api request to the
+      backend and asking whether or not the current user is logged in;
+      the action creator is a function called @code{fetchUser}.  Inside
+      of the action creator we will use the @file{Axios} library to make
+      an AJAX request to the backend API:
+
+@table @i
+@item axios.get('/api/current_user')
+      the action creator sends an AJAX request to Express API at this
+      url.  This call goes out ot the Express server, which will send
+      back the User if the User is logged in.
+
+@item dispatch(action)
+      Current User sent back.  We will then use a library called
+      @file{Redux Thunk} to disptach an action off to all the different
+      reducers inside of our application.
+
+@end table
+
+@item Redux Store
+
+@table @i
+@item authReducer
+      The information whether a User is logged in is sent to the authReducer,
+
+@item new @samp{auth} piece of state
+      which will update some internal flag to say that the authReducer,
+      User is logged in or not
+      
+@end table
+
+@item Header
+      The Header will be set up to communicate directly with the Redux store.
+
+@end table
+
+@node Install Axios and Redux Thunk Libraries
+@subsection Install Axios and Redux Thunk Libraries
+@cindex axios library, install
+@cindex install axios
+@cindex redux thunk library, install
+@cindex install redux thunk
+
+@file{Axios} is responsible for helping us make API (or AJAX) requests
+to our backend API.  This is a client module; therefore, move into the
+client directory to install.  @file{Redux Thunk} helps asyncronous
+action creators behave.
+
+@<Makefile FRONT_END@>=
+FRONT_END = install-axios-redux-thunk
+@
+
+@<Makefile Install Axios Redux-Thunk@>=
+ 
+.Phony : install-axios-redux-thunk
+install-axios-redux-thunk : install-materialize-css
+	[ -d ${ROOT} -a \
+	  -d ${CLIENT_DIR} -a \
+	  -d ${CLIENT_DIR}/node_modules -a \
+	  -d ${CLIENT_DIR}/node_modules/axios \
+	] && : || \
+	{ cd ${CLIENT_DIR}; npm i axios redux-thunk; }
+@
+
+@<Makefile Client-Side Setup Hook@>=
+@<Makefile Install Axios Redux-Thunk@>
 @
 
 @node Payments
@@ -6329,15 +6441,17 @@ move-and-link : move link-indexjs
 
 @<Makefile Tangle@>=
 .Phony : tangle
-tangle :
+tangle : | ${PREFIX}/tangled
+${PREFIX}/tangled :
 	jrtangle ${TWJR_FILENAME}
-
+	touch ${PREFIX}/tangled
 @
 
 @node Makefile Weave
 @appendixsubsubsec Meta Weave
 
 @<Makefile Weave@>=
+ 
 .Phony : weave
 weave : ${TEXI_FILENAME}
 
@@ -6391,7 +6505,7 @@ clean : stop-server
 @<Makefile Very Clean@>=
 .Phony : very-clean
 very-clean : clean
-	-rm -rf *.{info*,js,html} ${HTML_DIR}
+	-rm -rf *.{info*,js,html} ${HTML_DIR} ${PREFIX}/tangled
 	-find -d ${ROOT} \
 		-not \( \
 		  -name package\* -or \
